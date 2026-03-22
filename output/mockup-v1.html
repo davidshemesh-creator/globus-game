@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>גולה עולמי — מוקאפ UI v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:    #F1F5F9;
+      --white: #FFFFFF;
+      --blue:  #3B82F6;
+      --blue2: #1D4ED8;
+      --blue-light: #EFF6FF;
+      --green: #22C55E;
+      --green-light: #F0FDF4;
+      --red:   #EF4444;
+      --red-light: #FEF2F2;
+      --text:  #111827;
+      --text2: #4B5563;
+      --text3: #9CA3AF;
+      --border:#E5E7EB;
+      --shadow: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,.18);
+      --r: 16px;
+      /* Continent palette — pastels */
+      --na: #FB923C;
+      --sa: #34D399;
+      --eu: #60A5FA;
+      --af: #FBBF24;
+      --as: #F472B6;
+      --oc: #2DD4BF;
+      --an: #CBD5E1;
+      --ocean: #BAE6FD;
+      --font: 'Heebo', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: #0F172A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 80px;
+    }
+
+    /* ── Mockup frame ── */
+    .frame {
+      width: 100%;
+      max-width: 940px;
+      min-height: 620px;
+      background: var(--bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mockup-badge {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(4px);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      z-index: 20;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; flex: 1; min-height: 620px; }
+    .screen.on { display: flex; }
+
+    /* ══════════════════════════════════════
+       SCREEN 1 — Profile selection
+    ══════════════════════════════════════ */
+    #s1 {
+      background: linear-gradient(140deg, #1D4ED8 0%, #7C3AED 100%);
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      padding: 40px 24px;
+    }
+
+    .logo-wrap { text-align: center; }
+    .logo-globe { font-size: 72px; line-height: 1; }
+    .logo-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+      margin-top: 6px;
+    }
+    .logo-sub { font-size: 15px; color: rgba(255,255,255,.65); margin-top: 4px; }
+
+    .profiles-row { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+
+    .profile-card {
+      background: rgba(255,255,255,.15);
+      border: 2px solid rgba(255,255,255,.28);
+      border-radius: 20px;
+      padding: 28px 36px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      min-width: 148px;
+    }
+    .profile-card:hover { background: rgba(255,255,255,.25); transform: translateY(-4px); }
+    .pc-avatar { font-size: 52px; line-height: 1; }
+    .pc-name   { font-size: 18px; font-weight: 700; color: #fff; margin-top: 8px; }
+    .pc-pts    { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }
+    .pc-add    { background: rgba(255,255,255,.07); border-style: dashed; }
+    .pc-add .pc-name { color: rgba(255,255,255,.45); font-size: 14px; }
+
+    /* ══════════════════════════════════════
+       SCREEN 2 — Dashboard
+    ══════════════════════════════════════ */
+    #s2 { background: var(--bg); }
+
+    .dash-header {
+      background: var(--white);
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dh-top { display: flex; align-items: center; gap: 14px; }
+    .dh-avatar { font-size: 46px; line-height: 1; }
+    .dh-name { font-size: 22px; font-weight: 800; color: var(--text); }
+    .dh-sub  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .dh-score {
+      margin-right: auto;
+      background: var(--blue-light);
+      border: 1px solid #BFDBFE;
+      border-radius: 50px;
+      padding: 8px 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dh-score-num   { font-size: 26px; font-weight: 900; color: var(--blue); }
+    .dh-score-label { font-size: 12px; font-weight: 600; color: var(--blue); }
+
+    .prize-bar {
+      margin-top: 14px;
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 12px;
+      padding: 11px 16px;
+    }
+    .pb-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .pb-label { font-size: 13px; font-weight: 700; color: #92400E; }
+    .pb-pts   { font-size: 12px; color: #92400E; font-weight: 600; }
+    .bar { background: #FDE68A; border-radius: 99px; height: 7px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg,#F59E0B,#EF4444); border-radius: 99px; }
+
+    .dash-body { padding: 22px 28px; display: flex; flex-direction: column; gap: 20px; }
+
+    .section-label {
+      font-size: 11px; font-weight: 700; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px;
+    }
+
+    .levels-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    .level-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .level-card.done { border-color: #BBF7D0; background: var(--green-light); }
+    .level-card.active-level:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .level-card.locked { opacity: .55; cursor: default; }
+    .lc-icon  { font-size: 26px; }
+    .lc-name  { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 5px; }
+    .lc-count { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .lc-status{ font-size: 11px; font-weight: 700; margin-top: 5px; }
+    .lc-status.done-s { color: var(--green); }
+    .lc-status.go-s   { color: var(--blue); }
+    .lc-status.lock-s { color: var(--text3); }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; text-align: center;
+    }
+    .stat-num   { font-size: 28px; font-weight: 900; color: var(--blue); }
+    .stat-label { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+    .play-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: #fff; border: none; border-radius: 14px;
+      padding: 17px; font-size: 18px; font-weight: 800; font-family: var(--font);
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(59,130,246,.38);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+
+    /* ══════════════════════════════════════
+       SCREEN 3 — Mode + continent selection
+    ══════════════════════════════════════ */
+    #s3 {
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      padding: 40px 28px;
+    }
+    .sel-title { font-size: 22px; font-weight: 800; color: var(--text); }
+    .sel-sub   { font-size: 13px; color: var(--text2); margin-top: -14px; }
+
+    .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 620px; }
+    .mode-card {
+      background: var(--white); border: 2px solid var(--border); border-radius: 20px;
+      padding: 28px 22px; text-align: center; cursor: pointer; transition: all .18s;
+    }
+    .mode-card:hover   { transform: translateY(-3px); }
+    .mode-card.sel-mc  { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(59,130,246,.1); }
+    .mc-icon { font-size: 50px; }
+    .mc-title { font-size: 16px; font-weight: 800; color: var(--text); margin-top: 10px; }
+    .mc-desc  { font-size: 12px; color: var(--text2); margin-top: 5px; line-height: 1.5; }
+
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 620px; }
+    .chip {
+      background: var(--white); border: 2px solid var(--border);
+      border-radius: 50px; padding: 7px 15px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: transform .12s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chip:hover { transform: scale(1.04); }
+    .chip.world { border-color:#7C3AED; color:#7C3AED; background:#F5F3FF; }
+    .chip.na    { border-color:var(--na); background:#FFF7ED; }
+    .chip.sa    { border-color:var(--sa); background:#ECFDF5; }
+    .chip.eu    { border-color:var(--eu); background:#EFF6FF; }
+    .chip.af    { border-color:var(--af); background:#FFFBEB; }
+    .chip.as    { border-color:var(--as); background:#FDF2F8; }
+    .chip.oc    { border-color:var(--oc); background:#F0FDFA; }
+
+    /* ══════════════════════════════════════
+       SCREENS 4 & 6 — Game screens
+    ══════════════════════════════════════ */
+    .game-header {
+      background: var(--white); padding: 12px 20px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .gh-player { display: flex; align-items: center; gap: 8px; }
+    .gh-av     { font-size: 22px; }
+    .gh-name   { font-size: 14px; font-weight: 700; color: var(--text); }
+    .gh-score  { margin-right: auto; font-size: 15px; font-weight: 800; color: var(--blue); }
+    .gh-prog   { display: flex; align-items: center; gap: 8px; }
+    .gh-qlabel { font-size: 11px; color: var(--text3); white-space: nowrap; }
+    .gh-bar    { background: var(--border); border-radius: 99px; height: 6px; width: 90px; overflow: hidden; }
+    .gh-bar-fill { height: 100%; background: var(--blue); border-radius: 99px; }
+
+    /* Map */
+    .map-wrap { flex: 1; background: var(--ocean); position: relative; overflow: hidden; min-height: 320px; }
+    .map-wrap svg { width: 100%; height: 100%; display: block; }
+
+    /* Mode-B question panel */
+    .q-panel { background: var(--white); padding: 18px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .q-text  { font-size: 16px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 13px; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .choice {
+      background: var(--bg); border: 2px solid var(--border); border-radius: 12px;
+      padding: 13px 16px; font-size: 15px; font-weight: 600; font-family: var(--font);
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all .14s;
+    }
+    .choice:hover       { border-color: var(--blue); background: var(--blue-light); }
+    .choice.correct     { border-color: var(--green); background: var(--green-light); color: var(--green); }
+    .choice.wrong       { border-color: var(--red);   background: var(--red-light);   color: var(--red); }
+
+    /* Mode-A question bar */
+    .mode-a-bar {
+      background: var(--blue2); padding: 13px 20px;
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .mab-text { font-size: 16px; font-weight: 700; color: #fff; }
+    .mab-hint { font-size: 12px; color: rgba(255,255,255,.65); margin-right: auto; }
+
+    /* ══════════════════════════════════════
+       SCREEN 5 — Feedback overlay
+    ══════════════════════════════════════ */
+    #s5 { position: relative; background: var(--ocean); align-items: center; justify-content: center; }
+
+    .feedback-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: rgba(15,23,42,.45);
+    }
+
+    .fb-card {
+      position: relative; z-index: 1;
+      background: var(--white); border-radius: 24px; padding: 38px 44px;
+      text-align: center; box-shadow: var(--shadow-lg); min-width: 300px;
+    }
+    .fb-result { font-size: 21px; font-weight: 900; margin-bottom: 14px; }
+    .fb-result.ok  { color: var(--green); }
+    .fb-result.err { color: var(--red); }
+    .fb-flag   { font-size: 86px; line-height: 1; }
+    .fb-cname  { font-size: 28px; font-weight: 900; color: var(--text); margin-top: 10px; }
+    .fb-cont   { font-size: 13px; color: var(--text2); margin-top: 5px; }
+    .fb-pts    {
+      background: var(--blue-light); border-radius: 50px;
+      padding: 7px 20px; display: inline-block;
+      font-size: 16px; font-weight: 800; color: var(--blue); margin-top: 14px;
+    }
+    .fb-next {
+      width: 100%; background: var(--blue); color: #fff; border: none;
+      border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700;
+      font-family: var(--font); cursor: pointer; margin-top: 18px;
+    }
+
+    /* ══════════════════════════════════════
+       SCREEN 7 — Prize
+    ══════════════════════════════════════ */
+    #s7 {
+      background: linear-gradient(140deg, #7C3AED 0%, #1D4ED8 100%);
+      align-items: center; justify-content: center; padding: 40px 24px;
+    }
+    .prize-card {
+      background: var(--white); border-radius: 24px; padding: 40px 48px;
+      text-align: center; max-width: 400px; width: 100%; box-shadow: var(--shadow-lg);
+    }
+    .pz-confetti { font-size: 54px; line-height: 1; }
+    .pz-congrats { font-size: 15px; color: var(--text2); margin-top: 10px; }
+    .pz-milestone { font-size: 30px; font-weight: 900; color: var(--text); margin-top: 6px; }
+    .pz-badge {
+      display: inline-block;
+      background: linear-gradient(135deg,#F59E0B,#EF4444);
+      color: #fff; border-radius: 50px; padding: 7px 20px;
+      font-size: 14px; font-weight: 700; margin-top: 10px;
+    }
+    .pz-item  { font-size: 60px; margin-top: 20px; line-height: 1; }
+    .pz-desc  { font-size: 18px; font-weight: 800; color: var(--text); margin-top: 8px; }
+    .pz-btn {
+      width: 100%;
+      background: linear-gradient(135deg,#F59E0B,#EF4444);
+      color: #fff; border: none; border-radius: 14px; padding: 16px;
+      font-size: 16px; font-weight: 800; font-family: var(--font); cursor: pointer;
+      margin-top: 24px; box-shadow: 0 4px 16px rgba(245,158,11,.35);
+    }
+    .pz-next-hint { font-size: 12px; color: var(--text3); margin-top: 12px; }
+
+    /* ── Nav bar ── */
+    .nav-bar {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,.95); backdrop-filter: blur(10px);
+      border-radius: 50px; padding: 8px 16px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow-lg); z-index: 100; direction: ltr;
+    }
+    .nav-btn {
+      background: var(--blue2); color: #fff; border: none; border-radius: 50%;
+      width: 30px; height: 30px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; transition: opacity .2s;
+    }
+    .nav-btn:disabled { opacity: .3; cursor: default; }
+    .nav-label { font-size: 12px; color: var(--text2); font-weight: 600; min-width: 220px; text-align: center; direction: rtl; font-family: var(--font); }
+    .nav-dots  { display: flex; gap: 5px; }
+    .nd { width: 7px; height: 7px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background .2s; }
+    .nd.on { background: var(--blue2); }
+  </style>
+</head>
+<body>
+
+<div class="frame" id="app">
+  <span class="mockup-badge">MOCKUP v1</span>
+
+  <!-- ════ S1: Profile Selection ════ -->
+  <div class="screen on" id="s1">
+    <div class="logo-wrap">
+      <div class="logo-globe">🌍</div>
+      <div class="logo-title">גולה עולמי</div>
+      <div class="logo-sub">לימוד מדינות ויבשות בדרך הכיפית</div>
+    </div>
+    <div class="profiles-row">
+      <div class="profile-card">
+        <div class="pc-avatar">🌺</div>
+        <div class="pc-name">ליבי</div>
+        <div class="pc-pts">320 נקודות</div>
+      </div>
+      <div class="profile-card">
+        <div class="pc-avatar">🚀</div>
+        <div class="pc-name">בן</div>
+        <div class="pc-pts">85 נקודות</div>
+      </div>
+      <div class="profile-card pc-add">
+        <div class="pc-avatar">➕</div>
+        <div class="pc-name">הוסף ילד</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ S2: Dashboard ════ -->
+  <div class="screen" id="s2">
+    <div class="dash-header">
+      <div class="dh-top">
+        <div class="dh-avatar">🌺</div>
+        <div>
+          <div class="dh-name">שלום ליבי!</div>
+          <div class="dh-sub">47 מדינות נלמדו · 6 יבשות גלויות</div>
+        </div>
+        <div class="dh-score">
+          <div class="dh-score-num">320</div>
+          <div class="dh-score-label">נקודות</div>
+        </div>
+      </div>
+      <div class="prize-bar">
+        <div class="pb-top">
+          <span class="pb-label">🏆 הפרס הבא: מקדונלדס 🍔</span>
+          <span class="pb-pts">320 / 300 ✅ מגיע לך!</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <div class="dash-body">
+      <div>
+        <div class="section-label">רמות</div>
+        <div class="levels-grid">
+          <div class="level-card done">
+            <div class="lc-icon">🌏</div>
+            <div class="lc-name">קלה</div>
+            <div class="lc-count">7 יבשות</div>
+            <div class="lc-status done-s">✅ הושלם</div>
+          </div>
+          <div class="level-card done">
+            <div class="lc-icon">🗺️</div>
+            <div class="lc-name">בינונית</div>
+            <div class="lc-count">50 מדינות</div>
+            <div class="lc-status done-s">✅ הושלם</div>
+          </div>
+          <div class="level-card active-level">
+            <div class="lc-icon">🌍</div>
+            <div class="lc-name">קשה</div>
+            <div class="lc-count">130 מדינות</div>
+            <div class="lc-status go-s">▶ שחקי עכשיו</div>
+          </div>
+          <div class="level-card locked">
+            <div class="lc-icon">🔒</div>
+            <div class="lc-name">מאסטר</div>
+            <div class="lc-count">195 מדינות</div>
+            <div class="lc-status lock-s">נעול</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">47</div><div class="stat-label">מדינות שנלמדו</div></div>
+        <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">סיבובים הושלמו</div></div>
+        <div class="stat-card"><div class="stat-num">78%</div><div class="stat-label">אחוז הצלחה</div></div>
+      </div>
+
+      <button class="play-btn">▶ שחקי עכשיו</button>
+    </div>
+  </div>
+
+  <!-- ════ S3: Mode + Continent ════ -->
+  <div class="screen" id="s3">
+    <div class="sel-title">בחרי מצב משחק</div>
+    <div class="sel-sub">רמה קשה · 130 מדינות</div>
+
+    <div class="mode-cards">
+      <div class="mode-card">
+        <div class="mc-icon">🗺️</div>
+        <div class="mc-title">מצא את המדינה</div>
+        <div class="mc-desc">המשחק שואל "איפה X?" — לחצי על המקום הנכון במפה</div>
+      </div>
+      <div class="mode-card sel-mc">
+        <div class="mc-icon">🏷️</div>
+        <div class="mc-title">מה שם המדינה?</div>
+        <div class="mc-desc">מדינה מסומנת — בחרי את שמה מתוך 4 אפשרויות</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--text2);">בחרי יבשת:</div>
+    <div class="chip-row">
+      <div class="chip world">🌍 כל העולם</div>
+      <div class="chip na">🟠 אמריקה הצפונית</div>
+      <div class="chip sa">🟢 אמריקה הדרומית</div>
+      <div class="chip eu">🔵 אירופה</div>
+      <div class="chip af">🟡 אפריקה</div>
+      <div class="chip as">🩷 אסיה</div>
+      <div class="chip oc">🩵 אוקיאניה</div>
+    </div>
+  </div>
+
+  <!-- ════ S4: Game — Mode B ════ -->
+  <div class="screen" id="s4">
+    <div class="game-header">
+      <div class="gh-player"><span class="gh-av">🌺</span><span class="gh-name">ליבי</span></div>
+      <span class="gh-score">🏆 35 נקודות</span>
+      <div class="gh-prog">
+        <span class="gh-qlabel">שאלה 3 / 10</span>
+        <div class="gh-bar"><div class="gh-bar-fill" style="width:30%"></div></div>
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <svg viewBox="0 0 920 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <!-- Ocean -->
+        <rect width="920" height="380" fill="#BAE6FD"/>
+        <!-- NA -->
+        <path d="M 28,26 L 92,20 L 152,26 L 198,50 L 218,86 L 222,128 L 202,160 L 170,176 L 136,194 L 100,194 L 68,176 L 40,146 L 20,108 L 16,66 Z" fill="#FB923C" stroke="#fff" stroke-width="1.5"/>
+        <!-- SA -->
+        <path d="M 108,206 L 172,202 L 216,226 L 230,266 L 224,316 L 204,356 L 174,374 L 146,374 L 118,352 L 100,310 L 96,262 L 106,224 Z" fill="#34D399" stroke="#fff" stroke-width="1.5"/>
+        <!-- Europe — highlighted with dashed blue border (the "Germany" question) -->
+        <path d="M 368,30 L 433,26 L 466,46 L 470,76 L 456,106 L 438,120 L 406,126 L 376,114 L 356,86 L 356,56 Z" fill="#E0F2FE" stroke="#60A5FA" stroke-width="1.5"/>
+        <!-- Germany blob within Europe (highlighted country) -->
+        <path d="M 390,52 L 420,48 L 440,60 L 444,80 L 438,98 L 422,108 L 402,108 L 386,96 L 382,76 L 386,60 Z" fill="#2563EB" stroke="white" stroke-width="2"/>
+        <path d="M 390,52 L 420,48 L 440,60 L 444,80 L 438,98 L 422,108 L 402,108 L 386,96 L 382,76 L 386,60 Z" fill="none" stroke="#93C5FD" stroke-width="3" stroke-dasharray="6 3" opacity="0.9"/>
+        <!-- Africa -->
+        <path d="M 360,140 L 460,136 L 490,160 L 500,206 L 496,260 L 476,310 L 443,340 L 413,350 L 383,336 L 353,296 L 340,248 L 343,196 L 353,162 Z" fill="#FBBF24" stroke="#fff" stroke-width="1.5"/>
+        <!-- Asia -->
+        <path d="M 460,24 L 602,20 L 702,26 L 802,50 L 872,86 L 896,136 L 876,180 L 826,216 L 753,236 L 670,240 L 596,250 L 526,240 L 486,206 L 460,166 L 450,116 L 456,70 Z" fill="#F9A8D4" stroke="#fff" stroke-width="1.5"/>
+        <!-- Oceania -->
+        <path d="M 686,268 L 790,263 L 836,286 L 846,323 L 836,356 L 798,376 L 716,376 L 680,354 L 670,320 L 676,290 Z" fill="#2DD4BF" stroke="#fff" stroke-width="1.5"/>
+        <!-- Antarctica strip -->
+        <rect x="0" y="366" width="920" height="14" fill="#CBD5E1" rx="0"/>
+        <!-- Pointer dot on Germany -->
+        <circle cx="413" cy="78" r="6" fill="white" stroke="#1D4ED8" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <div class="q-panel">
+      <div class="q-text">מה שם המדינה המסומנת? 🏷️</div>
+      <div class="choices">
+        <button class="choice">🇫🇷 צרפת</button>
+        <button class="choice">🇩🇪 גרמניה</button>
+        <button class="choice">🇪🇸 ספרד</button>
+        <button class="choice">🇮🇹 איטליה</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ S5: Feedback ════ -->
+  <div class="screen" id="s5">
+    <!-- Blurred map background -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.25" viewBox="0 0 920 380" preserveAspectRatio="xMidYMid meet">
+      <rect width="920" height="380" fill="#BAE6FD"/>
+      <path d="M 28,26 L 92,20 L 152,26 L 198,50 L 218,86 L 222,128 L 202,160 L 170,176 L 136,194 L 100,194 L 68,176 L 40,146 L 20,108 L 16,66 Z" fill="#FB923C"/>
+      <path d="M 108,206 L 172,202 L 216,226 L 230,266 L 224,316 L 204,356 L 174,374 L 146,374 L 118,352 L 100,310 L 96,262 L 106,224 Z" fill="#34D399"/>
+      <path d="M 368,30 L 433,26 L 466,46 L 470,76 L 456,106 L 438,120 L 406,126 L 376,114 L 356,86 L 356,56 Z" fill="#22C55E"/>
+      <path d="M 360,140 L 460,136 L 490,160 L 500,206 L 496,260 L 476,310 L 443,340 L 413,350 L 383,336 L 353,296 L 340,248 L 343,196 L 353,162 Z" fill="#FBBF24"/>
+      <path d="M 460,24 L 602,20 L 702,26 L 802,50 L 872,86 L 896,136 L 876,180 L 826,216 L 753,236 L 670,240 L 596,250 L 526,240 L 486,206 L 460,166 L 450,116 L 456,70 Z" fill="#F9A8D4"/>
+      <path d="M 686,268 L 790,263 L 836,286 L 846,323 L 836,356 L 798,376 L 716,376 L 680,354 L 670,320 L 676,290 Z" fill="#2DD4BF"/>
+    </svg>
+    <div class="feedback-bg"></div>
+    <div class="fb-card">
+      <div class="fb-result ok">✅ נכון!</div>
+      <div class="fb-flag">🇩🇪</div>
+      <div class="fb-cname">גרמניה</div>
+      <div class="fb-cont">יבשת: אירופה 🔵</div>
+      <div class="fb-pts">+15 נקודות</div>
+      <button class="fb-next">המשיכי ←</button>
+    </div>
+  </div>
+
+  <!-- ════ S6: Game — Mode A ════ -->
+  <div class="screen" id="s6">
+    <div class="game-header">
+      <div class="gh-player"><span class="gh-av">🚀</span><span class="gh-name">בן</span></div>
+      <span class="gh-score">🏆 60 נקודות</span>
+      <div class="gh-prog">
+        <span class="gh-qlabel">שאלה 5 / 10</span>
+        <div class="gh-bar"><div class="gh-bar-fill" style="width:50%"></div></div>
+      </div>
+    </div>
+
+    <div class="mode-a-bar">
+      <span class="mab-text">❓ מצא על המפה את: <strong>ברזיל 🇧🇷</strong></span>
+      <span class="mab-hint">לחץ על המדינה הנכונה</span>
+    </div>
+
+    <div class="map-wrap" style="cursor:crosshair">
+      <svg viewBox="0 0 920 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <rect width="920" height="380" fill="#BAE6FD"/>
+        <!-- NA -->
+        <path d="M 28,26 L 92,20 L 152,26 L 198,50 L 218,86 L 222,128 L 202,160 L 170,176 L 136,194 L 100,194 L 68,176 L 40,146 L 20,108 L 16,66 Z" fill="#FB923C" stroke="#fff" stroke-width="1.5"/>
+        <!-- SA - all uncolored but interactive-looking -->
+        <path d="M 108,206 L 172,202 L 216,226 L 230,266 L 224,316 L 204,356 L 174,374 L 146,374 L 118,352 L 100,310 L 96,262 L 106,224 Z" fill="#34D399" stroke="#fff" stroke-width="1.5" style="cursor:pointer"/>
+        <!-- Europe -->
+        <path d="M 368,30 L 433,26 L 466,46 L 470,76 L 456,106 L 438,120 L 406,126 L 376,114 L 356,86 L 356,56 Z" fill="#60A5FA" stroke="#fff" stroke-width="1.5"/>
+        <!-- Africa -->
+        <path d="M 360,140 L 460,136 L 490,160 L 500,206 L 496,260 L 476,310 L 443,340 L 413,350 L 383,336 L 353,296 L 340,248 L 343,196 L 353,162 Z" fill="#FBBF24" stroke="#fff" stroke-width="1.5"/>
+        <!-- Asia -->
+        <path d="M 460,24 L 602,20 L 702,26 L 802,50 L 872,86 L 896,136 L 876,180 L 826,216 L 753,236 L 670,240 L 596,250 L 526,240 L 486,206 L 460,166 L 450,116 L 456,70 Z" fill="#F9A8D4" stroke="#fff" stroke-width="1.5"/>
+        <!-- Oceania -->
+        <path d="M 686,268 L 790,263 L 836,286 L 846,323 L 836,356 L 798,376 L 716,376 L 680,354 L 670,320 L 676,290 Z" fill="#2DD4BF" stroke="#fff" stroke-width="1.5"/>
+        <rect x="0" y="366" width="920" height="14" fill="#CBD5E1"/>
+        <!-- Hint text -->
+        <text x="460" y="352" text-anchor="middle" font-size="13" fill="rgba(15,23,42,.4)" font-family="Heebo, sans-serif">לחץ על המדינה הנכונה</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ════ S7: Prize ════ -->
+  <div class="screen" id="s7">
+    <div class="prize-card">
+      <div class="pz-confetti">🎉</div>
+      <div class="pz-congrats">כל הכבוד ליבי!</div>
+      <div class="pz-milestone">הגעת ל-300 נקודות!</div>
+      <div class="pz-badge">🏆 גיאוגרף צעיר</div>
+      <div class="pz-item">🍔</div>
+      <div class="pz-desc">מגיע לך מקדונלדס!</div>
+      <button class="pz-btn">תודה! המשיכי לשחק 🌍</button>
+      <div class="pz-next-hint">הפרס הבא: 🐻 סוכריות גומי ב-500 נקודות</div>
+    </div>
+  </div>
+
+</div><!-- /frame -->
+
+<!-- Nav bar -->
+<nav class="nav-bar">
+  <button class="nav-btn" id="btnP" onclick="go(-1)">←</button>
+  <div class="nav-dots" id="dots"></div>
+  <span class="nav-label" id="lbl"></span>
+  <button class="nav-btn" id="btnN" onclick="go(1)">→</button>
+</nav>
+
+<script>
+  const SCREENS = [
+    { id:'s1', label:'1 · בחירת פרופיל' },
+    { id:'s2', label:'2 · לוח הילד' },
+    { id:'s3', label:'3 · בחירת מצב + יבשת' },
+    { id:'s4', label:'4 · משחק — מצב ב׳ (4 אפשרויות)' },
+    { id:'s5', label:'5 · פידבק — תשובה נכונה + דגל' },
+    { id:'s6', label:'6 · משחק — מצב א׳ (מצא על המפה)' },
+    { id:'s7', label:'7 · מסך פרס 🎁' },
+  ];
+  let cur = 0;
+
+  function render() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+    document.getElementById(SCREENS[cur].id).classList.add('on');
+    document.getElementById('lbl').textContent = SCREENS[cur].label;
+    document.getElementById('btnP').disabled = cur === 0;
+    document.getElementById('btnN').disabled = cur === SCREENS.length - 1;
+
+    const dotsEl = document.getElementById('dots');
+    dotsEl.innerHTML = '';
+    SCREENS.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'nd' + (i === cur ? ' on' : '');
+      d.onclick = () => { cur = i; render(); };
+      dotsEl.appendChild(d);
+    });
+  }
+
+  function go(dir) {
+    const n = cur + dir;
+    if (n >= 0 && n < SCREENS.length) { cur = n; render(); }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  go(1);
+    if (e.key === 'ArrowRight') go(-1);
+  });
+
+  render();
+</script>
+</body>
+</html>

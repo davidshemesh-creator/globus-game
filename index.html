@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>גלובוס 🌍</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=9" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 0 — Loading
+══════════════════════════════════════════════ -->
+<div id="screen-loading" class="screen screen-loading hidden">
+  <div class="loading-content">
+    <span class="loading-globe">🌍</span>
+    <p class="loading-text">טוען...</p>
+    <p id="loading-error" class="loading-error hidden">שגיאת חיבור. רענן את הדף.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 — Profile selection
+══════════════════════════════════════════════ -->
+<div id="screen-profiles" class="screen hidden">
+  <header class="app-header">
+    <span class="app-logo">🌍</span>
+    <h1 class="app-title">גלובוס</h1>
+    <p class="app-subtitle">לוח תוצאות 🏆</p>
+  </header>
+
+  <main class="screen-content center-content">
+    <div id="profiles-grid" class="profiles-grid"></div>
+  </main>
+</div>
+
+<!-- Modal: Add profile -->
+<div id="modal-add-profile" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2 class="modal-title">ילד/ה חדש/ה</h2>
+    <input id="new-profile-name" type="text" class="text-input" placeholder="שם" maxlength="20" />
+    <p class="label-text">בחר אווטאר:</p>
+    <div id="avatar-picker" class="avatar-picker"></div>
+    <div class="modal-actions">
+      <button id="btn-add-profile-confirm" class="btn btn-primary">הוסף</button>
+      <button id="btn-add-profile-cancel"  class="btn btn-ghost">ביטול</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 — Dashboard
+══════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen hidden">
+  <header class="dash-header">
+    <button id="btn-back-to-profiles" class="btn-icon btn-back" title="חזרה לפרופילים">›</button>
+    <div class="dash-profile-info">
+      <span id="dash-avatar" class="dash-avatar">🌺</span>
+      <span id="dash-name"   class="dash-name">שם</span>
+    </div>
+    <div class="dash-stats">
+      <span id="dash-points"    class="stat-chip">0 נקודות</span>
+      <span id="dash-countries" class="stat-chip">0 מדינות</span>
+    </div>
+  </header>
+
+  <main class="screen-content">
+    <!-- Prize progress -->
+    <section class="card prize-progress-card">
+      <p class="card-label">הפרס הבא:</p>
+      <p id="dash-next-prize" class="prize-target">🍬 ממתק — 50 נקודות</p>
+      <div class="progress-track">
+        <div id="dash-prize-bar" class="progress-fill" style="width: 0%"></div>
+      </div>
+    </section>
+
+    <button id="btn-play"        class="btn btn-primary btn-xl">▶ שחק עכשיו</button>
+    <button id="btn-explore-map" class="btn btn-ghost   btn-xl">🗺 חקור מפה</button>
+
+    <button id="btn-reset-profile" class="btn btn-ghost btn-sm">🗑️ אפס נתונים</button>
+  </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2b — Game selection
+══════════════════════════════════════════════ -->
+<div id="screen-game-select" class="screen hidden">
+  <header class="screen-header">
+    <button id="btn-gamesel-back" class="btn-icon btn-back">›</button>
+    <h2 class="screen-title">בחר משחק</h2>
+  </header>
+
+  <main class="screen-content">
+
+    <button id="btn-game-continents" class="game-card">
+      <span class="game-card-level">דרגה - 1</span>
+      <span class="game-card-icon">🌍</span>
+      <h3 class="game-card-title">זהה יבשות</h3>
+      <p class="game-card-desc">לחץ על המפה — איפה כל יבשה נמצאת?</p>
+      <span class="game-card-badge">+20 נקודות אם כולן נכונות</span>
+    </button>
+
+    <button id="btn-game-mode-b" class="game-card">
+      <span class="game-card-level">דרגה - 2</span>
+      <span class="game-card-icon">🗺</span>
+      <h3 class="game-card-title">זהה מדינות</h3>
+      <p class="game-card-desc">המדינה מסומנת על המפה — בחר את שמה מתוך 4 אפשרויות</p>
+      <span class="game-card-badge">10–25 נקודות לשאלה</span>
+    </button>
+
+    <button id="btn-game-mode-a" class="game-card">
+      <span class="game-card-level">דרגה - 3</span>
+      <span class="game-card-icon">🔍</span>
+      <h3 class="game-card-title">מצא מדינות</h3>
+      <p class="game-card-desc">שם המדינה ודגלה מוצגים — לחץ עליה על המפה</p>
+      <span class="game-card-badge">10–25 נקודות לשאלה</span>
+    </button>
+
+  </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 3 — Game setup
+══════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen hidden">
+  <header class="screen-header">
+    <button id="btn-back-to-dashboard" class="btn-icon btn-back">›</button>
+    <h2 id="setup-screen-title" class="screen-title">הגדרות משחק</h2>
+  </header>
+
+  <main class="screen-content">
+
+    <!-- Continent filter -->
+    <section class="card">
+      <p class="card-label">יבשת:</p>
+      <div class="continent-grid">
+        <button data-continent="all"           class="continent-btn active">🌍 הכל</button>
+        <button data-continent="europe"        class="continent-btn" style="--c:#60A5FA">🔵 אירופה</button>
+        <button data-continent="asia"          class="continent-btn" style="--c:#F472B6">🟣 אסיה</button>
+        <button data-continent="africa"        class="continent-btn" style="--c:#FBBF24">🟡 אפריקה</button>
+        <button data-continent="north-america" class="continent-btn" style="--c:#FB923C">🟠 אמ׳ הצפונית</button>
+        <button data-continent="south-america" class="continent-btn" style="--c:#34D399">🟢 אמ׳ הדרומית</button>
+        <button data-continent="oceania"       class="continent-btn" style="--c:#2DD4BF">🩵 אוקיאניה</button>
+      </div>
+    </section>
+
+    <!-- Level -->
+    <section class="card">
+      <p class="card-label">רמה:</p>
+      <div class="level-grid">
+        <button data-level="easy"   class="level-btn active">🟢 קלה</button>
+        <button data-level="medium" class="level-btn">🟡 בינונית</button>
+        <button data-level="hard"   class="level-btn">🔴 קשה</button>
+        <button data-level="master" class="level-btn">🏆 מאסטר</button>
+      </div>
+    </section>
+
+    <button id="btn-start-game" class="btn btn-primary btn-xl">🚀 התחל!</button>
+  </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 4 — Game (map + question)
+══════════════════════════════════════════════ -->
+<div id="screen-game" class="screen hidden">
+
+  <!-- Map — full screen background -->
+  <div id="map-container" class="map-container"></div>
+
+  <!-- UI overlay — floats above the map -->
+  <div class="game-ui-overlay">
+
+    <!-- Top bar -->
+    <div class="game-topbar">
+      <button id="btn-game-quit" class="btn-icon">✕</button>
+      <div class="game-profile-badge">
+        <span id="game-profile-avatar"></span>
+        <span id="game-profile-name"></span>
+      </div>
+      <div class="game-hud">
+        <span id="score-display"  class="hud-chip">0 נק׳</span>
+        <span id="streak-display" class="hud-chip streak hidden"></span>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-track thin">
+      <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-card">
+      <span id="question-flag"  class="question-flag"></span>
+      <p   id="question-text"   class="question-text">טוען...</p>
+    </div>
+    <p id="progress-text" class="progress-text">1 / 10</p>
+
+    <!-- Spacer pushes choice buttons to bottom -->
+    <div style="flex:1"></div>
+
+    <!-- Mode B: choice buttons -->
+    <div id="choice-buttons" class="choice-buttons hidden"></div>
+
+    <!-- Zoom controls -->
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="btn-zoom-in">＋</button>
+      <button class="zoom-btn" id="btn-zoom-reset">⌂</button>
+      <button class="zoom-btn" id="btn-zoom-out">－</button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 5 — Feedback (after each answer)
+══════════════════════════════════════════════ -->
+<div id="screen-feedback" class="screen hidden">
+  <div class="feedback-overlay">
+    <div class="feedback-card">
+      <div class="feedback-drag-handle"></div>
+      <span id="feedback-icon"  class="feedback-icon">✅</span>
+      <h2  id="feedback-title"  class="feedback-title">נכון!</h2>
+      <div class="feedback-country-row">
+        <span id="feedback-flag"    class="feedback-flag"></span>
+        <span id="feedback-country" class="feedback-country-name"></span>
+      </div>
+      <p id="feedback-continent" class="feedback-continent"></p>
+      <p id="feedback-points"    class="feedback-points"></p>
+      <p id="feedback-bonus"     class="feedback-bonus hidden"></p>
+      <button id="btn-feedback-next" class="btn btn-primary btn-lg mt-2">השאלה הבאה ←</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 6 — Round summary
+══════════════════════════════════════════════ -->
+<div id="screen-summary" class="screen hidden">
+  <header class="screen-header">
+    <h2 class="screen-title">סיכום סיבוב</h2>
+  </header>
+
+  <main class="screen-content">
+    <div class="summary-hero">
+      <span id="summary-rating" class="summary-rating">⭐⭐⭐</span>
+      <p    id="summary-score"  class="summary-score">0 נקודות</p>
+      <p    id="summary-pct"    class="summary-pct">0%</p>
+      <p class="summary-correct-label">
+        <span id="summary-correct">0/10</span> תשובות נכונות
+      </p>
+    </div>
+
+    <div id="summary-answers" class="summary-answers-list"></div>
+
+    <div class="summary-actions">
+      <button id="btn-play-again"   class="btn btn-primary">🔄 שחק שוב</button>
+      <button id="btn-summary-home" class="btn btn-ghost">🏠 דף הבית</button>
+    </div>
+  </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 7 — Prize!
+══════════════════════════════════════════════ -->
+<div id="screen-prize" class="screen hidden">
+  <div class="prize-screen-inner">
+    <div class="prize-burst">
+      <span id="prize-emoji" class="prize-emoji-big">🍬</span>
+    </div>
+    <h1 class="prize-congrats">כל הכבוד! 🎉</h1>
+    <p  id="prize-achievement" class="prize-achievement-title">גולה מתחיל</p>
+    <div class="prize-box">
+      <p class="prize-label">הפרס שלך:</p>
+      <p id="prize-name"   class="prize-name-big"></p>
+      <p id="prize-points" class="prize-pts-badge"></p>
+    </div>
+    <button id="btn-prize-continue" class="btn btn-primary btn-xl mt-3">המשך ▶</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 8 — Continents click game
+══════════════════════════════════════════════ -->
+<div id="screen-continents" class="screen hidden">
+
+  <!-- Full-screen map -->
+  <div id="cont-map-container" class="cont-map-container"></div>
+
+  <!-- Top bar -->
+  <div class="cont-topbar">
+    <button id="btn-cont-quit" class="btn-icon btn-back">›</button>
+    <span class="cont-title">🌍 זהה יבשות</span>
+    <span id="cont-profile-badge" class="game-profile-badge"></span>
+  </div>
+
+  <!-- Question bar at bottom -->
+  <div class="cont-question-bar">
+    <p class="cont-q-label">לחץ על המפה:</p>
+    <p id="cont-question-name" class="cont-q-name">אפריקה</p>
+    <p id="cont-progress" class="cont-q-progress">1 / 6</p>
+  </div>
+
+  <!-- Result overlay -->
+  <div id="cont-result" class="cont-result hidden">
+    <div class="cont-result-card">
+      <span id="cont-result-icon"  class="feedback-icon">🎉</span>
+      <h2  id="cont-result-title"  class="feedback-title">מעולה!</h2>
+      <p   id="cont-result-text"   class="feedback-points"></p>
+      <button id="btn-cont-again" class="btn btn-ghost   btn-xl mt-2">🔄 שוב</button>
+      <button id="btn-cont-home"  class="btn btn-primary btn-xl mt-2">🏠 דף הבית</button>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 9 — Explore Map
+══════════════════════════════════════════════ -->
+<div id="screen-explore" class="screen hidden">
+
+  <!-- Full-screen map -->
+  <div id="explore-map-container" class="explore-map-container"></div>
+
+  <!-- Top bar -->
+  <div class="explore-topbar">
+    <button id="btn-explore-back" class="btn-icon btn-back">›</button>
+    <span class="explore-title">🗺 חקור את העולם</span>
+  </div>
+
+  <!-- Country info bar at bottom -->
+  <div id="explore-info-bar" class="explore-info-bar">
+    <span id="explore-info-content" class="explore-hint">לחץ על מדינה לפרטים 👆</span>
+  </div>
+
+  <!-- Zoom controls -->
+  <div class="zoom-controls">
+    <button class="zoom-btn" id="btn-explore-zoom-in">＋</button>
+    <button class="zoom-btn" id="btn-explore-zoom-reset">⌂</button>
+    <button class="zoom-btn" id="btn-explore-zoom-out">－</button>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Scripts (order matters!)
+══════════════════════════════════════════════ -->
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-db.js?v=9"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="js/data.js?v=9"></script>
+<script src="js/map.js?v=9"></script>
+<script src="js/profiles.js?v=9"></script>
+<script src="js/game.js?v=9"></script>
+<script src="js/continents-game.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+
+</body>
+</html>
