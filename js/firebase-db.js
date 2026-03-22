@@ -18,3 +18,7 @@ const FIREBASE_CONFIG = {
 
 firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.firestore();
+
+// ── Admin PIN ─────────────────────────────────────────────────
+// רק לדויד — מאפשר כניסה ומחיקה של כל פרופיל
+const ADMIN_PIN = '1234'; // שנה לכל מספר שרוצה

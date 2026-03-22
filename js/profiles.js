@@ -62,11 +62,12 @@ function getProfile(name) {
   return _profilesCache.find(p => p.name === name) || null;
 }
 
-function createProfile(name, avatar) {
+function createProfile(name, avatar, pin) {
   if (_profilesCache.find(p => p.name === name)) return null;
   const newProfile = {
     name,
     avatar,
+    pin: pin || '',
     points: 0,
     countriesLearned: {},
     prizesEarned: [],
@@ -82,7 +83,7 @@ function deleteProfile(name) {
   _deleteProfileFromDB(name);
 }
 
-function editProfile(oldName, newName, newAvatar) {
+function editProfile(oldName, newName, newAvatar, newPin) {
   const p = _profilesCache.find(p => p.name === oldName);
   if (!p) return null;
   if (newName !== oldName && _profilesCache.find(pr => pr.name === newName)) return null;
@@ -93,8 +94,16 @@ function editProfile(oldName, newName, newAvatar) {
   }
   p.name   = newName;
   p.avatar = newAvatar;
+  if (newPin !== undefined) p.pin = newPin;
   _saveProfile(p);
   return p;
+}
+
+function checkPin(name, enteredPin) {
+  const p = _profilesCache.find(p => p.name === name);
+  if (!p) return false;
+  if (!p.pin) return true; // no PIN set → free entry
+  return enteredPin === p.pin || enteredPin === ADMIN_PIN;
 }
 
 function resetProfile(name) {

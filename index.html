@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=9" />
+  <link rel="stylesheet" href="css/style.css?v=10" />
 </head>
 <body>
 
@@ -44,9 +44,26 @@
     <input id="new-profile-name" type="text" class="text-input" placeholder="שם" maxlength="20" />
     <p class="label-text">בחר אווטאר:</p>
     <div id="avatar-picker" class="avatar-picker"></div>
+    <p class="label-text">PIN (4 ספרות):</p>
+    <input id="new-profile-pin" type="password" inputmode="numeric" class="text-input pin-input" placeholder="● ● ● ●" maxlength="4" pattern="[0-9]{4}" />
     <div class="modal-actions">
       <button id="btn-add-profile-confirm" class="btn btn-primary">הוסף</button>
       <button id="btn-add-profile-cancel"  class="btn btn-ghost">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: PIN entry -->
+<div id="modal-pin" class="modal-overlay hidden">
+  <div class="modal-card">
+    <span id="pin-modal-avatar" class="pin-modal-avatar">🌺</span>
+    <h2 id="pin-modal-name" class="modal-title">שם</h2>
+    <p class="label-text" style="text-align:center">הכנס PIN:</p>
+    <input id="pin-entry-input" type="password" inputmode="numeric" class="text-input pin-input" placeholder="● ● ● ●" maxlength="4" pattern="[0-9]{4}" />
+    <p id="pin-error" class="pin-error hidden">PIN שגוי — נסה שוב</p>
+    <div class="modal-actions">
+      <button id="btn-pin-confirm" class="btn btn-primary">כניסה</button>
+      <button id="btn-pin-cancel"  class="btn btn-ghost">ביטול</button>
     </div>
   </div>
 </div>
@@ -361,16 +378,16 @@
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=9"></script>
+<script src="js/firebase-db.js?v=10"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=9"></script>
-<script src="js/map.js?v=9"></script>
-<script src="js/profiles.js?v=9"></script>
-<script src="js/game.js?v=9"></script>
-<script src="js/continents-game.js?v=9"></script>
-<script src="js/app.js?v=9"></script>
+<script src="js/data.js?v=10"></script>
+<script src="js/map.js?v=10"></script>
+<script src="js/profiles.js?v=10"></script>
+<script src="js/game.js?v=10"></script>
+<script src="js/continents-game.js?v=10"></script>
+<script src="js/app.js?v=10"></script>
 
 </body>
 </html>

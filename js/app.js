@@ -148,12 +148,22 @@ const APP = (() => {
 
       card.querySelector('.btn-profile-edit').addEventListener('click', (e) => {
         e.stopPropagation();
-        _showEditProfileModal(p.name);
+        if (p.pin) {
+          _showPinModal(p.name, 'enter', () => _showEditProfileModal(p.name));
+        } else {
+          _showEditProfileModal(p.name);
+        }
       });
 
       card.querySelector('.btn-profile-delete').addEventListener('click', (e) => {
         e.stopPropagation();
-        if (confirm(`למחוק את הפרופיל של ${p.name}?\nכל הנקודות והנתונים יימחקו.`)) {
+        if (!confirm(`למחוק את הפרופיל של ${p.name}?\nכל הנקודות והנתונים יימחקו.`)) return;
+        if (p.pin) {
+          _showPinModal(p.name, 'delete', () => {
+            deleteProfile(p.name);
+            renderProfilesScreen();
+          });
+        } else {
           deleteProfile(p.name);
           renderProfilesScreen();
         }
@@ -172,9 +182,73 @@ const APP = (() => {
   }
 
   function _selectProfile(name) {
-    currentProfile = getProfile(name);
-    showScreen('screen-dashboard');
-    renderDashboard();
+    const p = getProfile(name);
+    if (p && p.pin) {
+      _showPinModal(name, 'enter', () => {
+        currentProfile = getProfile(name);
+        showScreen('screen-dashboard');
+        renderDashboard();
+      });
+    } else {
+      currentProfile = getProfile(name);
+      showScreen('screen-dashboard');
+      renderDashboard();
+    }
+  }
+
+  // ── PIN modal ───────────────────────────────────────────────
+  // mode: 'enter' | 'delete'
+  function _showPinModal(profileName, mode, onSuccess) {
+    const modal    = document.getElementById('modal-pin');
+    const input    = document.getElementById('pin-entry-input');
+    const errorEl  = document.getElementById('pin-error');
+    const nameEl   = document.getElementById('pin-modal-name');
+    const avatarEl = document.getElementById('pin-modal-avatar');
+    const confirmBtn = document.getElementById('btn-pin-confirm');
+    if (!modal) return;
+
+    const p = getProfile(profileName);
+    nameEl.textContent   = p ? p.name   : profileName;
+    avatarEl.textContent = p ? p.avatar : '🌍';
+    input.value = '';
+    errorEl.classList.add('hidden');
+    confirmBtn.textContent = mode === 'delete' ? 'מחק' : 'כניסה';
+    if (mode === 'delete') confirmBtn.classList.replace('btn-primary', 'btn-danger');
+    else                   { confirmBtn.classList.remove('btn-danger'); confirmBtn.classList.add('btn-primary'); }
+
+    modal.classList.remove('hidden');
+    setTimeout(() => input.focus(), 100);
+
+    // one-time confirm handler
+    const doConfirm = () => {
+      const entered = input.value.trim();
+      if (!checkPin(profileName, entered)) {
+        errorEl.classList.remove('hidden');
+        input.value = '';
+        input.focus();
+        return;
+      }
+      modal.classList.add('hidden');
+      cleanup();
+      onSuccess();
+    };
+
+    const doCancel = () => {
+      modal.classList.add('hidden');
+      cleanup();
+    };
+
+    const onKey = (e) => { if (e.key === 'Enter') doConfirm(); };
+
+    confirmBtn.addEventListener('click', doConfirm);
+    document.getElementById('btn-pin-cancel').addEventListener('click', doCancel);
+    input.addEventListener('keydown', onKey);
+
+    function cleanup() {
+      confirmBtn.removeEventListener('click', doConfirm);
+      document.getElementById('btn-pin-cancel')?.removeEventListener('click', doCancel);
+      input.removeEventListener('keydown', onKey);
+    }
   }
 
   function _showAddProfileModal() {
@@ -184,6 +258,7 @@ const APP = (() => {
     document.querySelector('#modal-add-profile .modal-title').textContent = 'ילד/ה חדש/ה';
     document.getElementById('btn-add-profile-confirm').textContent = 'הוסף';
     document.getElementById('new-profile-name').value = '';
+    document.getElementById('new-profile-pin').value  = '';
     modal.classList.remove('hidden');
     _renderAvatarPicker(null);
   }
@@ -197,6 +272,7 @@ const APP = (() => {
     document.querySelector('#modal-add-profile .modal-title').textContent = 'עריכת פרופיל';
     document.getElementById('btn-add-profile-confirm').textContent = 'שמור';
     document.getElementById('new-profile-name').value = p.name;
+    document.getElementById('new-profile-pin').value  = ''; // leave blank = keep existing
     modal.classList.remove('hidden');
     _renderAvatarPicker(p.avatar);
   }
@@ -591,19 +667,20 @@ const APP = (() => {
     _on('btn-add-profile-confirm', 'click', () => {
       const name   = document.getElementById('new-profile-name')?.value.trim();
       const avatar = document.querySelector('.avatar-option.selected')?.textContent || '⭐';
+      const pin    = document.getElementById('new-profile-pin')?.value.trim();
       if (!name) return;
+      if (pin && !/^\d{4}$/.test(pin)) { alert('PIN חייב להיות 4 ספרות'); return; }
 
       if (_editingProfileName) {
-        // edit mode
-        const result = editProfile(_editingProfileName, name, avatar);
+        // edit mode — pass pin only if entered (empty = keep existing)
+        const result = editProfile(_editingProfileName, name, avatar, pin || undefined);
         if (!result) { alert('שם זה כבר קיים'); return; }
-        // update currentProfile reference if this is the active profile
         if (currentProfile && currentProfile.name === _editingProfileName) {
           currentProfile = result;
         }
       } else {
         // add mode
-        const created = createProfile(name, avatar);
+        const created = createProfile(name, avatar, pin);
         if (!created) { alert('שם זה כבר קיים'); return; }
       }
 
