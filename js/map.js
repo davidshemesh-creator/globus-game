@@ -49,9 +49,9 @@ const MAP = (() => {
 
     g = svg.append('g').attr('class', 'countries');
 
-    // On portrait screens (mobile), fit by height so map fills more of the screen
+    // On portrait screens (mobile), fit world within container without overflow
     const isPortrait = H > W * 1.2;
-    const mapScale = isPortrait ? Math.min(W / 6.3, H / 4.2) * 1.8 : W / 6.3;
+    const mapScale = isPortrait ? Math.min(W / 6.3, H / 3.2) : W / 6.3;
     const translateY = isPortrait ? H / 2 : H / 2 + 65;
 
     projection = d3.geoNaturalEarth1()
