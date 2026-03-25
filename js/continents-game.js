@@ -85,15 +85,33 @@ const CONTINENTS_GAME = (() => {
   function _finish() {
     MAP.disableClick();
 
-    const allCorrect = correctCount === 6;
+    const allCorrect  = correctCount === 6;
+    const passed      = correctCount >= 5;
+    const wasAlreadyPassed = hasContinentsPassed(profileName);
+
     _lastPrize = allCorrect ? addPoints(profileName, POINTS) : null;
+
+    if (passed && !wasAlreadyPassed) {
+      setContinentsPassed(profileName);
+    }
 
     const icon  = document.getElementById('cont-result-icon');
     const title = document.getElementById('cont-result-title');
     const text  = document.getElementById('cont-result-text');
-    if (icon)  icon.textContent  = allCorrect ? '🏆' : '😔';
+    if (icon)  icon.textContent  = allCorrect ? '🏆' : (passed ? '🎉' : '😔');
     if (title) title.textContent = allCorrect ? 'מושלם! 6/6 נכון!' : `${correctCount}/6 נכון`;
-    if (text)  text.textContent  = allCorrect ? `+${POINTS} נקודות` : 'אין נקודות הפעם';
+
+    let textContent = '';
+    if (allCorrect) {
+      textContent = `+${POINTS} נקודות`;
+    } else if (passed && !wasAlreadyPassed) {
+      textContent = '🎉 מצא-מדינות נפתח!';
+    } else if (passed) {
+      textContent = 'כל הכבוד!';
+    } else {
+      textContent = 'אין נקודות הפעם';
+    }
+    if (text) text.textContent = textContent;
 
     document.getElementById('cont-result')?.classList.remove('hidden');
   }

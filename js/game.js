@@ -79,33 +79,43 @@ const GAME = (() => {
     let   bonusApplied = false;
     let   justMastered = false;
 
-    if (correct) {
-      // בדוק streak לפני עדכון
-      const prevStreak      = getCountryStreak(state.profileName, q.country.id);
-      const alreadyMastered = prevStreak >= 3;
-
-      // נקודות בסיס: 5 אם כבר שלטת, אחרת לפי רמת המדינה
-      const levelDef = _getCountryLevelDef(q.country);
-      points = alreadyMastered ? MASTERED_POINTS : levelDef.points;
-
-      state.streak++;
-      state.correctCount++;
-
-      // עדכן streak בפרופיל
-      recordCountryAnswer(state.profileName, q.country.id, true);
-
-      // בדוק האם הגיע ל-mastery עכשיו (streak עבר מ-2 ל-3)
-      if (!alreadyMastered && prevStreak === 2) {
-        points       += levelDef.masteryBonus;
-        bonusApplied  = true;
-        justMastered  = true;
-        state.newlyMastered.push(q.country);
+    if (state.isVerification) {
+      // סיבוב בדיקה — אין רישום נקודות לשאלה, רק מעקב נכון/לא נכון
+      if (correct) {
+        state.streak++;
+        state.correctCount++;
+      } else {
+        state.streak = 0;
       }
-
-      state.score += points;
     } else {
-      state.streak = 0;
-      recordCountryAnswer(state.profileName, q.country.id, false);
+      if (correct) {
+        // בדוק streak לפני עדכון
+        const prevStreak      = getCountryStreak(state.profileName, q.country.id);
+        const alreadyMastered = prevStreak >= 3;
+
+        // נקודות בסיס: 5 אם כבר שלטת, אחרת לפי רמת המדינה
+        const levelDef = _getCountryLevelDef(q.country);
+        points = alreadyMastered ? MASTERED_POINTS : levelDef.points;
+
+        state.streak++;
+        state.correctCount++;
+
+        // עדכן streak בפרופיל
+        recordCountryAnswer(state.profileName, q.country.id, true);
+
+        // בדוק האם הגיע ל-mastery עכשיו (streak עבר מ-2 ל-3)
+        if (!alreadyMastered && prevStreak === 2) {
+          points       += levelDef.masteryBonus;
+          bonusApplied  = true;
+          justMastered  = true;
+          state.newlyMastered.push(q.country);
+        }
+
+        state.score += points;
+      } else {
+        state.streak = 0;
+        recordCountryAnswer(state.profileName, q.country.id, false);
+      }
     }
 
     const answerRecord = {
@@ -167,20 +177,53 @@ const GAME = (() => {
     if (!state) return null;
     const threshold = _getPassThreshold();
     return {
-      profileName:   state.profileName,
-      mode:          state.mode,
-      level:         state.level,
-      continent:     state.continent,
-      score:         state.score,
-      correctCount:  state.correctCount,
-      total:         state.questions.length,
-      answers:       state.answers,
-      passed:        state.correctCount >= threshold,
-      passThreshold: threshold,
-      roundPrize:    state.roundPrize,
-      newlyMastered: state.newlyMastered || [],
-      levelUnlocked: state.levelUnlocked || null,
+      profileName:    state.profileName,
+      mode:           state.mode,
+      level:          state.level,
+      continent:      state.continent,
+      score:          state.score,
+      correctCount:   state.correctCount,
+      total:          state.questions.length,
+      answers:        state.answers,
+      passed:         state.correctCount >= threshold,
+      passThreshold:  threshold,
+      roundPrize:     state.roundPrize,
+      newlyMastered:  state.newlyMastered || [],
+      levelUnlocked:  state.levelUnlocked || null,
+      isVerification: state.isVerification || false,
     };
+  }
+
+  /**
+   * Start a verification round from countries answered in a previous round.
+   * @param {string} profileName
+   * @param {Array} countries - array of country objects
+   * @returns {object} first question data (or null if no countries)
+   */
+  function startVerificationRound(profileName, countries) {
+    if (!countries || countries.length === 0) return null;
+
+    const questions = countries.map(c => ({ country: c, choices: null }));
+
+    state = {
+      profileName,
+      mode:           'A',
+      level:          'easy',
+      continent:      'all',
+      questions,
+      currentIndex:   0,
+      score:          0,
+      streak:         0,
+      correctCount:   0,
+      answers:        [],
+      finished:       false,
+      roundPrize:     null,
+      newlyMastered:  [],
+      prevMastered:   getMasteredCount(profileName),
+      isVerification: true,
+    };
+
+    return currentQuestion();
   }
 
   /** Returns current score */
@@ -291,6 +334,18 @@ const GAME = (() => {
   /** Called internally when a round ends */
   function _onRoundEnd() {
     if (!state) return;
+
+    // סיבוב בדיקה — לוגיקה נפרדת
+    if (state.isVerification) {
+      state.answers.forEach(a => {
+        if (a.correct) markCountryVerified(state.profileName, a.country.id);
+      });
+      state.score      = state.correctCount * 30;
+      state.roundPrize = state.correctCount > 0 ? addPoints(state.profileName, state.score) : null;
+      state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.prevMastered);
+      return;
+    }
+
     if (state.level !== 'all') markLevelCompleted(state.profileName, state.level);
 
     const threshold = _getPassThreshold();
@@ -313,6 +368,7 @@ const GAME = (() => {
 
   return {
     startGame,
+    startVerificationRound,
     submitAnswer,
     nextQuestion,
     currentQuestion,

@@ -71,7 +71,8 @@ function createProfile(name, avatar, pin) {
     points: 0,
     countriesLearned: {},
     prizesEarned: [],
-    levelsCompleted: []
+    levelsCompleted: [],
+    continentsPassed: false
   };
   _profilesCache.push(newProfile);
   _saveProfile(newProfile);
@@ -113,6 +114,7 @@ function resetProfile(name) {
   p.countriesLearned = {};
   p.prizesEarned     = [];
   p.levelsCompleted  = [];
+  p.continentsPassed = false;
   _saveProfile(p);
 }
 
@@ -179,11 +181,33 @@ function checkMilestone(prevPoints, newPoints, alreadyEarned = []) {
   return null;
 }
 
-// מספר מדינות שהושגה שליטה בהן (3 ברציפות)
+// מספר מדינות שהושגה שליטה בהן (3 ברציפות או verified)
 function getMasteredCount(profileName) {
   const p = getProfile(profileName);
   if (!p) return 0;
-  return Object.values(p.countriesLearned).filter(d => (d.streak || 0) >= 3).length;
+  return Object.values(p.countriesLearned).filter(d => (d.streak || 0) >= 3 || d.verified === true).length;
+}
+
+function setContinentsPassed(profileName) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return;
+  p.continentsPassed = true;
+  _saveProfile(p);
+}
+
+function hasContinentsPassed(profileName) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return false;
+  return p.continentsPassed === true;
+}
+
+function markCountryVerified(profileName, countryId) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return;
+  const key = String(countryId);
+  if (!p.countriesLearned[key]) p.countriesLearned[key] = { correct: 0, wrong: 0, streak: 0 };
+  p.countriesLearned[key].verified = true;
+  _saveProfile(p);
 }
 
 // תאימות אחורה

@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>גלובוס — Design Preview v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* =====================
+       CSS Custom Properties
+    ===================== */
+    :root {
+      --primary:       #0EA5E9;
+      --primary-dk:    #0284C7;
+      --primary-dkr:   #0369A1;
+      --accent:        #F59E0B;
+      --accent-green:  #10B981;
+      --accent-red:    #EF4444;
+      --bg:            #F0FFFE;
+      --surface:       #FFFFFF;
+      --text:          #0F172A;
+      --text-muted:    #64748B;
+      --border:        #E2E8F0;
+      --gold:          #F59E0B;
+      --silver:        #94A3B8;
+      --bronze:        #B45309;
+      --radius-card:   16px;
+      --radius-btn:    16px;
+      --gap:           12px;
+    }
+
+    /* =====================
+       Reset & Base
+    ===================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Heebo', 'Arial', sans-serif;
+      direction: rtl;
+      background: #E8F4F8;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    /* =====================
+       Page Header
+    ===================== */
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--primary-dk);
+      letter-spacing: -0.5px;
+    }
+
+    .page-note {
+      display: inline-block;
+      margin-top: 8px;
+      background: #FEF3C7;
+      border: 1px solid #F59E0B;
+      color: #92400E;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 99px;
+    }
+
+    /* =====================
+       Section Wrapper
+    ===================== */
+    .section {
+      max-width: 960px;
+      margin: 0 auto 48px;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding-right: 4px;
+      border-right: 3px solid var(--primary);
+      padding-right: 10px;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 2px dashed #CBD5E1;
+      margin: 48px 0;
+    }
+
+    /* =====================
+       Screen Container
+    ===================== */
+    .screen {
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(14,165,233,0.10), 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid rgba(14,165,233,0.12);
+    }
+
+    /* =====================
+       SCREEN 1 — Leaderboard
+    ===================== */
+    .leaderboard-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .profile-card {
+      border-radius: var(--radius-card);
+      padding: 16px 18px;
+      margin-bottom: var(--gap);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    /* 1st place */
+    .profile-card.gold {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 2px solid #F59E0B;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.35), 0 0 0 1px rgba(245,158,11,0.15);
+    }
+
+    /* 2nd place */
+    .profile-card.silver {
+      background: linear-gradient(135deg, #F1F5F9, #E2E8F0);
+      border: 2px solid #94A3B8;
+      box-shadow: 0 3px 12px rgba(148,163,184,0.25);
+    }
+
+    /* 3rd place */
+    .profile-card.bronze {
+      background: linear-gradient(135deg, #FEF3E8, #FDDCB8);
+      border: 2px solid #B45309;
+      box-shadow: 0 3px 10px rgba(180,83,9,0.20);
+    }
+
+    .medal {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .profile-card.silver .medal,
+    .profile-card.bronze .medal {
+      font-size: 1.9rem;
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-card.gold .profile-name {
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    .profile-card.silver .profile-name,
+    .profile-card.bronze .profile-name {
+      font-size: 1.05rem;
+    }
+
+    .profile-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .profile-meta .badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 99px;
+      background: rgba(0,0,0,0.08);
+      color: #374151;
+    }
+
+    .profile-card.gold .badge {
+      background: rgba(180,83,9,0.15);
+      color: #92400E;
+    }
+
+    .rank-num {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+    }
+
+    .profile-card.gold .rank-num { color: #B45309; }
+    .profile-card.silver .rank-num { color: #64748B; }
+    .profile-card.bronze .rank-num { color: #92400E; }
+
+    .add-profile-btn {
+      width: 100%;
+      padding: 14px;
+      border: 2px dashed var(--primary);
+      border-radius: var(--radius-card);
+      background: transparent;
+      color: var(--primary);
+      font-family: 'Heebo', Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .add-profile-btn:hover {
+      background: rgba(14,165,233,0.07);
+    }
+
+    /* =====================
+       SCREEN 2 — Dashboard
+    ===================== */
+    .greeting {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: var(--gap);
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .stat-value.primary { color: var(--primary); }
+    .stat-value.accent  { color: var(--accent); }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    /* Progress bar */
+    .progress-section {
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .progress-target {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .progress-track {
+      height: 12px;
+      background: #E2E8F0;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 68%;
+      background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%);
+      border-radius: 99px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: shimmer 1.8s infinite ease-in-out;
+    }
+
+    @keyframes shimmer {
+      0%   { left: -60%; }
+      100% { left: 120%; }
+    }
+
+    /* Streak chip */
+    .streak-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 1.5px solid #F59E0B;
+      color: #92400E;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 5px 13px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+      animation: pulse-chip 2s infinite;
+      box-shadow: 0 0 0 0 rgba(245,158,11,0.4);
+    }
+
+    @keyframes pulse-chip {
+      0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+      60%  { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+
+    /* Dashboard action buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 16px 12px;
+      font-family: 'Heebo', Arial, sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, box-shadow 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-btn:active {
+      transform: translateY(3px);
+    }
+
+    .action-btn .btn-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .action-btn.blue {
+      background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+      box-shadow: 0 4px 0 #0369A1, 0 8px 24px rgba(14,165,233,0.35);
+    }
+
+    .action-btn.teal {
+      background: linear-gradient(180deg, #06B6D4 0%, #0891B2 100%);
+      box-shadow: 0 4px 0 #0E7490, 0 8px 24px rgba(6,182,212,0.35);
+    }
+
+    .action-btn.purple {
+      background: linear-gradient(180deg, #8B5CF6 0%, #7C3AED 100%);
+      box-shadow: 0 4px 0 #5B21B6, 0 8px 24px rgba(139,92,246,0.35);
+    }
+
+    .action-btn.gray {
+      background: linear-gradient(180deg, #64748B 0%, #475569 100%);
+      box-shadow: 0 4px 0 #334155, 0 8px 24px rgba(100,116,139,0.25);
+      color: #F8FAFC;
+    }
+
+    .action-btn.full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* =====================
+       SCREEN 3 — CTA Button
+    ===================== */
+    .cta-demo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cta-demo-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .cta-button {
+      font-family: 'Heebo', Arial, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 18px 40px;
+      background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+      box-shadow: 0 4px 0 #0369A1, 0 8px 24px rgba(14,165,233,0.35);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+
+    .cta-button:hover {
+      box-shadow: 0 5px 0 #0369A1, 0 12px 28px rgba(14,165,233,0.40);
+      transform: translateY(-1px);
+    }
+
+    .cta-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0369A1, 0 4px 10px rgba(14,165,233,0.20);
+    }
+
+    .cta-button.disabled-look {
+      background: linear-gradient(180deg, #94A3B8 0%, #64748B 100%);
+      box-shadow: 0 4px 0 #475569, 0 8px 20px rgba(100,116,139,0.25);
+      cursor: default;
+    }
+
+    .btn-state-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: -8px;
+    }
+
+    .cta-group {
+      text-align: center;
+    }
+
+    /* =====================
+       SCREEN 4 — Summary
+    ===================== */
+    .summary-rating {
+      text-align: center;
+      font-size: 2.8rem;
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+
+    .summary-score {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 14px;
+    }
+
+    .summary-score span.multiplier {
+      font-size: 1.15rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .mastered-chip {
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 1.5px solid #F59E0B;
+      border-radius: var(--radius-card);
+      padding: 12px 16px;
+      color: #92400E;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .correct-count {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .correct-count strong {
+      color: var(--accent-green);
+    }
+
+    /* Answer list */
+    .answer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .answer-row.correct {
+      background: #D1FAE5;
+      border: 1px solid #6EE7B7;
+      color: #065F46;
+    }
+
+    .answer-row.wrong {
+      background: #FEE2E2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+    }
+
+    .answer-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .answer-text {
+      flex: 1;
+    }
+
+    .answer-detail {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      font-weight: 400;
+    }
+
+    /* Summary action buttons */
+    .summary-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      margin-top: 18px;
+    }
+
+    .summary-btn {
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 15px;
+      font-family: 'Heebo', Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .summary-btn:active {
+      transform: translateY(2px);
+    }
+
+    .summary-btn.primary {
+      background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+      box-shadow: 0 4px 0 #0369A1, 0 8px 24px rgba(14,165,233,0.35);
+      color: #FFFFFF;
+    }
+
+    .summary-btn.secondary {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* =====================
+       Color Palette strip
+    ===================== */
+    .palette-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch-block {
+      width: 64px;
+      height: 52px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+    }
+
+    .swatch-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    .swatch-hex {
+      font-size: 0.6rem;
+      color: #94A3B8;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- =====================
+       PAGE HEADER
+  ===================== -->
+  <div class="page-header">
+    <h1>גלובוס 🌍 — Design Preview v2</h1>
+    <div class="page-note">תצוגה מקדימה בלבד — לפני שינוי הקוד</div>
+  </div>
+
+
+  <!-- =====================
+       COLOR PALETTE
+  ===================== -->
+  <div class="section">
+    <div class="section-label">פלטת צבעים חדשה</div>
+    <div class="palette-strip">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#0EA5E9;"></div>
+        <div class="swatch-name">Primary</div>
+        <div class="swatch-hex">#0EA5E9</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#0284C7;"></div>
+        <div class="swatch-name">Primary DK</div>
+        <div class="swatch-hex">#0284C7</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F59E0B;"></div>
+        <div class="swatch-name">Accent</div>
+        <div class="swatch-hex">#F59E0B</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#10B981;"></div>
+        <div class="swatch-name">Green</div>
+        <div class="swatch-hex">#10B981</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F0FFFE; border: 1.5px solid #CBD5E1;"></div>
+        <div class="swatch-name">BG</div>
+        <div class="swatch-hex">#F0FFFE</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FFFFFF; border: 1.5px solid #E2E8F0;"></div>
+        <div class="swatch-name">Surface</div>
+        <div class="swatch-hex">#FFFFFF</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+
+  <!-- =====================
+       SCREEN 1 — LEADERBOARD
+  ===================== -->
+  <div class="section">
+    <div class="section-label">לוח תוצאות</div>
+    <div class="screen">
+
+      <div class="leaderboard-title">גלובוס 🌍</div>
+
+      <!-- 1st Place -->
+      <div class="profile-card gold">
+        <span class="medal">🥇</span>
+        <div class="profile-info">
+          <div class="profile-name">דוד</div>
+          <div class="profile-meta">
+            <span class="badge">847 נקודות</span>
+            <span class="badge">34 מדינות</span>
+          </div>
+        </div>
+        <div class="rank-num">#1</div>
+      </div>
+
+      <!-- 2nd Place -->
+      <div class="profile-card silver">
+        <span class="medal">🥈</span>
+        <div class="profile-info">
+          <div class="profile-name">נועה</div>
+          <div class="profile-meta">
+            <span class="badge">612 נקודות</span>
+            <span class="badge">27 מדינות</span>
+          </div>
+        </div>
+        <div class="rank-num">#2</div>
+      </div>
+
+      <!-- 3rd Place -->
+      <div class="profile-card bronze">
+        <span class="medal">🥉</span>
+        <div class="profile-info">
+          <div class="profile-name">יוסי</div>
+          <div class="profile-meta">
+            <span class="badge">389 נקודות</span>
+            <span class="badge">18 מדינות</span>
+          </div>
+        </div>
+        <div class="rank-num">#3</div>
+      </div>
+
+      <button class="add-profile-btn">
+        <span>＋</span>
+        <span>הוסף פרופיל</span>
+      </button>
+
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+
+  <!-- =====================
+       SCREEN 2 — DASHBOARD
+  ===================== -->
+  <div class="section">
+    <div class="section-label">דאשבורד</div>
+    <div class="screen">
+
+      <div class="greeting">שלום, דוד! 👋</div>
+
+      <!-- Streak chip -->
+      <div class="streak-chip">🔥 5 רצף</div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value primary">847</div>
+          <div class="stat-label">נקודות</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value accent">34</div>
+          <div class="stat-label">מדינות</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">🏅 בדרך לפרס הבא</span>
+          <span class="progress-target">68 / 100 נק׳</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-grid">
+        <button class="action-btn blue">
+          <span class="btn-icon">🗺</span>
+          זהה מדינות
+        </button>
+        <button class="action-btn teal">
+          <span class="btn-icon">🔍</span>
+          מצא מדינות
+        </button>
+        <button class="action-btn purple">
+          <span class="btn-icon">🌍</span>
+          משחק יבשות
+        </button>
+        <button class="action-btn gray">
+          <span class="btn-icon">🗺</span>
+          מפת העולם
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+
+  <!-- =====================
+       SCREEN 3 — 3D BUTTON
+  ===================== -->
+  <div class="section">
+    <div class="section-label">כפתור 3D</div>
+    <div class="screen">
+      <div class="cta-demo-wrap">
+
+        <div class="cta-group">
+          <button class="cta-button">
+            🗺 התחל לשחק
+          </button>
+          <div class="btn-state-note">מצב רגיל — hover מוסיף הרמה</div>
+        </div>
+
+        <div class="cta-group">
+          <!-- Simulating :active with inline style -->
+          <button class="cta-button" style="transform:translateY(4px); box-shadow: 0 1px 0 #0369A1, 0 4px 10px rgba(14,165,233,0.20);">
+            🗺 התחל לשחק
+          </button>
+          <div class="btn-state-note">מצב לחוץ (:active) — נשמט 4px</div>
+        </div>
+
+        <div class="cta-group">
+          <button class="cta-button disabled-look" disabled>
+            🔒 נעול
+          </button>
+          <div class="btn-state-note">מצב מושבת</div>
+        </div>
+
+        <!-- CSS spec note -->
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 16px; width:100%; font-size:0.78rem; color:#475569; direction:ltr; font-family: 'Courier New', monospace; line-height:1.7;">
+          background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);<br>
+          box-shadow: 0 4px 0 #0369A1, 0 8px 24px rgba(14,165,233,0.35);<br>
+          border-radius: 16px;
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+
+  <!-- =====================
+       SCREEN 4 — SUMMARY
+  ===================== -->
+  <div class="section">
+    <div class="section-label">סיכום</div>
+    <div class="screen">
+
+      <!-- Rating -->
+      <div class="summary-rating">🏆</div>
+
+      <!-- Score -->
+      <div class="summary-score">
+        240 נקודות
+        <span class="multiplier">×1.2 ⭐</span>
+      </div>
+
+      <!-- Mastered -->
+      <div class="mastered-chip">
+        ⭐ שלטת על: ברזיל, ספרד!
+      </div>
+
+      <!-- Correct count -->
+      <div class="correct-count">
+        <strong>8</strong> / 10 תשובות נכונות
+      </div>
+
+      <!-- Answer list -->
+      <div class="answer-list">
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            ברזיל
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            ספרד
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            צרפת
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            יפן
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            קנדה
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row wrong">
+          <span class="answer-icon">✗</span>
+          <div class="answer-text">
+            ניגריה
+            <div class="answer-detail">ענית: גאנה</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            ארגנטינה
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            גרמניה
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+        <div class="answer-row wrong">
+          <span class="answer-icon">✗</span>
+          <div class="answer-text">
+            אתיופיה
+            <div class="answer-detail">ענית: קניה</div>
+          </div>
+        </div>
+        <div class="answer-row correct">
+          <span class="answer-icon">✓</span>
+          <div class="answer-text">
+            אוסטרליה
+            <div class="answer-detail">זיהית נכון!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="summary-actions">
+        <button class="summary-btn primary">🔄 שחק שוב</button>
+        <button class="summary-btn secondary">🏠 חזור לדאשבורד</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center; margin-top:40px; color:#94A3B8; font-size:0.75rem; font-weight:600;">
+    גלובוס 🌍 — Design Preview v2 · Generated 2026-03-25
+  </div>
+
+</body>
+</html>

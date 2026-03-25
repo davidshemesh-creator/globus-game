@@ -351,6 +351,27 @@ const APP = (() => {
     return idx > 0 ? PRIZES[idx - 1].points : 0;
   }
 
+  // ── GAME SELECT SCREEN ─────────────────────────────────────
+  function renderGameSelectScreen() {
+    const passed = currentProfile && hasContinentsPassed(currentProfile.name);
+    const btnB   = document.getElementById('btn-game-mode-b');
+    const btnA   = document.getElementById('btn-game-mode-a');
+    const hintB  = document.getElementById('hint-lock-mode-b');
+    const hintA  = document.getElementById('hint-lock-mode-a');
+
+    if (!passed) {
+      if (btnB) { btnB.classList.add('locked');    btnB.title = '🔒 צלח יבשות קודם'; }
+      if (btnA) { btnA.classList.add('locked');    btnA.title = '🔒 צלח יבשות קודם'; }
+      if (hintB) hintB.classList.remove('hidden');
+      if (hintA) hintA.classList.remove('hidden');
+    } else {
+      if (btnB) { btnB.classList.remove('locked'); btnB.title = ''; }
+      if (btnA) { btnA.classList.remove('locked'); btnA.title = ''; }
+      if (hintB) hintB.classList.add('hidden');
+      if (hintA) hintA.classList.add('hidden');
+    }
+  }
+
   // ── SETUP SCREEN ───────────────────────────────────────────
   function renderSetupScreen() {
     const modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
@@ -624,6 +645,24 @@ const APP = (() => {
       const delay = summary.roundPrize ? 3500 : 1500;
       setTimeout(() => _showLevelUnlockPopup(summary.levelUnlocked), delay);
     }
+
+    // כותרת וסגנון מיוחד לסיבוב בדיקה
+    if (summary.isVerification) {
+      _setText('summary-rating', '🗺️');
+      const titleEl = document.getElementById('summary-title');
+      if (titleEl) titleEl.textContent = 'סיבוב בדיקה';
+    }
+
+    // כפתור סיבוב בדיקה — מוצג אחרי סיבוב B עם 8+ נכונות
+    const verBtnEl = document.getElementById('btn-start-verification');
+    if (verBtnEl) {
+      if (!summary.isVerification && summary.mode === 'B' && summary.correctCount >= 8) {
+        verBtnEl.classList.remove('hidden');
+        verBtnEl.dataset.countries = JSON.stringify(summary.answers.map(a => a.country));
+      } else {
+        verBtnEl.classList.add('hidden');
+      }
+    }
   }
 
   function _showLevelUnlockPopup(levelUnlocked) {
@@ -760,6 +799,7 @@ const APP = (() => {
     // ----- Dashboard -----
     _on('btn-play', 'click', () => {
       showScreen('screen-game-select');
+      renderGameSelectScreen();
     });
 
     // ----- Game selection -----
@@ -769,12 +809,20 @@ const APP = (() => {
     });
 
     _on('btn-game-mode-b', 'click', () => {
+      if (!hasContinentsPassed(currentProfile.name)) {
+        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
+        return;
+      }
       gameSetup.mode = 'B';
       showScreen('screen-setup');
       renderSetupScreen();
     });
 
     _on('btn-game-mode-a', 'click', () => {
+      if (!hasContinentsPassed(currentProfile.name)) {
+        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
+        return;
+      }
       gameSetup.mode = 'A';
       showScreen('screen-setup');
       renderSetupScreen();
@@ -890,6 +938,24 @@ const APP = (() => {
     });
 
     // ----- Summary buttons -----
+    document.getElementById('btn-start-verification')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-start-verification');
+      if (!btn) return;
+      const countries = JSON.parse(btn.dataset.countries || '[]');
+      if (countries.length === 0) return;
+
+      showScreen('screen-game');
+      _setText('game-profile-name',   currentProfile.name);
+      _setText('game-profile-avatar', currentProfile.avatar);
+
+      await MAP.init('map-container');
+
+      gameSetup.mode = 'A'; // verification = click on map
+      const q = GAME.startVerificationRound(currentProfile.name, countries);
+      if (!q) { alert('שגיאה בטעינת סיבוב בדיקה'); return; }
+      renderQuestion(q);
+    });
+
     document.getElementById('btn-play-again')?.addEventListener('click', () => {
       pendingPrize = null; // cancel auto-show if user clicks first
       startGameRound();
