@@ -121,25 +121,25 @@ const APP = (() => {
     grid.innerHTML = '';
 
     profiles.forEach((p, idx) => {
-      const rankDisplay = idx < 3
-        ? `<span class="rank-medal">${RANK_MEDALS[idx]}</span>`
-        : `<span class="rank-num">#${idx + 1}</span>`;
+      const rankClass  = idx < 3 ? ` rank-${idx + 1}` : '';
+      const medalEmoji = idx < 3 ? RANK_MEDALS[idx] : '';
+      const rankBlock  = `
+        <div class="rank-block">
+          <span class="rank-big">${idx + 1}</span>
+          ${medalEmoji ? `<span class="rank-medal-icon">${medalEmoji}</span>` : ''}
+        </div>`;
 
-      const rankClass = idx < 3 ? ` rank-${idx + 1}` : '';
-      const card = _el('div', `profile-card profile-card--with-progress${rankClass}`, `
-        <div class="profile-card-top">
-          ${rankDisplay}
-          <span class="profile-avatar">${p.avatar}</span>
-          <div class="profile-card-info">
-            <span class="profile-name">${p.name}</span>
-            <span class="profile-pts">${p.points} נקודות  •  ${getMasteredCount(p.name)} מדינות</span>
-          </div>
-          <div class="profile-card-actions">
-            <button class="btn-profile-action btn-profile-edit" title="ערוך">✏️</button>
-            <button class="btn-profile-action btn-profile-delete" title="מחק">🗑️</button>
-          </div>
+      const card = _el('div', `profile-card${rankClass}`, `
+        ${rankBlock}
+        <span class="profile-avatar">${p.avatar}</span>
+        <div class="profile-card-info">
+          <span class="profile-name">${p.name}</span>
+          <span class="profile-pts">${p.points} נקודות  •  ${getMasteredCount(p.name)} מדינות</span>
         </div>
-        ${_getContinentProgressHTML(p)}
+        <div class="profile-card-actions">
+          <button class="btn-profile-action btn-profile-edit" title="ערוך">✏️</button>
+          <button class="btn-profile-action btn-profile-delete" title="מחק">🗑️</button>
+        </div>
       `);
 
       // click on card body → select profile

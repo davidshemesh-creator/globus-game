@@ -188,21 +188,22 @@ body {
 
 /* ── Profile cards ────────────────────────────────────────── */
 .profiles-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: var(--gap) 0;
   width: 100%;
 }
 
 .profile-card {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
   background: var(--surface);
   border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   font-family: var(--font);
@@ -242,6 +243,25 @@ body {
 .loading-error { font-size: 0.9rem; color: var(--danger); }
 
 /* ── Rank badges on profile cards ─────────────────────────── */
+.rank-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  flex-shrink: 0;
+  gap: 1px;
+}
+.rank-big {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-muted);
+}
+.rank-medal-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
 .rank-medal {
   font-size: 1.4rem;
   flex-shrink: 0;
@@ -267,6 +287,9 @@ body {
 .profile-card.rank-1 .profile-name { color: #92400E; font-size: 1rem; }
 .profile-card.rank-2 .profile-name { color: #1E293B; }
 .profile-card.rank-3 .profile-name { color: #7C2D12; }
+.profile-card.rank-1 .rank-big { color: #F59E0B; font-size: 2rem; }
+.profile-card.rank-2 .rank-big { color: #94A3B8; font-size: 1.8rem; }
+.profile-card.rank-3 .rank-big { color: #D97706; font-size: 1.7rem; }
 .rank-num {
   font-size: 0.75rem;
   font-weight: 800;
@@ -284,17 +307,19 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 .profile-card-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-width: 0;
 }
 .profile-avatar { font-size: 2rem; line-height: 1; flex-shrink: 0; }
-.profile-name   { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-pts    { font-size: 0.75rem; color: var(--text-muted); }
+.profile-name   { font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-pts    { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
 /* Edit / delete buttons */
 .profile-card-actions {
@@ -1261,3 +1286,6 @@ body {
   .choice-buttons { grid-template-columns: 1fr; }
   .level-grid     { grid-template-columns: 1fr 1fr; }
 }
+
+/* Hide continent progress bars inside horizontal list cards */
+.profile-card .profile-cont-progress { display: none; }
