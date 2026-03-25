@@ -500,8 +500,10 @@ const APP = (() => {
     if (streak >= 3) {
       el.textContent = `🔥 ${streak}`;
       el.classList.remove('hidden');
+      el.classList.add('active-streak');
     } else {
       el.classList.add('hidden');
+      el.classList.remove('active-streak');
     }
   }
 
