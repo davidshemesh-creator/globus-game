@@ -234,6 +234,10 @@ body {
   0%   { transform: rotateY(0deg);   }
   100% { transform: rotateY(360deg); }
 }
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
 .loading-text  { font-size: 1.1rem; color: var(--text-muted); font-weight: 600; }
 .loading-error { font-size: 0.9rem; color: var(--danger); }
 
@@ -243,6 +247,26 @@ body {
   flex-shrink: 0;
   line-height: 1;
 }
+
+/* Gold / Silver / Bronze card skins */
+.profile-card.rank-1 {
+  border-color: #F59E0B;
+  background: linear-gradient(145deg, #FFFBEB 0%, #FEF3C7 100%);
+  box-shadow: 0 4px 20px rgba(245,158,11,0.2);
+}
+.profile-card.rank-2 {
+  border-color: #94A3B8;
+  background: linear-gradient(145deg, #F8FAFC 0%, #F1F5F9 100%);
+  box-shadow: 0 3px 14px rgba(148,163,184,0.2);
+}
+.profile-card.rank-3 {
+  border-color: #D97706;
+  background: linear-gradient(145deg, #FFF7ED 0%, #FFEDD5 100%);
+  box-shadow: 0 3px 14px rgba(217,119,6,0.15);
+}
+.profile-card.rank-1 .profile-name { color: #92400E; font-size: 1rem; }
+.profile-card.rank-2 .profile-name { color: #1E293B; }
+.profile-card.rank-3 .profile-name { color: #7C2D12; }
 .rank-num {
   font-size: 0.75rem;
   font-weight: 800;
@@ -455,8 +479,13 @@ body {
 }
 .progress-track.thin { height: 4px; }
 .progress-fill {
-  height: 100%; background: var(--primary); border-radius: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, #38BDF8 50%, var(--primary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.4s ease-in-out infinite;
+  border-radius: 20px;
   transition: width 0.4s ease;
+
 }
 
 /* ── Level grid ───────────────────────────────────────────── */
@@ -768,6 +797,8 @@ body {
 }
 .summary-rating  { font-size: 2.4rem; }
 .summary-score    { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
+.summary-score.passed  { color: var(--accent-green); }
+.summary-score.failed  { color: var(--text-muted); font-size: 1rem; font-weight: 600; }
 .summary-mastered { font-size: 0.95rem; font-weight: 700; color: #F59E0B; margin-top: -4px; }
 .summary-pct      { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); }
 .summary-correct-label { font-size: 0.9rem; color: var(--text-muted); }
@@ -817,6 +848,27 @@ body {
 
 .prize-animate .prize-emoji-big {
   animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ── Confetti particles ── */
+.confetti-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.confetti-particle {
+  position: absolute;
+  top: -20px;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg);   opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
 .prize-congrats        { font-size: 2rem; font-weight: 900; }

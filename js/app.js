@@ -125,7 +125,8 @@ const APP = (() => {
         ? `<span class="rank-medal">${RANK_MEDALS[idx]}</span>`
         : `<span class="rank-num">#${idx + 1}</span>`;
 
-      const card = _el('div', 'profile-card profile-card--with-progress', `
+      const rankClass = idx < 3 ? ` rank-${idx + 1}` : '';
+      const card = _el('div', `profile-card profile-card--with-progress${rankClass}`, `
         <div class="profile-card-top">
           ${rankDisplay}
           <span class="profile-avatar">${p.avatar}</span>
@@ -569,11 +570,14 @@ const APP = (() => {
     _setText('summary-rating', rating);
 
     // Points display — show earned points or "did not pass" message
+    const scoreEl = document.getElementById('summary-score');
     if (summary.passed) {
       const multiplierNote = summary.correctCount === 10 ? ' ×1.5 🔥' : summary.correctCount === 9 ? ' ×1.2 ⭐' : '';
       _setText('summary-score', `${summary.score} נקודות${multiplierNote}`);
+      scoreEl?.classList.remove('failed'); scoreEl?.classList.add('passed');
     } else {
       _setText('summary-score', `לא הגעת ל-${summary.passThreshold}/10 — אין נקודות הפעם`);
+      scoreEl?.classList.remove('passed'); scoreEl?.classList.add('failed');
     }
 
     // הצג מדינות שהשגת שליטה עליהן
@@ -629,6 +633,32 @@ const APP = (() => {
     alert(msg);
   }
 
+  // ── CONFETTI ────────────────────────────────────────────────
+  function _launchConfetti() {
+    const screen = document.getElementById('screen-prize');
+    if (!screen) return;
+    // Remove old container if exists
+    screen.querySelector('.confetti-container')?.remove();
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    const colors = ['#F59E0B','#0EA5E9','#10B981','#F472B6','#FB923C','#A78BFA','#FBBF24'];
+    for (let i = 0; i < 60; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-particle';
+      p.style.left     = `${Math.random() * 100}%`;
+      p.style.width    = `${6 + Math.random() * 8}px`;
+      p.style.height   = `${6 + Math.random() * 8}px`;
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      p.style.animationDuration = `${1.8 + Math.random() * 2.2}s`;
+      p.style.animationDelay   = `${Math.random() * 1.2}s`;
+      container.appendChild(p);
+    }
+    screen.insertBefore(container, screen.firstChild);
+    // Clean up after animation
+    setTimeout(() => container.remove(), 5000);
+  }
+
   // ── PRIZE SCREEN ───────────────────────────────────────────
   // destination: 'play-again' | 'home' (where to go after prize)
   function showPrizeScreen(prize, destination = 'home') {
@@ -638,13 +668,14 @@ const APP = (() => {
     _setText('prize-name',        prize.prize);
     _setText('prize-points',      `${prize.points} נקודות`);
 
-    // confetti-style animation trigger
+    // animation + confetti
     const el = document.getElementById('screen-prize');
     if (el) {
       el.classList.remove('prize-animate');
       void el.offsetWidth; // reflow
       el.classList.add('prize-animate');
     }
+    _launchConfetti();
 
     const continueBtn = document.getElementById('btn-prize-continue');
     if (continueBtn) {
