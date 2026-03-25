@@ -43,7 +43,7 @@ const COUNTRIES = [
   { id: 724,  iso2: 'ES', nameHe: 'ספרד',               continent: 'europe',        priority: 5 },
   { id: 484,  iso2: 'MX', nameHe: 'מקסיקו',             continent: 'north-america', priority: 5 },
   // ── PRIORITY 4 — ידועות ──
-  { id: 792,  iso2: 'TR', nameHe: 'טורקיה',             continent: 'asia',          priority: 4 },
+  { id: 792,  iso2: 'TR', nameHe: 'טורקיה',             continent: 'asia',          priority: 5 },
   { id: 364,  iso2: 'IR', nameHe: 'איראן',              continent: 'asia',          priority: 4 },
   { id: 368,  iso2: 'IQ', nameHe: 'עיראק',              continent: 'asia',          priority: 4 },
   { id: 4,    iso2: 'AF', nameHe: 'אפגניסטן',           continent: 'asia',          priority: 4 },
@@ -55,11 +55,11 @@ const COUNTRIES = [
   { id: 360,  iso2: 'ID', nameHe: 'אינדונזיה',          continent: 'asia',          priority: 4 },
   { id: 528,  iso2: 'NL', nameHe: 'הולנד',              continent: 'europe',        priority: 4 },
   { id: 56,   iso2: 'BE', nameHe: 'בלגיה',              continent: 'europe',        priority: 4 },
-  { id: 752,  iso2: 'SE', nameHe: 'שוודיה',             continent: 'europe',        priority: 4 },
+  { id: 752,  iso2: 'SE', nameHe: 'שוודיה',             continent: 'europe',        priority: 5 },
   { id: 578,  iso2: 'NO', nameHe: 'נורווגיה',           continent: 'europe',        priority: 4 },
   { id: 756,  iso2: 'CH', nameHe: 'שווייץ',             continent: 'europe',        priority: 4 },
   { id: 40,   iso2: 'AT', nameHe: 'אוסטריה',            continent: 'europe',        priority: 4 },
-  { id: 620,  iso2: 'PT', nameHe: 'פורטוגל',            continent: 'europe',        priority: 4 },
+  { id: 620,  iso2: 'PT', nameHe: 'פורטוגל',            continent: 'europe',        priority: 5 },
   { id: 300,  iso2: 'GR', nameHe: 'יוון',               continent: 'europe',        priority: 4 },
   { id: 616,  iso2: 'PL', nameHe: 'פולין',              continent: 'europe',        priority: 4 },
   { id: 804,  iso2: 'UA', nameHe: 'אוקראינה',           continent: 'europe',        priority: 4 },
@@ -98,14 +98,14 @@ const COUNTRIES = [
   { id: 51,   iso2: 'AM', nameHe: 'ארמניה',             continent: 'asia',          priority: 3 },
   { id: 31,   iso2: 'AZ', nameHe: "אזרבייג'ן",          continent: 'asia',          priority: 3 },
   { id: 642,  iso2: 'RO', nameHe: 'רומניה',             continent: 'europe',        priority: 3 },
-  { id: 348,  iso2: 'HU', nameHe: 'הונגריה',            continent: 'europe',        priority: 3 },
+  { id: 348,  iso2: 'HU', nameHe: 'הונגריה',            continent: 'europe',        priority: 4 },
   { id: 203,  iso2: 'CZ', nameHe: "צ'כיה",              continent: 'europe',        priority: 3 },
   { id: 703,  iso2: 'SK', nameHe: 'סלובקיה',            continent: 'europe',        priority: 3 },
-  { id: 191,  iso2: 'HR', nameHe: 'קרואטיה',            continent: 'europe',        priority: 3 },
+  { id: 191,  iso2: 'HR', nameHe: 'קרואטיה',            continent: 'europe',        priority: 4 },
   { id: 688,  iso2: 'RS', nameHe: 'סרביה',              continent: 'europe',        priority: 3 },
   { id: 100,  iso2: 'BG', nameHe: 'בולגריה',            continent: 'europe',        priority: 3 },
-  { id: 208,  iso2: 'DK', nameHe: 'דנמרק',              continent: 'europe',        priority: 3 },
-  { id: 246,  iso2: 'FI', nameHe: 'פינלנד',             continent: 'europe',        priority: 3 },
+  { id: 208,  iso2: 'DK', nameHe: 'דנמרק',              continent: 'europe',        priority: 4 },
+  { id: 246,  iso2: 'FI', nameHe: 'פינלנד',             continent: 'europe',        priority: 4 },
   { id: 372,  iso2: 'IE', nameHe: 'אירלנד',             continent: 'europe',        priority: 3 },
   { id: 288,  iso2: 'GH', nameHe: 'גנה',                continent: 'africa',        priority: 3 },
   { id: 834,  iso2: 'TZ', nameHe: 'טנזניה',             continent: 'africa',        priority: 3 },
@@ -202,19 +202,19 @@ const COUNTRIES = [
 
 // אבני דרך לפרסים
 const PRIZES = [
-  { points: 100,  achievement: 'נוסע סקרן',    prize: 'ממתק',                  emoji: '🍬' },
-  { points: 250,  achievement: 'מגלה דרכים',   prize: 'קולה',                  emoji: '🥤' },
-  { points: 400,  achievement: 'אמן המפות',    prize: 'מקדונלדס',              emoji: '🍔' },
-  { points: 700,  achievement: 'שגריר יבשות',  prize: 'חבילת סוכריות גומי',   emoji: '🐻' },
-  { points: 1000, achievement: 'גיבור העולם',  prize: 'מה שתבחרו עד 100 ש"ח', emoji: '🎁' },
+  { points: 500,   achievement: 'נוסע סקרן',    prize: 'ממתק',                  emoji: '🍬' },
+  { points: 1500,  achievement: 'מגלה דרכים',   prize: 'קולה',                  emoji: '🥤' },
+  { points: 4000,  achievement: 'אמן המפות',    prize: 'מקדונלדס',              emoji: '🍔' },
+  { points: 8000,  achievement: 'שגריר יבשות',  prize: 'חבילת סוכריות גומי',   emoji: '🐻' },
+  { points: 15000, achievement: 'גיבור העולם',  prize: 'מה שתבחרו עד 100 ש"ח', emoji: '🎁' },
 ];
 
-// רמות קושי
+// רמות קושי — כל רמה = priority בלעדי (לא מצטבר)
 const LEVELS = {
-  easy:   { nameHe: 'קלה',     minPriority: 5, maxPriority: 5, countLabel: '7 יבשות',    points: 10 },
-  medium: { nameHe: 'בינונית', minPriority: 4, maxPriority: 5, countLabel: '~50 מדינות', points: 15 },
-  hard:   { nameHe: 'קשה',     minPriority: 2, maxPriority: 5, countLabel: '~130 מדינות', points: 20 },
-  master: { nameHe: 'מאסטר',   minPriority: 1, maxPriority: 5, countLabel: '195 מדינות', points: 25 },
+  easy:   { nameHe: 'קלה',     minPriority: 5, maxPriority: 5, points: 10, passThreshold: 8, masteryBonus: 20,  unlockAt: 0  },
+  medium: { nameHe: 'בינונית', minPriority: 4, maxPriority: 4, points: 15, passThreshold: 7, masteryBonus: 35,  unlockAt: 6  },
+  hard:   { nameHe: 'קשה',     minPriority: 3, maxPriority: 3, points: 20, passThreshold: 6, masteryBonus: 60,  unlockAt: 20 },
+  master: { nameHe: 'מאסטר',   minPriority: 1, maxPriority: 2, points: 25, passThreshold: 6, masteryBonus: 100, unlockAt: 60 },
 };
 
 // עזרים

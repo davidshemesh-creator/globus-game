@@ -131,9 +131,14 @@ function recordCountryAnswer(profileName, countryId, correct) {
   const p = _profilesCache.find(p => p.name === profileName);
   if (!p) return;
   const key = String(countryId);
-  if (!p.countriesLearned[key]) p.countriesLearned[key] = { correct: 0, wrong: 0 };
-  if (correct) p.countriesLearned[key].correct++;
-  else         p.countriesLearned[key].wrong++;
+  if (!p.countriesLearned[key]) p.countriesLearned[key] = { correct: 0, wrong: 0, streak: 0 };
+  if (correct) {
+    p.countriesLearned[key].correct++;
+    p.countriesLearned[key].streak = (p.countriesLearned[key].streak || 0) + 1;
+  } else {
+    p.countriesLearned[key].wrong++;
+    p.countriesLearned[key].streak = 0; // איפוס רצף בטעות
+  }
   _saveProfile(p);
 }
 
@@ -144,10 +149,25 @@ function markLevelCompleted(profileName, level) {
   _saveProfile(p);
 }
 
+function isLevelUnlocked(profileName, level) {
+  const def = LEVELS[level];
+  if (!def || def.unlockAt === 0) return true;
+  return getMasteredCount(profileName) >= def.unlockAt;
+}
+
+// מחזיר רמה שנפתחה חדש — אחרי עדכון mastered, לפני ואחרי
+function checkNewLevelUnlock(profileName, prevMastered) {
+  const newMastered = getMasteredCount(profileName);
+  for (const [key, def] of Object.entries(LEVELS)) {
+    if (def.unlockAt > 0 && prevMastered < def.unlockAt && newMastered >= def.unlockAt) {
+      return { levelKey: key, def };
+    }
+  }
+  return null;
+}
+
 function isMasterUnlocked(profileName) {
-  const p = getProfile(profileName);
-  if (!p) return false;
-  return p.levelsCompleted.includes('medium') && p.levelsCompleted.includes('hard');
+  return isLevelUnlocked(profileName, 'master');
 }
 
 function checkMilestone(prevPoints, newPoints, alreadyEarned = []) {
@@ -159,20 +179,47 @@ function checkMilestone(prevPoints, newPoints, alreadyEarned = []) {
   return null;
 }
 
-function getCountriesLearnedCount(profileName) {
+// מספר מדינות שהושגה שליטה בהן (3 ברציפות)
+function getMasteredCount(profileName) {
   const p = getProfile(profileName);
   if (!p) return 0;
-  return Object.keys(p.countriesLearned).filter(k => p.countriesLearned[k].correct >= 1).length;
+  return Object.values(p.countriesLearned).filter(d => (d.streak || 0) >= 3).length;
+}
+
+// תאימות אחורה
+function getCountriesLearnedCount(profileName) {
+  return getMasteredCount(profileName);
+}
+
+// רצף נוכחי של מדינה ספציפית
+function getCountryStreak(profileName, countryId) {
+  const p = getProfile(profileName);
+  if (!p) return 0;
+  const data = p.countriesLearned[String(countryId)];
+  return data ? (data.streak || 0) : 0;
+}
+
+// נתוני שליטה לפי יבשת
+function getMasteredByContinent(profileName, continentKey) {
+  const p = getProfile(profileName);
+  const countries = COUNTRIES.filter(c => c.continent === continentKey);
+  if (!p) return { mastered: 0, total: countries.length };
+  const mastered = countries.filter(c => {
+    const d = p.countriesLearned[String(c.id)];
+    return d && (d.streak || 0) >= 3;
+  }).length;
+  return { mastered, total: countries.length };
 }
 
 function getCountryWeight(profileName, countryId) {
   const p = getProfile(profileName);
   if (!p) return 1;
   const data = p.countriesLearned[String(countryId)];
-  if (!data)              return 1.2;
-  if (data.correct >= 3)  return 0.3;
-  if (data.wrong > data.correct) return 1.8;
-  return 1.0;
+  if (!data)                      return 1.2; // מעולם לא נראה
+  if ((data.streak || 0) >= 3)    return 0.1; // שלטת — נדיר
+  if (data.wrong > data.correct)  return 1.8; // מתקשה
+  if (data.correct >= 1)          return 1.0; // בלמידה
+  return 1.2;
 }
 
 function getNextPrize(profileName) {

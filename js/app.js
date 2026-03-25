@@ -131,7 +131,7 @@ const APP = (() => {
           <span class="profile-avatar">${p.avatar}</span>
           <div class="profile-card-info">
             <span class="profile-name">${p.name}</span>
-            <span class="profile-pts">${p.points} נקודות</span>
+            <span class="profile-pts">${p.points} נקודות  •  ${getMasteredCount(p.name)} מדינות</span>
           </div>
           <div class="profile-card-actions">
             <button class="btn-profile-action btn-profile-edit" title="ערוך">✏️</button>
@@ -302,7 +302,7 @@ const APP = (() => {
     _setText('dash-name',    p.name);
     _setText('dash-avatar',  p.avatar);
     _setText('dash-points',  `${p.points} נקודות`);
-    _setText('dash-countries', `${getCountriesLearnedCount(p.name)} מדינות`);
+    _setText('dash-countries', `${getMasteredCount(p.name)} מדינות`);
 
     // next prize bar
     const next = getNextPrize(p.name);
@@ -328,24 +328,16 @@ const APP = (() => {
       { key: 'oceania',       label: 'אוקיאניה',     color: '#2DD4BF' },
     ];
 
-    const learnedByContinent = {};
-    Object.entries(p.countriesLearned || {}).forEach(([id, data]) => {
-      if (data.correct >= 1) {
-        const country = getCountryById(Number(id));
-        if (country) learnedByContinent[country.continent] = (learnedByContinent[country.continent] || 0) + 1;
-      }
-    });
-
     const rows = CONT_META.map(({ key, label, color }) => {
-      const total   = COUNTRIES.filter(c => c.continent === key).length;
-      const learned = learnedByContinent[key] || 0;
-      const pct     = total > 0 ? Math.round((learned / total) * 100) : 0;
+      const { mastered, total } = getMasteredByContinent(p.name, key);
+      const pct  = total > 0 ? Math.round((mastered / total) * 100) : 0;
+      const star = (mastered === total && total > 0) ? ' ⭐' : '';
       return `<div class="cont-prog-row">
-        <span class="cont-prog-label">${label}</span>
+        <span class="cont-prog-label">${label}${star}</span>
         <div class="cont-prog-track">
           <div class="cont-prog-fill" style="width:${pct}%;background:${color}"></div>
         </div>
-        <span class="cont-prog-count">${learned}/${total}</span>
+        <span class="cont-prog-count">${mastered}/${total}</span>
       </div>`;
     }).join('');
 
@@ -360,24 +352,29 @@ const APP = (() => {
 
   // ── SETUP SCREEN ───────────────────────────────────────────
   function renderSetupScreen() {
-    // show mode name in header
     const modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
     _setText('setup-screen-title', modeLabel);
+
+    // יבשות — active לפי בחירה
     document.querySelectorAll('[data-continent]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.continent === gameSetup.continent);
-    });
-    document.querySelectorAll('[data-level]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.level === gameSetup.level);
+      btn.disabled = false;
+      btn.classList.remove('locked');
     });
 
-    // disable master if locked
-    if (currentProfile && !isMasterUnlocked(currentProfile.name)) {
-      const masterBtn = document.querySelector('[data-level="master"]');
-      if (masterBtn) {
-        masterBtn.disabled = true;
-        masterBtn.classList.add('locked');
+    // רמות — active + נעילה לפי mastered
+    document.querySelectorAll('[data-level]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.level === gameSetup.level);
+      const locked = currentProfile && !isLevelUnlocked(currentProfile.name, btn.dataset.level);
+      btn.disabled = !!locked;
+      btn.classList.toggle('locked', !!locked);
+      if (locked) {
+        const def = LEVELS[btn.dataset.level];
+        btn.title = `נדרשות ${def.unlockAt} מדינות`;
+      } else {
+        btn.title = '';
       }
-    }
+    });
   }
 
   // ── GAME SCREEN ────────────────────────────────────────────
@@ -518,8 +515,12 @@ const APP = (() => {
 
     const bonusEl = document.getElementById('feedback-bonus');
     if (bonusEl) {
-      bonusEl.classList.toggle('hidden', !bonusApplied);
-      bonusEl.textContent = `🔥 בונוס רצף +${5}!`;
+      if (result.justMastered) {
+        bonusEl.classList.remove('hidden');
+        bonusEl.textContent = `⭐ שלטת על ${result.masteredCountry?.nameHe}! +${result.points - (LEVELS[gameSetup.level]?.points ?? 15)} בונוס!`;
+      } else {
+        bonusEl.classList.add('hidden');
+      }
     }
 
     // Next button (prizes are now shown at end-of-round, not per-question)
@@ -564,7 +565,19 @@ const APP = (() => {
       const multiplierNote = summary.correctCount === 10 ? ' ×1.5 🔥' : summary.correctCount === 9 ? ' ×1.2 ⭐' : '';
       _setText('summary-score', `${summary.score} נקודות${multiplierNote}`);
     } else {
-      _setText('summary-score', 'לא הגעת ל-8/10 — אין נקודות הפעם');
+      _setText('summary-score', `לא הגעת ל-${summary.passThreshold}/10 — אין נקודות הפעם`);
+    }
+
+    // הצג מדינות שהשגת שליטה עליהן
+    if (summary.newlyMastered && summary.newlyMastered.length > 0) {
+      const masteredNames = summary.newlyMastered.map(c => c.nameHe).join('، ');
+      const masteredEl = document.getElementById('summary-mastered');
+      if (masteredEl) {
+        masteredEl.textContent = `⭐ שלטת על: ${masteredNames}`;
+        masteredEl.classList.remove('hidden');
+      }
+    } else {
+      document.getElementById('summary-mastered')?.classList.add('hidden');
     }
 
     // answers list
@@ -593,6 +606,19 @@ const APP = (() => {
     } else {
       pendingPrize = null;
     }
+
+    // פופאפ רמה חדשה שנפתחה (מופיע אחרי פרס אם יש)
+    if (summary.levelUnlocked) {
+      const delay = summary.roundPrize ? 3500 : 1500;
+      setTimeout(() => _showLevelUnlockPopup(summary.levelUnlocked), delay);
+    }
+  }
+
+  function _showLevelUnlockPopup(levelUnlocked) {
+    const def   = levelUnlocked.def;
+    const count = def.unlockAt;
+    const msg   = `🎉 כל הכבוד!\nצלחת ${count} מדינות שלוש פעמים ברציפות.\nרמת "${def.nameHe}" נפתחה לך!`;
+    alert(msg);
   }
 
   // ── PRIZE SCREEN ───────────────────────────────────────────

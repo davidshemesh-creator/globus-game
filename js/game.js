@@ -26,9 +26,7 @@ const GAME = (() => {
 
   // ── Constants ──────────────────────────────────────────────
   const QUESTIONS_PER_ROUND    = 10;
-  const STREAK_BONUS_THRESHOLD = 3;  // 3 correct in a row = bonus
-  const STREAK_BONUS_POINTS    = 5;
-  const ROUND_PASS_THRESHOLD   = 8;  // must get ≥8/10 to earn points
+  const MASTERED_POINTS        = 5;  // נקודות על מדינה שכבר שלטת בה
 
   // ── Public API ─────────────────────────────────────────────
 
@@ -54,12 +52,14 @@ const GAME = (() => {
       continent,
       questions,
       currentIndex: 0,
-      score: 0,        // display score (shown in HUD during game)
+      score: 0,
       streak: 0,
       correctCount: 0,
       answers: [],
       finished: false,
-      roundPrize: null, // prize awarded at end of round (if threshold met)
+      roundPrize: null,
+      newlyMastered: [],           // מדינות שהגיעו ל-streak=3 בסיבוב זה
+      prevMastered: getMasteredCount(profileName), // לזיהוי פתיחת רמה
     };
 
     return currentQuestion();
@@ -73,37 +73,47 @@ const GAME = (() => {
   function submitAnswer(answerId) {
     if (!state || state.finished) return null;
 
-    const q         = state.questions[state.currentIndex];
-    const correct   = answerId === q.country.id;
-    const levelDef  = LEVELS[state.level];
-    let   points    = 0;
+    const q            = state.questions[state.currentIndex];
+    const correct      = answerId === q.country.id;
+    let   points       = 0;
     let   bonusApplied = false;
+    let   justMastered = false;
 
     if (correct) {
-      points = levelDef.points;
+      // בדוק streak לפני עדכון
+      const prevStreak      = getCountryStreak(state.profileName, q.country.id);
+      const alreadyMastered = prevStreak >= 3;
+
+      // נקודות בסיס: 5 אם כבר שלטת, אחרת לפי רמת המדינה
+      const levelDef = _getCountryLevelDef(q.country);
+      points = alreadyMastered ? MASTERED_POINTS : levelDef.points;
+
       state.streak++;
       state.correctCount++;
 
-      // streak bonus
-      if (state.streak > 0 && state.streak % STREAK_BONUS_THRESHOLD === 0) {
-        points += STREAK_BONUS_POINTS;
-        bonusApplied = true;
+      // עדכן streak בפרופיל
+      recordCountryAnswer(state.profileName, q.country.id, true);
+
+      // בדוק האם הגיע ל-mastery עכשיו (streak עבר מ-2 ל-3)
+      if (!alreadyMastered && prevStreak === 2) {
+        points       += levelDef.masteryBonus;
+        bonusApplied  = true;
+        justMastered  = true;
+        state.newlyMastered.push(q.country);
       }
+
       state.score += points;
     } else {
       state.streak = 0;
+      recordCountryAnswer(state.profileName, q.country.id, false);
     }
-
-    // Record country attempt (spaced-repetition tracking — always)
-    recordCountryAnswer(state.profileName, q.country.id, correct);
-    // Note: addPoints() is deferred to end-of-round (_onRoundEnd),
-    //       so prize is null here and shown on the summary screen instead.
 
     const answerRecord = {
       country:      q.country,
       chosen:       answerId,
       correct,
       bonusApplied,
+      justMastered,
       points,
     };
     state.answers.push(answerRecord);
@@ -111,8 +121,10 @@ const GAME = (() => {
     return {
       correct,
       bonusApplied,
+      justMastered,
+      masteredCountry: justMastered ? q.country : null,
       points,
-      prize: null, // prizes shown at round end, not per-question
+      prize:    null,
       question: currentQuestion(),
       chosenId: answerId,
     };
@@ -153,17 +165,21 @@ const GAME = (() => {
   /** Returns round summary (call after round is finished) */
   function getRoundSummary() {
     if (!state) return null;
+    const threshold = _getPassThreshold();
     return {
-      profileName:  state.profileName,
-      mode:         state.mode,
-      level:        state.level,
-      continent:    state.continent,
-      score:        state.score,
-      correctCount: state.correctCount,
-      total:        state.questions.length,
-      answers:      state.answers,
-      passed:       state.correctCount >= ROUND_PASS_THRESHOLD,
-      roundPrize:   state.roundPrize,
+      profileName:   state.profileName,
+      mode:          state.mode,
+      level:         state.level,
+      continent:     state.continent,
+      score:         state.score,
+      correctCount:  state.correctCount,
+      total:         state.questions.length,
+      answers:       state.answers,
+      passed:        state.correctCount >= threshold,
+      passThreshold: threshold,
+      roundPrize:    state.roundPrize,
+      newlyMastered: state.newlyMastered || [],
+      levelUnlocked: state.levelUnlocked || null,
     };
   }
 
@@ -184,17 +200,20 @@ const GAME = (() => {
   // ── Private helpers ────────────────────────────────────────
 
   /**
-   * Build country pool for this round, filtered by continent + level,
-   * then weighted by spaced-repetition (per profile).
+   * Build country pool — יבשת OR רמה (לא שניהם)
    */
   function buildPool(profileName, continent, level) {
-    // get countries matching level + continent
-    let pool = getCountriesByLevel(level, continent);
-
-    // only include countries that are rendered on the map (have a TopoJSON feature)
+    let pool;
+    if (continent !== 'all') {
+      // מצב יבשת: כל המדינות ביבשת, ללא סינון רמה
+      pool = COUNTRIES.filter(c => c.continent === continent);
+    } else {
+      // מצב רמה: רק priority הבלעדי של הרמה
+      pool = getCountriesByLevel(level, 'all');
+    }
+    // רק מדינות שמורנדרות על המפה
     const rendered = MAP.getRenderedIds();
     pool = pool.filter(c => rendered.has(c.id));
-
     return pool;
   }
 
@@ -253,25 +272,43 @@ const GAME = (() => {
     return choices;
   }
 
+  /** סף מעבר לפי רמה (או מצב יבשת) */
+  function _getPassThreshold() {
+    if (state.continent !== 'all') return 7; // מצב יבשת
+    return LEVELS[state.level]?.passThreshold ?? 8;
+  }
+
+  /** נקודת הכניסה לרמת מדינה לפי priority */
+  function _getCountryLevelDef(country) {
+    for (const def of Object.values(LEVELS)) {
+      if (country.priority >= def.minPriority && country.priority <= def.maxPriority) {
+        return def;
+      }
+    }
+    return LEVELS.easy;
+  }
+
   /** Called internally when a round ends */
   function _onRoundEnd() {
     if (!state) return;
-    markLevelCompleted(state.profileName, state.level);
+    if (state.level !== 'all') markLevelCompleted(state.profileName, state.level);
 
-    // Only award points if player passed the threshold (≥8/10 correct)
-    if (state.correctCount >= ROUND_PASS_THRESHOLD) {
-      // Bonus multiplier: 10/10 = ×1.5, 9/10 = ×1.2, 8/10 = ×1.0
+    const threshold = _getPassThreshold();
+
+    if (state.correctCount >= threshold) {
       const multiplier = state.correctCount === 10 ? 1.5
                        : state.correctCount === 9  ? 1.2
                        : 1.0;
       const finalPoints = Math.round(state.score * multiplier);
-      state.score       = finalPoints; // update display score too
+      state.score       = finalPoints;
       state.roundPrize  = addPoints(state.profileName, finalPoints);
     } else {
-      // Did not pass — no points saved to profile
       state.score      = 0;
       state.roundPrize = null;
     }
+
+    // בדוק אם רמה חדשה נפתחה
+    state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.prevMastered);
   }
 
   return {
