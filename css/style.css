@@ -465,6 +465,7 @@ body {
 .level-btn.active  { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
 .level-btn.locked  { opacity: 0.45; cursor: not-allowed; }
 .level-btn small   { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 400; }
+.levels-disabled-msg { font-size: 0.95rem; color: var(--primary); font-weight: 600; margin: 4px 0 0; text-align: center; }
 
 /* ── Toggle group (mode) ──────────────────────────────────── */
 .toggle-group {

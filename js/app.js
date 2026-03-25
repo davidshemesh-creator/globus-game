@@ -355,26 +355,32 @@ const APP = (() => {
     const modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
     _setText('setup-screen-title', modeLabel);
 
-    // יבשות — active לפי בחירה
+    // יבשות
     document.querySelectorAll('[data-continent]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.continent === gameSetup.continent);
-      btn.disabled = false;
-      btn.classList.remove('locked');
     });
 
-    // רמות — active + נעילה לפי mastered
-    document.querySelectorAll('[data-level]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.level === gameSetup.level);
-      const locked = currentProfile && !isLevelUnlocked(currentProfile.name, btn.dataset.level);
-      btn.disabled = !!locked;
-      btn.classList.toggle('locked', !!locked);
-      if (locked) {
-        const def = LEVELS[btn.dataset.level];
-        btn.title = `נדרשות ${def.unlockAt} מדינות`;
-      } else {
-        btn.title = '';
-      }
-    });
+    const continentChosen = gameSetup.continent !== 'all';
+    const levelGrid = document.getElementById('level-grid');
+    const levelMsg  = document.getElementById('levels-disabled-msg');
+
+    if (continentChosen) {
+      // בחרו יבשת — מסתירים רמות, מראים הודעה
+      if (levelGrid) levelGrid.classList.add('hidden');
+      if (levelMsg)  levelMsg.classList.remove('hidden');
+      document.querySelectorAll('[data-level]').forEach(btn => btn.classList.remove('active'));
+    } else {
+      // בחרו רמה — מראים רמות, מסתירים הודעה
+      if (levelGrid) levelGrid.classList.remove('hidden');
+      if (levelMsg)  levelMsg.classList.add('hidden');
+      document.querySelectorAll('[data-level]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.level === gameSetup.level);
+        const locked = currentProfile && !isLevelUnlocked(currentProfile.name, btn.dataset.level);
+        btn.disabled = !!locked;
+        btn.classList.toggle('locked', !!locked);
+        btn.title = locked ? `נדרשות ${LEVELS[btn.dataset.level].unlockAt} מדינות` : '';
+      });
+    }
   }
 
   // ── GAME SCREEN ────────────────────────────────────────────
@@ -791,20 +797,26 @@ const APP = (() => {
       });
     });
 
-    // Continent toggle
+    // Continent toggle — בחירת יבשת מבטלת בחירת רמה
     document.querySelectorAll('[data-continent]').forEach(btn => {
       btn.addEventListener('click', () => {
         gameSetup.continent = btn.dataset.continent;
-        document.querySelectorAll('[data-continent]').forEach(b => b.classList.toggle('active', b.dataset.continent === gameSetup.continent));
+        if (gameSetup.continent !== 'all') {
+          gameSetup.level = 'all'; // מצב יבשת — ללא סינון רמה
+        } else if (gameSetup.level === 'all') {
+          gameSetup.level = 'easy'; // חזרה ל-"הכל" → ברירת מחדל קלה
+        }
+        renderSetupScreen();
       });
     });
 
-    // Level toggle
+    // Level toggle — בחירת רמה מאפסת יבשת ל-"הכל"
     document.querySelectorAll('[data-level]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.disabled) return;
         gameSetup.level = btn.dataset.level;
-        document.querySelectorAll('[data-level]').forEach(b => b.classList.toggle('active', b.dataset.level === gameSetup.level));
+        gameSetup.continent = 'all';
+        renderSetupScreen();
       });
     });
 
