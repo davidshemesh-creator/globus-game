@@ -66,9 +66,11 @@ const MAP = (() => {
     }
 
     // D3 zoom — scroll/pinch/drag to explore
+    // translateExtent must be generous enough for southern-hemisphere zoom (Australia at -25°lat
+    // needs ty ≈ -1.5H at scale 3.2 — a tight clamp like -H*0.2 cuts it off completely)
     zoomBehavior = d3.zoom()
       .scaleExtent([1, 20])
-      .translateExtent(isPortrait ? [[-W * 0.5, -H * 0.2], [W * 1.5, H * 1.2]] : [[0, 0], [W, H]])
+      .translateExtent([[-W * 1.5, -H * 1.5], [W * 2.5, H * 2.5]])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
         if (labelsGroup) {
