@@ -655,35 +655,62 @@ const APP = (() => {
       if (titleEl) titleEl.textContent = 'סיבוב בדיקה';
     }
 
-    // כפתור סיבוב בדיקה — מוצג אחרי סיבוב B עם 8+ נכונות
-    const verBtnEl   = document.getElementById('btn-start-verification');
-    const retryBtnEl = document.getElementById('btn-retry-verification');
+    // כפתורי סיכום — תמיד מוסתרים בהתחלה, מוצגים לפי מצב
+    const verBtnEl    = document.getElementById('btn-start-verification');
+    const retryBtnEl  = document.getElementById('btn-retry-verification');
     const playAgainEl = document.getElementById('btn-play-again');
+    const homeEl      = document.getElementById('btn-summary-home');
+    verBtnEl?.classList.add('hidden');
 
     if (summary.isVerification) {
-      // סיבוב בדיקה נגמר — הצג "נסה שוב" אם נכשל, הסתר שאר הכפתורים
-      verBtnEl?.classList.add('hidden');
+      // סיבוב בדיקה נגמר
       if (!summary.passed) {
+        // נכשל — הצג רק "נסה שוב"
         retryBtnEl?.classList.remove('hidden');
-        playAgainEl?.classList.add('hidden'); // hide "play again" when retry is shown
+        playAgainEl?.classList.add('hidden');
+        homeEl?.classList.remove('hidden');
       } else {
+        // עבר — הצג כפתורים רגילים
         retryBtnEl?.classList.add('hidden');
         playAgainEl?.classList.remove('hidden');
-        _verifyPrevScore = 0; // verification complete — points are safe
+        homeEl?.classList.remove('hidden');
+        _verifyPrevScore = 0;
         _verifyCountries = [];
       }
+    } else if (summary.mode === 'B' && summary.correctCount >= 8) {
+      // צריך סיבוב בדיקה — מסתיר כפתורים ומתחיל אוטומטית אחרי 3 שניות
+      retryBtnEl?.classList.add('hidden');
+      playAgainEl?.classList.add('hidden');
+      homeEl?.classList.add('hidden');
+
+      _verifyPrevScore  = summary.score;
+      _verifyCountries  = summary.answers.map(a => a.country);
+
+      // הצג ספירה לאחור
+      const countdownEl = document.getElementById('summary-verify-countdown');
+      if (countdownEl) {
+        countdownEl.classList.remove('hidden');
+        let secs = 3;
+        countdownEl.textContent = `🗺️ סיבוב בדיקה מתחיל בעוד ${secs}...`;
+        const timer = setInterval(() => {
+          secs--;
+          if (secs > 0) {
+            countdownEl.textContent = `🗺️ סיבוב בדיקה מתחיל בעוד ${secs}...`;
+          } else {
+            clearInterval(timer);
+            countdownEl.classList.add('hidden');
+            _launchVerification(_verifyCountries);
+          }
+        }, 1000);
+      } else {
+        // fallback — no countdown element
+        setTimeout(() => _launchVerification(_verifyCountries), 3000);
+      }
     } else {
+      // סיבוב רגיל שלא הגיע ל-8 — כפתורים רגילים
       retryBtnEl?.classList.add('hidden');
       playAgainEl?.classList.remove('hidden');
-      if (verBtnEl) {
-        if (summary.mode === 'B' && summary.correctCount >= 8) {
-          verBtnEl.classList.remove('hidden');
-          verBtnEl.dataset.countries = JSON.stringify(summary.answers.map(a => a.country));
-          _verifyPrevScore = summary.score; // save for possible exit deduction
-        } else {
-          verBtnEl.classList.add('hidden');
-        }
-      }
+      homeEl?.classList.remove('hidden');
     }
   }
 
