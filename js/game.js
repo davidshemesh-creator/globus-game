@@ -366,6 +366,11 @@ const GAME = (() => {
     state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.prevMastered);
   }
 
+  /** Returns true if a verification round is currently in progress (not yet finished) */
+  function isActiveVerification() {
+    return !!(state && state.isVerification && !state.finished);
+  }
+
   return {
     startGame,
     startVerificationRound,
@@ -377,5 +382,6 @@ const GAME = (() => {
     getStreak,
     getProgress,
     isFinished,
+    isActiveVerification,
   };
 })();

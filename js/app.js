@@ -9,11 +9,13 @@ const APP = (() => {
                    'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore'];
 
   // ── App state ──────────────────────────────────────────────
-  let currentProfile     = null; // profile object
-  let pendingPrize       = null; // prize object waiting to be shown
-  let gameSetup          = { mode: 'B', continent: 'all', level: 'easy' };
-  let lastFeedback       = null; // result from submitAnswer
-  let _editingProfileName = null; // null = adding mode, string = editing mode
+  let currentProfile       = null; // profile object
+  let pendingPrize         = null; // prize object waiting to be shown
+  let gameSetup            = { mode: 'B', continent: 'all', level: 'easy' };
+  let lastFeedback         = null; // result from submitAnswer
+  let _editingProfileName  = null; // null = adding mode, string = editing mode
+  let _verifyPrevScore     = 0;   // points earned in round before verification (for deduction on exit)
+  let _verifyCountries     = [];  // countries for retry if verification fails
 
   // ── Init ───────────────────────────────────────────────────
   async function init() {
@@ -654,13 +656,33 @@ const APP = (() => {
     }
 
     // כפתור סיבוב בדיקה — מוצג אחרי סיבוב B עם 8+ נכונות
-    const verBtnEl = document.getElementById('btn-start-verification');
-    if (verBtnEl) {
-      if (!summary.isVerification && summary.mode === 'B' && summary.correctCount >= 8) {
-        verBtnEl.classList.remove('hidden');
-        verBtnEl.dataset.countries = JSON.stringify(summary.answers.map(a => a.country));
+    const verBtnEl   = document.getElementById('btn-start-verification');
+    const retryBtnEl = document.getElementById('btn-retry-verification');
+    const playAgainEl = document.getElementById('btn-play-again');
+
+    if (summary.isVerification) {
+      // סיבוב בדיקה נגמר — הצג "נסה שוב" אם נכשל, הסתר שאר הכפתורים
+      verBtnEl?.classList.add('hidden');
+      if (!summary.passed) {
+        retryBtnEl?.classList.remove('hidden');
+        playAgainEl?.classList.add('hidden'); // hide "play again" when retry is shown
       } else {
-        verBtnEl.classList.add('hidden');
+        retryBtnEl?.classList.add('hidden');
+        playAgainEl?.classList.remove('hidden');
+        _verifyPrevScore = 0; // verification complete — points are safe
+        _verifyCountries = [];
+      }
+    } else {
+      retryBtnEl?.classList.add('hidden');
+      playAgainEl?.classList.remove('hidden');
+      if (verBtnEl) {
+        if (summary.mode === 'B' && summary.correctCount >= 8) {
+          verBtnEl.classList.remove('hidden');
+          verBtnEl.dataset.countries = JSON.stringify(summary.answers.map(a => a.country));
+          _verifyPrevScore = summary.score; // save for possible exit deduction
+        } else {
+          verBtnEl.classList.add('hidden');
+        }
       }
     }
   }
@@ -929,20 +951,44 @@ const APP = (() => {
 
     // ----- In-game back (confirm) -----
     _on('btn-game-quit', 'click', () => {
-      if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
-        _hideFeedbackOverlay();
-        MAP.disableClick();
-        showScreen('screen-dashboard');
-        renderDashboard();
+      if (GAME.isActiveVerification()) {
+        // Show custom warning modal — exiting costs the prev-round points
+        _setText('modal-verify-pts', String(_verifyPrevScore));
+        document.getElementById('modal-verify-exit')?.classList.remove('hidden');
+      } else {
+        if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
+          _hideFeedbackOverlay();
+          MAP.disableClick();
+          showScreen('screen-dashboard');
+          renderDashboard();
+        }
       }
     });
 
+    // ----- Verification exit modal -----
+    _on('btn-modal-continue', 'click', () => {
+      document.getElementById('modal-verify-exit')?.classList.add('hidden');
+    });
+
+    _on('btn-modal-exit', 'click', async () => {
+      document.getElementById('modal-verify-exit')?.classList.add('hidden');
+      // Deduct the previous round's points since verification was abandoned
+      if (_verifyPrevScore > 0) {
+        await addPoints(currentProfile.name, -_verifyPrevScore);
+        _verifyPrevScore = 0;
+      }
+      _hideFeedbackOverlay();
+      MAP.disableClick();
+      currentProfile = getProfile(currentProfile.name);
+      showScreen('screen-dashboard');
+      renderDashboard();
+    });
+
     // ----- Summary buttons -----
-    document.getElementById('btn-start-verification')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-start-verification');
-      if (!btn) return;
-      const countries = JSON.parse(btn.dataset.countries || '[]');
-      if (countries.length === 0) return;
+    async function _launchVerification(countries) {
+      // Save prev-round score for potential deduction on exit
+      _verifyPrevScore = GAME.getRoundSummary()?.score || _verifyPrevScore;
+      _verifyCountries = countries;
 
       showScreen('screen-game');
       _setText('game-profile-name',   currentProfile.name);
@@ -954,6 +1000,19 @@ const APP = (() => {
       const q = GAME.startVerificationRound(currentProfile.name, countries);
       if (!q) { alert('שגיאה בטעינת סיבוב בדיקה'); return; }
       renderQuestion(q);
+    }
+
+    document.getElementById('btn-start-verification')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-start-verification');
+      if (!btn) return;
+      const countries = JSON.parse(btn.dataset.countries || '[]');
+      if (countries.length === 0) return;
+      await _launchVerification(countries);
+    });
+
+    document.getElementById('btn-retry-verification')?.addEventListener('click', async () => {
+      if (_verifyCountries.length === 0) return;
+      await _launchVerification(_verifyCountries);
     });
 
     document.getElementById('btn-play-again')?.addEventListener('click', () => {
