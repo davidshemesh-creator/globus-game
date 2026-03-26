@@ -232,7 +232,7 @@ const MAP = (() => {
     'africa':        { center: [20, 2],    scale: 2.2 },
     'north-america': { center: [-95, 45],  scale: 2.1 },
     'south-america': { center: [-58, -15], scale: 2.4 },
-    'oceania':       { center: [145, -25], scale: 3.2 },
+    'oceania':       { center: [148, -15], scale: 2.5 },
   };
 
   function zoomToContinent(continent) {

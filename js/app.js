@@ -678,34 +678,21 @@ const APP = (() => {
         _verifyCountries = [];
       }
     } else if (summary.mode === 'B' && summary.correctCount >= 8) {
-      // צריך סיבוב בדיקה — מסתיר כפתורים ומתחיל אוטומטית אחרי 3 שניות
+      // צריך סיבוב בדיקה — מציג כפתור חובה, מסתיר שאר הכפתורים
       retryBtnEl?.classList.add('hidden');
       playAgainEl?.classList.add('hidden');
       homeEl?.classList.add('hidden');
 
-      _verifyPrevScore  = summary.score;
-      _verifyCountries  = summary.answers.map(a => a.country);
+      _verifyPrevScore = summary.score;
+      _verifyCountries = summary.answers.map(a => a.country);
 
-      // הצג ספירה לאחור
-      const countdownEl = document.getElementById('summary-verify-countdown');
-      if (countdownEl) {
-        countdownEl.classList.remove('hidden');
-        let secs = 3;
-        countdownEl.textContent = `🗺️ סיבוב בדיקה מתחיל בעוד ${secs}...`;
-        const timer = setInterval(() => {
-          secs--;
-          if (secs > 0) {
-            countdownEl.textContent = `🗺️ סיבוב בדיקה מתחיל בעוד ${secs}...`;
-          } else {
-            clearInterval(timer);
-            countdownEl.classList.add('hidden');
-            _launchVerification(_verifyCountries);
-          }
-        }, 1000);
-      } else {
-        // fallback — no countdown element
-        setTimeout(() => _launchVerification(_verifyCountries), 3000);
+      if (verBtnEl) {
+        verBtnEl.classList.remove('hidden');
+        verBtnEl.onclick = () => _launchVerification(_verifyCountries);
       }
+
+      // הסתר ספירה לאחור אם הייתה
+      document.getElementById('summary-verify-countdown')?.classList.add('hidden');
     } else {
       // סיבוב רגיל שלא הגיע ל-8 — כפתורים רגילים
       retryBtnEl?.classList.add('hidden');
