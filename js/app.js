@@ -686,10 +686,7 @@ const APP = (() => {
       _verifyPrevScore = summary.score;
       _verifyCountries = summary.answers.map(a => a.country);
 
-      if (verBtnEl) {
-        verBtnEl.classList.remove('hidden');
-        verBtnEl.onclick = () => _launchVerification(_verifyCountries);
-      }
+      verBtnEl?.classList.remove('hidden');
 
       // הסתר ספירה לאחור אם הייתה
       document.getElementById('summary-verify-countdown')?.classList.add('hidden');
@@ -1017,11 +1014,8 @@ const APP = (() => {
     }
 
     document.getElementById('btn-start-verification')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-start-verification');
-      if (!btn) return;
-      const countries = JSON.parse(btn.dataset.countries || '[]');
-      if (countries.length === 0) return;
-      await _launchVerification(countries);
+      if (_verifyCountries.length === 0) return;
+      await _launchVerification(_verifyCountries);
     });
 
     document.getElementById('btn-retry-verification')?.addEventListener('click', async () => {
