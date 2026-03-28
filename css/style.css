@@ -372,6 +372,53 @@ body {
 }
 .modal-overlay.hidden { display: none !important; }
 
+/* Bottom sheet variant */
+.modal-overlay.modal-bottom {
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.countries-sheet {
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px 40px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+}
+.sheet-handle {
+  width: 40px; height: 4px;
+  background: #CBD5E1; border-radius: 99px;
+  margin: 0 auto 20px;
+}
+.sheet-title-block { text-align: center; margin-bottom: 20px; }
+.sheet-title   { font-size: 1.3rem; font-weight: 900; color: var(--text); }
+.sheet-subtitle { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+.sheet-empty   { text-align: center; color: var(--text-muted); padding: 24px 0; font-weight: 600; }
+
+/* Countries per continent */
+.cont-section { margin-bottom: 18px; }
+.cont-section-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.cont-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.cont-section-name { font-weight: 800; font-size: 0.9rem; color: var(--text); }
+.cont-section-count { font-size: 0.78rem; color: var(--text-muted); margin-right: auto; }
+.cont-countries-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.country-chip {
+  background: var(--surface);
+  border: 1.5px solid;
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text);
+}
+.badge-countries { cursor: pointer; }
+.badge-countries:hover { opacity: 0.8; }
+
 .modal-card {
   background: var(--surface);
   border-radius: 20px;

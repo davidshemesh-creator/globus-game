@@ -132,7 +132,7 @@ const APP = (() => {
           <div class="profile-name">${p.name}</div>
           <div class="profile-meta">
             <span class="profile-badge">${p.points} נקודות</span>
-            <span class="profile-badge">${getMasteredCount(p.name)} מדינות</span>
+            <span class="profile-badge badge-countries" title="לחץ לפירוט">${getMasteredCount(p.name)} מדינות 👆</span>
           </div>
         </div>
         <div class="profile-card-right">
@@ -147,6 +147,11 @@ const APP = (() => {
       // click on card body → select profile
       card.addEventListener('click', (e) => {
         if (!e.target.closest('.btn-profile-action')) _selectProfile(p.name);
+      });
+
+      card.querySelector('.badge-countries').addEventListener('click', (e) => {
+        e.stopPropagation();
+        _showCountriesModal(p.name);
       });
 
       card.querySelector('.btn-profile-edit').addEventListener('click', (e) => {
@@ -182,6 +187,58 @@ const APP = (() => {
     `);
     addBtn.addEventListener('click', _showAddProfileModal);
     grid.appendChild(addBtn);
+  }
+
+  function _showCountriesModal(profileName) {
+    const p = getProfile(profileName);
+    if (!p) return;
+
+    const CONT_ORDER  = ['europe', 'asia', 'africa', 'north-america', 'south-america', 'oceania'];
+    const CONT_COLORS = { europe:'#60A5FA', asia:'#F472B6', africa:'#FBBF24', 'north-america':'#FB923C', 'south-america':'#34D399', oceania:'#2DD4BF' };
+    const CONT_NAMES  = { europe:'אירופה', asia:'אסיה', africa:'אפריקה', 'north-america':'אמריקה הצפונית', 'south-america':'אמריקה הדרומית', oceania:'אוקיאניה' };
+
+    const mastered = COUNTRIES.filter(c => {
+      const d = p.countriesLearned[String(c.id)];
+      return d && ((d.streak || 0) >= 3 || d.verified === true);
+    });
+
+    const byContinent = {};
+    mastered.forEach(c => {
+      if (!byContinent[c.continent]) byContinent[c.continent] = [];
+      byContinent[c.continent].push(c);
+    });
+    Object.keys(byContinent).forEach(key => {
+      byContinent[key].sort((a, b) => a.nameHe.localeCompare(b.nameHe, 'he'));
+    });
+
+    let html = `
+      <div class="sheet-title-block">
+        <h2 class="sheet-title">המדינות של ${p.name} 🌍</h2>
+        <p class="sheet-subtitle">${mastered.length} מדינות שלטת עליהן</p>
+      </div>`;
+
+    if (mastered.length === 0) {
+      html += `<p class="sheet-empty">עוד לא שלטת על מדינות — המשך לשחק! 🎮</p>`;
+    } else {
+      CONT_ORDER.forEach(key => {
+        const countries = byContinent[key];
+        if (!countries || countries.length === 0) return;
+        html += `
+          <div class="cont-section">
+            <div class="cont-section-header">
+              <span class="cont-dot" style="background:${CONT_COLORS[key]}"></span>
+              <span class="cont-section-name">${CONT_NAMES[key]}</span>
+              <span class="cont-section-count">${countries.length} מדינות</span>
+            </div>
+            <div class="cont-countries-wrap">
+              ${countries.map(c => `<span class="country-chip" style="border-color:${CONT_COLORS[key]}">${getFlagEmoji(c.iso2)} ${c.nameHe}</span>`).join('')}
+            </div>
+          </div>`;
+      });
+    }
+
+    document.getElementById('countries-sheet-content').innerHTML = html;
+    document.getElementById('modal-countries').classList.remove('hidden');
   }
 
   function _selectProfile(name) {
@@ -834,6 +891,13 @@ const APP = (() => {
 
     _on('btn-add-profile-cancel', 'click', () => {
       document.getElementById('modal-add-profile')?.classList.add('hidden');
+    });
+
+    _on('btn-countries-close', 'click', () => {
+      document.getElementById('modal-countries')?.classList.add('hidden');
+    });
+    document.getElementById('modal-countries')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modal-countries') document.getElementById('modal-countries').classList.add('hidden');
     });
 
     // ----- Dashboard -----
