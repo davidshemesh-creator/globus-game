@@ -550,13 +550,13 @@ body {
 .dash-player-prizes { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 1px; }
 .dash-player-prizes .prize-badge { font-size: 0.9rem; }
 
-/* Greeting */
-.dash-greeting {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
+/* Points inline in header */
+.dash-points-inline {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 0; margin-right: auto; flex-shrink: 0;
 }
+.dash-points-val { font-size: 1.3rem; font-weight: 900; color: var(--accent); line-height: 1.1; }
+.dash-points-lbl { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); }
 
 /* Stats row */
 .stats-row {
@@ -600,7 +600,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 .progress-label {
   font-size: 0.82rem;
@@ -612,23 +612,63 @@ body {
   font-weight: 700;
   color: var(--accent);
 }
-.progress-shimmer {
-  background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%);
+
+/* Prize bar with milestones */
+.prize-bar-wrap {
   position: relative;
-  overflow: hidden;
+  margin-bottom: 36px;
+  direction: ltr;
 }
-.progress-shimmer::after {
+.prize-bar-track {
+  height: 14px;
+  background: #E2E8F0;
+  border-radius: 99px;
+  overflow: visible;
+  position: relative;
+  transform: scaleX(-1);
+}
+.prize-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F59E0B, #FBBF24);
+  border-radius: 99px;
+  position: relative;
+  transform: scaleX(-1);
+  transform-origin: right center;
+  transition: width 0.4s ease;
+}
+.prize-bar-fill::after {
   content: '';
   position: absolute;
-  top: 0; left: -60%;
-  width: 50%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-  animation: shimmer-move 1.8s infinite ease-in-out;
+  right: -2px; top: -4px;
+  width: 22px; height: 22px;
+  background: #FBBF24;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(251,191,36,0.8);
 }
-@keyframes shimmer-move {
-  0%   { left: -60%; }
-  100% { left: 120%; }
+.milestone {
+  position: absolute;
+  top: 50%;
+  transform: translate(50%, -50%) scaleX(-1);
+  display: flex; flex-direction: column; align-items: center;
 }
+.milestone-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  position: relative; z-index: 2; flex-shrink: 0;
+}
+.milestone.earned .milestone-dot  { background: #F59E0B; }
+.milestone.next   .milestone-dot  { background: #fff; border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); width: 13px; height: 13px; }
+.milestone.future .milestone-dot  { background: #CBD5E1; border-color: white; }
+.milestone-below {
+  position: absolute;
+  top: 15px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.milestone-emoji { font-size: 0.9rem; line-height: 1; }
+.milestone-pts   { font-size: 0.55rem; font-weight: 700; white-space: nowrap; color: #CBD5E1; }
+.milestone.earned .milestone-pts  { color: #D97706; }
+.milestone.next   .milestone-pts  { color: #F59E0B; font-weight: 800; font-size: 0.6rem; }
 
 /* Action grid — 4 colored 3D buttons */
 .action-grid {

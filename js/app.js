@@ -370,8 +370,7 @@ const APP = (() => {
 
     _setText('dash-name',      p.name);
     _setText('dash-avatar',    p.avatar);
-    _setText('dash-greeting',  `שלום, ${p.name}! 👋`);
-    _setText('dash-points',    `${p.points}`);
+    _setText('dash-points',    p.points.toLocaleString());
     _setText('dash-countries', `${getMasteredCount(p.name)}`);
     _setText('dash-title',     _getPlayerTitle(p.points));
     const prizesEl = document.getElementById('dash-prizes');
@@ -389,16 +388,36 @@ const APP = (() => {
     if (btnB) btnB.classList.toggle('locked', !passed);
     if (btnA) btnA.classList.toggle('locked', !passed);
 
-    // next prize bar
+    // next prize bar with milestones
     const next = getNextPrize(p.name);
     if (next) {
-      const prev = _prevPrize(p.points, next);
-      const pct  = prev ? Math.round(((p.points - prev) / (next.points - prev)) * 100) : Math.round((p.points / next.points) * 100);
       _setText('dash-next-prize', `${next.emoji} ${next.prize} — ${next.points} נק׳`);
-      const bar = document.getElementById('dash-prize-bar');
-      if (bar) bar.style.width = Math.min(pct, 100) + '%';
     } else {
       _setText('dash-next-prize', '🏆 כל הפרסים הושגו!');
+    }
+    const MAX_PTS = PRIZES[PRIZES.length - 1].points;
+    const barPct  = Math.min(Math.round((p.points / MAX_PTS) * 100), 100);
+    const bar = document.getElementById('dash-prize-bar');
+    if (bar) bar.style.width = barPct + '%';
+    // render milestone dots
+    const track = document.getElementById('prize-bar-track');
+    if (track) {
+      track.querySelectorAll('.milestone').forEach(el => el.remove());
+      PRIZES.forEach(pr => {
+        const pos = Math.round((pr.points / MAX_PTS) * 100);
+        let cls = 'future';
+        if ((p.prizesEarned || []).includes(pr.points)) cls = 'earned';
+        else if (next && next.points === pr.points) cls = 'next';
+        const m = document.createElement('div');
+        m.className = `milestone ${cls}`;
+        m.style.right = pos + '%';
+        m.innerHTML = `<div class="milestone-dot"></div>
+          <div class="milestone-below">
+            <span class="milestone-emoji">${pr.emoji}</span>
+            <span class="milestone-pts">${pr.points.toLocaleString()}</span>
+          </div>`;
+        track.appendChild(m);
+      });
     }
   }
 
