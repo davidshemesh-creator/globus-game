@@ -395,22 +395,38 @@ const APP = (() => {
     } else {
       _setText('dash-next-prize', '🏆 כל הפרסים הושגו!');
     }
-    const MAX_PTS = PRIZES[PRIZES.length - 1].points;
-    const barPct  = Math.min(Math.round((p.points / MAX_PTS) * 100), 100);
+    // evenly-spaced visual positions (right:%) — symbolic, not mathematical
+    const VISUAL_POS = PRIZES.map((_, i) => Math.round((i + 1) / PRIZES.length * 100));
+    // VISUAL_POS = [20, 40, 60, 80, 100] for 5 prizes
+    // fill width = interpolated visual position of current pts
+    const earned  = p.prizesEarned || [];
+    const nextIdx = PRIZES.findIndex(pr => !earned.includes(pr.points));
+    let fillPct;
+    if (nextIdx === -1) {
+      fillPct = 100; // all earned
+    } else if (nextIdx === 0) {
+      fillPct = Math.round((p.points / PRIZES[0].points) * VISUAL_POS[0]);
+    } else {
+      const prevPts = PRIZES[nextIdx - 1].points;
+      const nxtPts  = PRIZES[nextIdx].points;
+      const prevPos = VISUAL_POS[nextIdx - 1];
+      const nxtPos  = VISUAL_POS[nextIdx];
+      const progress = (p.points - prevPts) / (nxtPts - prevPts);
+      fillPct = Math.round(prevPos + progress * (nxtPos - prevPos));
+    }
     const bar = document.getElementById('dash-prize-bar');
-    if (bar) bar.style.width = barPct + '%';
+    if (bar) bar.style.width = Math.min(fillPct, 100) + '%';
     // render milestone dots
     const track = document.getElementById('prize-bar-track');
     if (track) {
       track.querySelectorAll('.milestone').forEach(el => el.remove());
-      PRIZES.forEach(pr => {
-        const pos = Math.round((pr.points / MAX_PTS) * 100);
+      PRIZES.forEach((pr, i) => {
         let cls = 'future';
-        if ((p.prizesEarned || []).includes(pr.points)) cls = 'earned';
+        if (earned.includes(pr.points)) cls = 'earned';
         else if (next && next.points === pr.points) cls = 'next';
         const m = document.createElement('div');
         m.className = `milestone ${cls}`;
-        m.style.right = pos + '%';
+        m.style.right = VISUAL_POS[i] + '%';
         m.innerHTML = `<div class="milestone-dot"></div>
           <div class="milestone-below">
             <span class="milestone-emoji">${pr.emoji}</span>

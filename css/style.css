@@ -617,7 +617,6 @@ body {
 .prize-bar-wrap {
   position: relative;
   margin-bottom: 36px;
-  direction: ltr;
 }
 .prize-bar-track {
   height: 14px;
@@ -625,21 +624,20 @@ body {
   border-radius: 99px;
   overflow: visible;
   position: relative;
-  transform: scaleX(-1);
 }
 .prize-bar-fill {
+  /* anchored to right — fills rightward→leftward */
+  position: absolute;
+  right: 0; top: 0;
   height: 100%;
-  background: linear-gradient(90deg, #F59E0B, #FBBF24);
+  background: linear-gradient(to left, #F59E0B, #FBBF24);
   border-radius: 99px;
-  position: relative;
-  transform: scaleX(-1);
-  transform-origin: right center;
   transition: width 0.4s ease;
 }
 .prize-bar-fill::after {
   content: '';
   position: absolute;
-  right: -2px; top: -4px;
+  left: -4px; top: -4px; /* glow at advancing (left) tip */
   width: 22px; height: 22px;
   background: #FBBF24;
   border-radius: 50%;
@@ -648,7 +646,7 @@ body {
 .milestone {
   position: absolute;
   top: 50%;
-  transform: translate(50%, -50%) scaleX(-1);
+  transform: translate(50%, -50%);
   display: flex; flex-direction: column; align-items: center;
 }
 .milestone-dot {
