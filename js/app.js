@@ -115,6 +115,11 @@ const APP = (() => {
   // ── PROFILES SCREEN ────────────────────────────────────────
   const RANK_MEDALS = ['🥇', '🥈', '🥉'];
 
+  function _getPlayerTitle(points) {
+    const earned = [...PRIZES].reverse().find(pr => points >= pr.points);
+    return earned ? earned.achievement : 'חוקר מתחיל';
+  }
+
   function renderProfilesScreen() {
     const profiles = loadProfiles(); // already sorted by points desc
     const grid     = document.getElementById('profiles-grid');
@@ -126,10 +131,12 @@ const APP = (() => {
       const rankClass  = idx < 3 ? ` rank-${idx + 1}` : '';
       const medalEmoji = idx < 3 ? RANK_MEDALS[idx] : p.avatar;
 
+      const title = _getPlayerTitle(p.points);
       const card = _el('div', `profile-card${rankClass}`, `
         <span class="profile-medal">${medalEmoji}</span>
         <div class="profile-card-info">
           <div class="profile-name">${p.name}</div>
+          <div class="profile-title">${title}</div>
           <div class="profile-meta">
             <span class="profile-badge">${p.points} נקודות</span>
             <button class="profile-badge badge-countries" title="לחץ לפירוט">${getMasteredCount(p.name)} מדינות 👆</button>
