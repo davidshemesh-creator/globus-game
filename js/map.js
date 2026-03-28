@@ -27,7 +27,7 @@ const MAP = (() => {
   let isClickMode = false;
   let zoomBehavior = null;
 
-  async function init(containerId) {
+  async function init(containerId, options = {}) {
     const container = document.getElementById(containerId);
     const W = container.clientWidth  || window.innerWidth;
     const H = Math.max(container.clientHeight, window.innerHeight * 0.6) || window.innerHeight;
@@ -49,16 +49,15 @@ const MAP = (() => {
 
     g = svg.append('g').attr('class', 'countries');
 
-    // On portrait screens (mobile), fit by height so map fills more of the screen
+    // On portrait screens (mobile), fit by height so map fills more of the screen.
+    // portraitZoom=1.8 (default) zooms in for a larger map feel; use 1.0 for games that need
+    // all continents visible (e.g. continents game — at 1.8x Australia is off the right edge).
     const isPortrait = H > W * 1.2;
-    const mapScale = isPortrait ? Math.min(W / 6.3, H / 4.2) * 1.8 : W / 6.3;
+    const portraitZoom = options.portraitZoom !== undefined ? options.portraitZoom : 1.8;
+    const mapScale = isPortrait ? Math.min(W / 6.3, H / 4.2) * portraitZoom : W / 6.3;
     // ── DO NOT CHANGE THIS WITHOUT TESTING AUSTRALIA ON MOBILE ──────────────────
     // Portrait translateY must be H/2 - 40 (NOT H/2) to account for the topbar
     // (~56px) and question-bar (~120px) chrome in the continents game.
-    // H/2 centers the equator at the screen midpoint, which pushes Oceania/Australia
-    // behind the bottom question-bar. Shifting up 40px keeps the southern hemisphere
-    // fully visible inside the "safe zone" between the two UI bars.
-    // This fix has been applied multiple times — do not revert to plain H/2.
     const translateY = isPortrait ? H / 2 - 40 : H / 2 + 65;
 
     projection = d3.geoNaturalEarth1()

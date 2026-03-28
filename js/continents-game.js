@@ -35,7 +35,9 @@ const CONTINENTS_GAME = (() => {
 
     document.getElementById('cont-result')?.classList.add('hidden');
 
-    await MAP.init(MAP_CONTAINER_ID);
+    // portraitZoom: 1.0 → world fits in screen width so all 6 continents are visible.
+    // Default 1.8 zooms in too much and pushes Australia off the right edge.
+    await MAP.init(MAP_CONTAINER_ID, { portraitZoom: 1.0 });
     MAP.disableZoom();
     MAP.renderAsContinents();
     MAP.enableContinentClick(_onContinentClick);
