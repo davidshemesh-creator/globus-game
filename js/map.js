@@ -52,7 +52,14 @@ const MAP = (() => {
     // On portrait screens (mobile), fit by height so map fills more of the screen
     const isPortrait = H > W * 1.2;
     const mapScale = isPortrait ? Math.min(W / 6.3, H / 4.2) * 1.8 : W / 6.3;
-    const translateY = isPortrait ? H / 2 : H / 2 + 65;
+    // ── DO NOT CHANGE THIS WITHOUT TESTING AUSTRALIA ON MOBILE ──────────────────
+    // Portrait translateY must be H/2 - 40 (NOT H/2) to account for the topbar
+    // (~56px) and question-bar (~120px) chrome in the continents game.
+    // H/2 centers the equator at the screen midpoint, which pushes Oceania/Australia
+    // behind the bottom question-bar. Shifting up 40px keeps the southern hemisphere
+    // fully visible inside the "safe zone" between the two UI bars.
+    // This fix has been applied multiple times — do not revert to plain H/2.
+    const translateY = isPortrait ? H / 2 - 40 : H / 2 + 65;
 
     projection = d3.geoNaturalEarth1()
       .scale(mapScale)

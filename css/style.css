@@ -541,7 +541,14 @@ body {
   display: flex; align-items: center; gap: 8px; flex: 1;
 }
 .dash-avatar { font-size: 2rem; }
-.dash-name   { font-size: 1.2rem; font-weight: 800; }
+.dash-name-block { display: flex; flex-direction: column; gap: 2px; }
+.dash-name   { font-size: 1.2rem; font-weight: 800; line-height: 1.1; }
+.dash-player-title {
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--text-muted); letter-spacing: 0.02em;
+}
+.dash-player-prizes { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 1px; }
+.dash-player-prizes .prize-badge { font-size: 0.9rem; }
 
 /* Greeting */
 .dash-greeting {

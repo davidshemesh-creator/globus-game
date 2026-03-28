@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=36" />
+  <link rel="stylesheet" href="css/style.css?v=37" />
 </head>
 <body>
 
@@ -89,7 +89,11 @@
     <button id="btn-back-to-profiles" class="btn-icon btn-back" title="חזרה לפרופילים">›</button>
     <div class="dash-profile-info">
       <span id="dash-avatar" class="dash-avatar">🌺</span>
-      <span id="dash-name"   class="dash-name">שם</span>
+      <div class="dash-name-block">
+        <span id="dash-name"  class="dash-name">שם</span>
+        <span id="dash-title" class="dash-player-title"></span>
+        <div  id="dash-prizes" class="dash-player-prizes"></div>
+      </div>
     </div>
   </header>
 
@@ -400,16 +404,16 @@
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=36"></script>
+<script src="js/firebase-db.js?v=37"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=36"></script>
-<script src="js/map.js?v=36"></script>
-<script src="js/profiles.js?v=36"></script>
-<script src="js/game.js?v=36"></script>
-<script src="js/continents-game.js?v=36"></script>
-<script src="js/app.js?v=36"></script>
+<script src="js/data.js?v=37"></script>
+<script src="js/map.js?v=37"></script>
+<script src="js/profiles.js?v=37"></script>
+<script src="js/game.js?v=37"></script>
+<script src="js/continents-game.js?v=37"></script>
+<script src="js/app.js?v=37"></script>
 
 </body>
 </html>

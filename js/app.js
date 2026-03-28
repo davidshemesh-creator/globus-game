@@ -373,6 +373,14 @@ const APP = (() => {
     _setText('dash-greeting',  `שלום, ${p.name}! 👋`);
     _setText('dash-points',    `${p.points}`);
     _setText('dash-countries', `${getMasteredCount(p.name)}`);
+    _setText('dash-title',     _getPlayerTitle(p.points));
+    const prizesEl = document.getElementById('dash-prizes');
+    if (prizesEl) {
+      const earned = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
+      prizesEl.innerHTML = earned.map(pr =>
+        `<span class="prize-badge" title="${pr.achievement}">${pr.emoji}</span>`
+      ).join('');
+    }
 
     // lock/unlock game buttons based on continents passed
     const passed = hasContinentsPassed(p.name);
