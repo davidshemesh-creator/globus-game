@@ -280,6 +280,7 @@ body {
 
 .profile-meta {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -448,11 +449,18 @@ body {
   background: none;
   border: none;
   font: inherit;
-  padding: 4px 8px;
-  margin: -4px -8px;
-  min-height: 44px;
+  /* Match .profile-badge visually */
+  padding: 2px 10px;
+  margin: 0;
   display: inline-flex;
   align-items: center;
+  /* Extend tap area via pseudo-element (no visual impact) */
+  position: relative;
+}
+.badge-countries::before {
+  content: '';
+  position: absolute;
+  inset: -10px -6px;
 }
 .badge-countries:hover { opacity: 0.8; }
 
