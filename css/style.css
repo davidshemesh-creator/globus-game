@@ -297,6 +297,18 @@ body {
   color: #92400E;
 }
 
+.profile-prizes {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.prize-badge {
+  font-size: 1rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
 .profile-card-right {
   display: flex;
   flex-direction: column;

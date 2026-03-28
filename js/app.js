@@ -132,6 +132,10 @@ const APP = (() => {
       const medalEmoji = idx < 3 ? RANK_MEDALS[idx] : p.avatar;
 
       const title = _getPlayerTitle(p.points);
+      const earnedPrizes = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
+      const prizeBadges = earnedPrizes.map(pr =>
+        `<span class="prize-badge" title="${pr.achievement}">${pr.emoji}</span>`
+      ).join('');
       const card = _el('div', `profile-card${rankClass}`, `
         <span class="profile-medal">${medalEmoji}</span>
         <div class="profile-card-info">
@@ -141,6 +145,7 @@ const APP = (() => {
             <span class="profile-badge">${p.points} נקודות</span>
             <button class="profile-badge badge-countries" title="לחץ לפירוט">${getMasteredCount(p.name)} מדינות 👆</button>
           </div>
+          ${prizeBadges ? `<div class="profile-prizes">${prizeBadges}</div>` : ''}
         </div>
         <div class="profile-card-right">
           <span class="rank-num">#${idx + 1}</span>
