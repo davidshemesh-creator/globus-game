@@ -24,7 +24,7 @@ const COUNTRIES = [
   // ── PRIORITY 5 — ידועות מאוד ──
   { id: 376,  iso2: 'IL', nameHe: 'ישראל',              continent: 'asia',          priority: 5 },
   { id: 840,  iso2: 'US', nameHe: 'ארצות הברית',        continent: 'north-america', priority: 5 },
-  { id: 643,  iso2: 'RU', nameHe: 'רוסיה',              continent: 'europe',        priority: 5 },
+  { id: 643,  iso2: 'RU', nameHe: 'רוסיה',              continent: 'asia',          priority: 5 },
   { id: 156,  iso2: 'CN', nameHe: 'סין',                continent: 'asia',          priority: 5 },
   { id: 76,   iso2: 'BR', nameHe: 'ברזיל',              continent: 'south-america', priority: 5 },
   { id: 818,  iso2: 'EG', nameHe: 'מצרים',              continent: 'africa',        priority: 5 },
