@@ -124,23 +124,23 @@ const APP = (() => {
 
     profiles.forEach((p, idx) => {
       const rankClass  = idx < 3 ? ` rank-${idx + 1}` : '';
-      const medalEmoji = idx < 3 ? RANK_MEDALS[idx] : '';
-      const rankBlock  = `
-        <div class="rank-block">
-          <span class="rank-big">${idx + 1}</span>
-          ${medalEmoji ? `<span class="rank-medal-icon">${medalEmoji}</span>` : ''}
-        </div>`;
+      const medalEmoji = idx < 3 ? RANK_MEDALS[idx] : p.avatar;
 
       const card = _el('div', `profile-card${rankClass}`, `
-        ${rankBlock}
-        <span class="profile-avatar">${p.avatar}</span>
+        <span class="profile-medal">${medalEmoji}</span>
         <div class="profile-card-info">
-          <span class="profile-name">${p.name}</span>
-          <span class="profile-pts">${p.points} נקודות  •  ${getMasteredCount(p.name)} מדינות</span>
+          <div class="profile-name">${p.name}</div>
+          <div class="profile-meta">
+            <span class="profile-badge">${p.points} נקודות</span>
+            <span class="profile-badge">${getMasteredCount(p.name)} מדינות</span>
+          </div>
         </div>
-        <div class="profile-card-actions">
-          <button class="btn-profile-action btn-profile-edit" title="ערוך">✏️</button>
-          <button class="btn-profile-action btn-profile-delete" title="מחק">🗑️</button>
+        <div class="profile-card-right">
+          <span class="rank-num">#${idx + 1}</span>
+          <div class="profile-card-actions">
+            <button class="btn-profile-action btn-profile-edit" title="ערוך">✏️</button>
+            <button class="btn-profile-action btn-profile-delete" title="מחק">🗑️</button>
+          </div>
         </div>
       `);
 
@@ -177,7 +177,7 @@ const APP = (() => {
 
     // Add profile button
     const addBtn = _el('button', 'profile-card profile-card--add', `
-      <span class="profile-avatar">➕</span>
+      <span>＋</span>
       <span class="profile-name">הוסף ילד</span>
     `);
     addBtn.addEventListener('click', _showAddProfileModal);

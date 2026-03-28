@@ -242,84 +242,85 @@ body {
 .loading-text  { font-size: 1.1rem; color: var(--text-muted); font-weight: 600; }
 .loading-error { font-size: 0.9rem; color: var(--danger); }
 
-/* ── Rank badges on profile cards ─────────────────────────── */
-.rank-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
+/* ── Profile card — medal + info + rank layout ─────────────── */
+.profile-medal {
+  font-size: 2.5rem;
+  line-height: 1;
   flex-shrink: 0;
-  gap: 1px;
 }
-.rank-big {
-  font-size: 1.6rem;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--text-muted);
-}
-.rank-medal-icon {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-.rank-medal {
-  font-size: 1.4rem;
-  flex-shrink: 0;
-  line-height: 1;
-}
+.profile-card.rank-2 .profile-medal,
+.profile-card.rank-3 .profile-medal { font-size: 1.9rem; }
 
-/* Gold / Silver / Bronze card skins */
-.profile-card.rank-1 {
-  border-color: #F59E0B;
-  background: linear-gradient(145deg, #FFFBEB 0%, #FEF3C7 100%);
-  box-shadow: 0 4px 20px rgba(245,158,11,0.2);
-}
-.profile-card.rank-2 {
-  border-color: #94A3B8;
-  background: linear-gradient(145deg, #F8FAFC 0%, #F1F5F9 100%);
-  box-shadow: 0 3px 14px rgba(148,163,184,0.2);
-}
-.profile-card.rank-3 {
-  border-color: #D97706;
-  background: linear-gradient(145deg, #FFF7ED 0%, #FFEDD5 100%);
-  box-shadow: 0 3px 14px rgba(217,119,6,0.15);
-}
-.profile-card.rank-1 .profile-name { color: #92400E; font-size: 1rem; }
-.profile-card.rank-2 .profile-name { color: #1E293B; }
-.profile-card.rank-3 .profile-name { color: #7C2D12; }
-.profile-card.rank-1 .rank-big { color: #F59E0B; font-size: 2rem; }
-.profile-card.rank-2 .rank-big { color: #94A3B8; font-size: 1.8rem; }
-.profile-card.rank-3 .rank-big { color: #D97706; font-size: 1.7rem; }
-.rank-num {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  background: var(--border);
-  border-radius: 8px;
-  padding: 3px 7px;
-  flex-shrink: 0;
-  min-width: 32px;
-  text-align: center;
-}
-
-/* Top row: avatar + name/pts + action buttons */
-.profile-card-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
 .profile-card-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
   flex: 1;
   min-width: 0;
 }
-.profile-avatar { font-size: 2rem; line-height: 1; flex-shrink: 0; }
-.profile-name   { font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-pts    { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+.profile-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.profile-card.rank-1 .profile-name { font-size: 1.4rem; font-weight: 900; color: var(--text); }
+.profile-card.rank-2 .profile-name,
+.profile-card.rank-3 .profile-name { font-size: 1.05rem; }
+
+.profile-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.profile-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.08);
+  color: #374151;
+}
+.profile-card.rank-1 .profile-badge {
+  background: rgba(180,83,9,0.15);
+  color: #92400E;
+}
+
+.profile-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.rank-num {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  text-align: center;
+}
+.profile-card.rank-1 .rank-num { color: #B45309; }
+.profile-card.rank-2 .rank-num { color: #64748B; }
+.profile-card.rank-3 .rank-num { color: #92400E; }
+
+/* Gold / Silver / Bronze card skins */
+.profile-card.rank-1 {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 2px solid #F59E0B;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.35), 0 0 0 1px rgba(245,158,11,0.15);
+}
+.profile-card.rank-2 {
+  background: linear-gradient(135deg, #F1F5F9, #E2E8F0);
+  border: 2px solid #94A3B8;
+  box-shadow: 0 3px 12px rgba(148,163,184,0.25);
+}
+.profile-card.rank-3 {
+  background: linear-gradient(135deg, #FEF3E8, #FDDCB8);
+  border: 2px solid #B45309;
+  box-shadow: 0 3px 10px rgba(180,83,9,0.20);
+}
 
 /* Edit / delete buttons */
 .profile-card-actions {
