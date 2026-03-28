@@ -537,6 +537,15 @@ body {
   border: 1px solid var(--border);
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
+.stat-card--clickable {
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.stat-card--clickable:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
 .stat-value {
   font-size: 1.65rem;
   font-weight: 900;

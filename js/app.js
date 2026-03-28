@@ -890,6 +890,10 @@ const APP = (() => {
       document.getElementById('modal-add-profile')?.classList.add('hidden');
     });
 
+    _on('stat-card-countries', 'click', () => {
+      if (currentProfile) _showCountriesModal(currentProfile.name);
+    });
+
     _on('btn-countries-close', 'click', () => {
       document.getElementById('modal-countries')?.classList.add('hidden');
     });
