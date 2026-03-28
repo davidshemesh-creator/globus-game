@@ -195,7 +195,7 @@ const APP = (() => {
     // Add profile button
     const addBtn = _el('button', 'profile-card profile-card--add', `
       <span>＋</span>
-      <span class="profile-name">הוסף ילד</span>
+      <span class="profile-name">הוסף משתמש</span>
     `);
     addBtn.addEventListener('click', _showAddProfileModal);
     grid.appendChild(addBtn);
@@ -324,7 +324,7 @@ const APP = (() => {
     _editingProfileName = null;
     const modal = document.getElementById('modal-add-profile');
     if (!modal) return;
-    document.querySelector('#modal-add-profile .modal-title').textContent = 'ילד/ה חדש/ה';
+    document.querySelector('#modal-add-profile .modal-title').textContent = 'משתמש חדש';
     document.getElementById('btn-add-profile-confirm').textContent = 'הוסף';
     document.getElementById('new-profile-name').value = '';
     document.getElementById('new-profile-pin').value  = '';
