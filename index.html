@@ -82,65 +82,56 @@
       <span id="dash-avatar" class="dash-avatar">🌺</span>
       <span id="dash-name"   class="dash-name">שם</span>
     </div>
-    <div class="dash-stats">
-      <span id="dash-points"    class="stat-chip">0 נקודות</span>
-      <span id="dash-countries" class="stat-chip">0 מדינות</span>
-    </div>
   </header>
 
   <main class="screen-content">
+    <!-- Greeting -->
+    <p id="dash-greeting" class="dash-greeting">שלום! 👋</p>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div id="dash-points" class="stat-value accent">0</div>
+        <div class="stat-label">נקודות</div>
+      </div>
+      <div class="stat-card">
+        <div id="dash-countries" class="stat-value primary">0</div>
+        <div class="stat-label">מדינות</div>
+      </div>
+    </div>
+
     <!-- Prize progress -->
     <section class="card prize-progress-card">
-      <p class="card-label">הפרס הבא:</p>
-      <p id="dash-next-prize" class="prize-target">🍬 ממתק — 50 נקודות</p>
+      <div class="progress-header">
+        <span class="progress-label">🏅 בדרך לפרס הבא</span>
+        <span id="dash-next-prize" class="progress-target">...</span>
+      </div>
       <div class="progress-track">
-        <div id="dash-prize-bar" class="progress-fill" style="width: 0%"></div>
+        <div id="dash-prize-bar" class="progress-fill progress-shimmer" style="width: 0%"></div>
       </div>
     </section>
 
-    <button id="btn-play"        class="btn btn-primary btn-xl">▶ שחק עכשיו</button>
-    <button id="btn-explore-map" class="btn btn-ghost   btn-xl">🗺 חקור מפה</button>
+    <!-- Action grid -->
+    <div class="action-grid">
+      <button id="btn-game-continents" class="action-btn purple">
+        <span class="btn-icon">🌍</span>
+        משחק יבשות
+      </button>
+      <button id="btn-game-mode-b" class="action-btn blue">
+        <span class="btn-icon">🗺</span>
+        זהה מדינות
+      </button>
+      <button id="btn-game-mode-a" class="action-btn teal">
+        <span class="btn-icon">🔍</span>
+        מצא מדינות
+      </button>
+      <button id="btn-explore-map" class="action-btn gray">
+        <span class="btn-icon">🗺</span>
+        מפת העולם
+      </button>
+    </div>
 
     <button id="btn-reset-profile" class="btn btn-ghost btn-sm">🗑️ אפס נתונים</button>
-  </main>
-</div>
-
-
-<!-- ══════════════════════════════════════════════
-     SCREEN 2b — Game selection
-══════════════════════════════════════════════ -->
-<div id="screen-game-select" class="screen hidden">
-  <header class="screen-header">
-    <button id="btn-gamesel-back" class="btn-icon btn-back">›</button>
-    <h2 class="screen-title">בחר משחק</h2>
-  </header>
-
-  <main class="screen-content">
-
-    <button id="btn-game-continents" class="game-card">
-      <span class="game-card-level">דרגה - 1</span>
-      <span class="game-card-icon">🌍</span>
-      <h3 class="game-card-title">זהה יבשות</h3>
-      <p class="game-card-desc">לחץ על המפה — איפה כל יבשה נמצאת?</p>
-      <span class="game-card-badge">+20 נקודות אם כולן נכונות</span>
-    </button>
-
-    <button id="btn-game-mode-b" class="game-card">
-      <span class="game-card-level">דרגה - 2</span>
-      <span class="game-card-icon">🗺</span>
-      <h3 class="game-card-title">זהה מדינות</h3>
-      <p class="game-card-desc">המדינה מסומנת על המפה — בחר את שמה מתוך 4 אפשרויות</p>
-      <span class="game-card-badge">10–25 נקודות לשאלה</span>
-    </button>
-
-    <button id="btn-game-mode-a" class="game-card">
-      <span class="game-card-level">דרגה - 3</span>
-      <span class="game-card-icon">🔍</span>
-      <h3 class="game-card-title">מצא מדינות</h3>
-      <p class="game-card-desc">שם המדינה ודגלה מוצגים — לחץ עליה על המפה</p>
-      <span class="game-card-badge">10–25 נקודות לשאלה</span>
-    </button>
-
   </main>
 </div>
 

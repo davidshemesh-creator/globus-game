@@ -302,23 +302,30 @@ const APP = (() => {
     if (!currentProfile) return;
     const p = getProfile(currentProfile.name); // fresh from storage
 
-    _setText('dash-name',    p.name);
-    _setText('dash-avatar',  p.avatar);
-    _setText('dash-points',  `${p.points} נקודות`);
-    _setText('dash-countries', `${getMasteredCount(p.name)} מדינות`);
+    _setText('dash-name',      p.name);
+    _setText('dash-avatar',    p.avatar);
+    _setText('dash-greeting',  `שלום, ${p.name}! 👋`);
+    _setText('dash-points',    `${p.points}`);
+    _setText('dash-countries', `${getMasteredCount(p.name)}`);
+
+    // lock/unlock game buttons based on continents passed
+    const passed = hasContinentsPassed(p.name);
+    const btnB = document.getElementById('btn-game-mode-b');
+    const btnA = document.getElementById('btn-game-mode-a');
+    if (btnB) btnB.classList.toggle('locked', !passed);
+    if (btnA) btnA.classList.toggle('locked', !passed);
 
     // next prize bar
     const next = getNextPrize(p.name);
     if (next) {
       const prev = _prevPrize(p.points, next);
       const pct  = prev ? Math.round(((p.points - prev) / (next.points - prev)) * 100) : Math.round((p.points / next.points) * 100);
-      _setText('dash-next-prize', `${next.emoji} ${next.prize} — ${next.points} נקודות`);
+      _setText('dash-next-prize', `${next.emoji} ${next.prize} — ${next.points} נק׳`);
       const bar = document.getElementById('dash-prize-bar');
       if (bar) bar.style.width = Math.min(pct, 100) + '%';
     } else {
       _setText('dash-next-prize', '🏆 כל הפרסים הושגו!');
     }
-
   }
 
   function _getContinentProgressHTML(p) {
@@ -621,9 +628,9 @@ const APP = (() => {
       list.innerHTML = '';
       summary.answers.forEach(a => {
         const item = _el('div', `summary-answer-item ${a.correct ? 'correct' : 'wrong'}`,
-          `<span>${getFlagEmoji(a.country.iso2)}</span>
-           <span>${a.country.nameHe}</span>
-           <span>${a.correct ? '✓' : '✗'}</span>`
+          `<span class="answer-icon">${a.correct ? '✓' : '✗'}</span>
+           <span class="answer-flag">${getFlagEmoji(a.country.iso2)}</span>
+           <span class="answer-name">${a.country.nameHe}</span>`
         );
         list.appendChild(item);
       });
