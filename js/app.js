@@ -197,45 +197,42 @@ const APP = (() => {
     const CONT_COLORS = { europe:'#60A5FA', asia:'#F472B6', africa:'#FBBF24', 'north-america':'#FB923C', 'south-america':'#34D399', oceania:'#2DD4BF' };
     const CONT_NAMES  = { europe:'אירופה', asia:'אסיה', africa:'אפריקה', 'north-america':'אמריקה הצפונית', 'south-america':'אמריקה הדרומית', oceania:'אוקיאניה' };
 
-    const mastered = COUNTRIES.filter(c => {
+    const isMastered = c => {
       const d = p.countriesLearned[String(c.id)];
       return d && ((d.streak || 0) >= 3 || d.verified === true);
-    });
+    };
 
-    const byContinent = {};
-    mastered.forEach(c => {
-      if (!byContinent[c.continent]) byContinent[c.continent] = [];
-      byContinent[c.continent].push(c);
-    });
-    Object.keys(byContinent).forEach(key => {
-      byContinent[key].sort((a, b) => a.nameHe.localeCompare(b.nameHe, 'he'));
-    });
+    const totalMastered = COUNTRIES.filter(isMastered).length;
 
     let html = `
       <div class="sheet-title-block">
         <h2 class="sheet-title">המדינות של ${p.name} 🌍</h2>
-        <p class="sheet-subtitle">${mastered.length} מדינות שלטת עליהן</p>
+        <p class="sheet-subtitle">${totalMastered} מתוך ${COUNTRIES.length} מדינות</p>
       </div>`;
 
-    if (mastered.length === 0) {
-      html += `<p class="sheet-empty">עוד לא שלטת על מדינות — המשך לשחק! 🎮</p>`;
-    } else {
-      CONT_ORDER.forEach(key => {
-        const countries = byContinent[key];
-        if (!countries || countries.length === 0) return;
-        html += `
-          <div class="cont-section">
-            <div class="cont-section-header">
-              <span class="cont-dot" style="background:${CONT_COLORS[key]}"></span>
-              <span class="cont-section-name">${CONT_NAMES[key]}</span>
-              <span class="cont-section-count">${countries.length} מדינות</span>
-            </div>
-            <div class="cont-countries-wrap">
-              ${countries.map(c => `<span class="country-chip" style="border-color:${CONT_COLORS[key]}">${getFlagEmoji(c.iso2)} ${c.nameHe}</span>`).join('')}
-            </div>
-          </div>`;
-      });
-    }
+    CONT_ORDER.forEach(key => {
+      const all = COUNTRIES.filter(c => c.continent === key)
+                           .sort((a, b) => a.nameHe.localeCompare(b.nameHe, 'he'));
+      const known   = all.filter(c =>  isMastered(c));
+      const unknown = all.filter(c => !isMastered(c));
+
+      const pct = all.length ? Math.round((known.length / all.length) * 100) : 0;
+      html += `
+        <div class="cont-section">
+          <div class="cont-section-header">
+            <span class="cont-dot" style="background:${CONT_COLORS[key]}"></span>
+            <span class="cont-section-name">${CONT_NAMES[key]}</span>
+            <span class="cont-section-count">${known.length} מתוך ${all.length}</span>
+          </div>
+          <div class="cont-progress-bar">
+            <div class="cont-progress-fill" style="width:${pct}%;background:${CONT_COLORS[key]}"></div>
+          </div>
+          <div class="cont-countries-wrap">
+            ${known.map(c => `<span class="country-chip" style="border-color:${CONT_COLORS[key]}">${getFlagEmoji(c.iso2)} ${c.nameHe}</span>`).join('')}
+            ${unknown.map(c => `<span class="country-chip country-chip--unknown">${getFlagEmoji(c.iso2)} ${c.nameHe}</span>`).join('')}
+          </div>
+        </div>`;
+    });
 
     document.getElementById('countries-sheet-content').innerHTML = html;
     document.getElementById('modal-countries').classList.remove('hidden');

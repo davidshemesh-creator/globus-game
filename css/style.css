@@ -416,6 +416,25 @@ body {
   font-size: 0.82rem; font-weight: 600;
   color: var(--text);
 }
+.cont-progress-bar {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.cont-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.country-chip--unknown {
+  opacity: 0.35;
+  border-color: #94A3B8 !important;
+  color: var(--text-muted);
+}
+
 .badge-countries {
   cursor: pointer;
   background: none;
