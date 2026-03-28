@@ -132,7 +132,7 @@ const APP = (() => {
           <div class="profile-name">${p.name}</div>
           <div class="profile-meta">
             <span class="profile-badge">${p.points} נקודות</span>
-            <span class="profile-badge badge-countries" title="לחץ לפירוט">${getMasteredCount(p.name)} מדינות 👆</span>
+            <button class="profile-badge badge-countries" title="לחץ לפירוט">${getMasteredCount(p.name)} מדינות 👆</button>
           </div>
         </div>
         <div class="profile-card-right">
@@ -144,9 +144,9 @@ const APP = (() => {
         </div>
       `);
 
-      // click on card body → select profile
+      // click on card body → select profile (ignore action buttons and countries badge)
       card.addEventListener('click', (e) => {
-        if (!e.target.closest('.btn-profile-action')) _selectProfile(p.name);
+        if (!e.target.closest('.btn-profile-action') && !e.target.closest('.badge-countries')) _selectProfile(p.name);
       });
 
       card.querySelector('.badge-countries').addEventListener('click', (e) => {

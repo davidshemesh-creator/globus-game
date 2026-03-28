@@ -416,7 +416,17 @@ body {
   font-size: 0.82rem; font-weight: 600;
   color: var(--text);
 }
-.badge-countries { cursor: pointer; }
+.badge-countries {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
 .badge-countries:hover { opacity: 0.8; }
 
 .modal-card {
