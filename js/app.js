@@ -191,14 +191,6 @@ const APP = (() => {
 
       grid.appendChild(card);
     });
-
-    // Add profile button
-    const addBtn = _el('button', 'profile-card profile-card--add', `
-      <span>＋</span>
-      <span class="profile-name">הוסף משתמש</span>
-    `);
-    addBtn.addEventListener('click', _showAddProfileModal);
-    grid.appendChild(addBtn);
   }
 
   function _showCountriesModal(profileName) {
