@@ -917,6 +917,8 @@ const APP = (() => {
   function _bindGlobalEvents() {
 
     // ----- Profile screen -----
+    _on('btn-add-profile-top', 'click', _showAddProfileModal);
+
     _on('btn-add-profile-confirm', 'click', () => {
       const name   = document.getElementById('new-profile-name')?.value.trim();
       const avatar = document.querySelector('.avatar-option.selected')?.textContent || '⭐';
