@@ -58,8 +58,11 @@ const GAME = (() => {
       answers: [],
       finished: false,
       roundPrize: null,
-      newlyMastered: [],           // מדינות שהגיעו ל-streak=3 בסיבוב זה
-      prevMastered: getMasteredCount(profileName), // לזיהוי פתיחת רמה
+      newlyMastered: [],
+      prevMastered: getMasteredCount(profileName),
+      roundStars: 0,
+      badgePrize: null,
+      discoveryBadges: [],
     };
 
     return currentQuestion();
@@ -187,10 +190,13 @@ const GAME = (() => {
       answers:        state.answers,
       passed:         state.correctCount >= threshold,
       passThreshold:  threshold,
-      roundPrize:     state.roundPrize,
-      newlyMastered:  state.newlyMastered || [],
-      levelUnlocked:  state.levelUnlocked || null,
-      isVerification: state.isVerification || false,
+      roundPrize:      state.roundPrize,
+      newlyMastered:   state.newlyMastered || [],
+      levelUnlocked:   state.levelUnlocked || null,
+      isVerification:  state.isVerification || false,
+      roundStars:      state.roundStars || 0,
+      badgePrize:      state.badgePrize || null,
+      discoveryBadges: state.discoveryBadges || [],
     };
   }
 
@@ -211,16 +217,19 @@ const GAME = (() => {
       level:          'easy',
       continent:      'all',
       questions,
-      currentIndex:   0,
-      score:          0,
-      streak:         0,
-      correctCount:   0,
-      answers:        [],
-      finished:       false,
-      roundPrize:     null,
-      newlyMastered:  [],
-      prevMastered:   getMasteredCount(profileName),
-      isVerification: true,
+      currentIndex:    0,
+      score:           0,
+      streak:          0,
+      correctCount:    0,
+      answers:         [],
+      finished:        false,
+      roundPrize:      null,
+      newlyMastered:   [],
+      prevMastered:    getMasteredCount(profileName),
+      isVerification:  true,
+      roundStars:      0,
+      badgePrize:      null,
+      discoveryBadges: [],
     };
 
     return currentQuestion();
@@ -335,6 +344,10 @@ const GAME = (() => {
   function _onRoundEnd() {
     if (!state) return;
 
+    // Track discovered countries for all round types
+    const discoveredIds = state.questions.map(q => q.country.id);
+    state.discoveryBadges = recordDiscovered(state.profileName, discoveredIds);
+
     // סיבוב בדיקה — לוגיקה נפרדת
     if (state.isVerification) {
       state.answers.forEach(a => {
@@ -360,6 +373,13 @@ const GAME = (() => {
     } else {
       state.score      = 0;
       state.roundPrize = null;
+    }
+
+    // Stars (only for level mode, not continent mode)
+    const stars = calcRoundStars(state.correctCount, state.questions.length);
+    state.roundStars = stars;
+    if (state.continent === 'all' && stars > 0) {
+      state.badgePrize = addLevelStars(state.profileName, state.level, stars);
     }
 
     // בדוק אם רמה חדשה נפתחה

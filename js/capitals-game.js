@@ -33,7 +33,7 @@ const CAPITALS_GAME = (() => {
       country,
       choices: _mcChoices(country, pool),
     }));
-    state = _initState(profileName, 'C', questions);
+    state = _initState(profileName, 'C', questions, continent, level);
     return _currentQ();
   }
 
@@ -43,7 +43,7 @@ const CAPITALS_GAME = (() => {
     if (pool.length < 1) return null;
     const selected  = _weightedSample(pool, profileName);
     const questions = selected.map(country => ({ country }));
-    state = _initState(profileName, 'D', questions);
+    state = _initState(profileName, 'D', questions, continent, level);
     return _currentQ();
   }
 
@@ -106,19 +106,24 @@ const CAPITALS_GAME = (() => {
   function getRoundSummary() {
     if (!state) return null;
     return {
-      mode:         state.mode,
-      profileName:  state.profileName,
-      score:        state.score,
-      correctCount: state.correctCount,
-      total:        state.questions.length,
-      answers:      state.answers,
-      roundPrize:   state.roundPrize,
+      mode:            state.mode,
+      profileName:     state.profileName,
+      level:           state.level,
+      continent:       state.continent,
+      score:           state.score,
+      correctCount:    state.correctCount,
+      total:           state.questions.length,
+      answers:         state.answers,
+      roundPrize:      state.roundPrize,
+      roundStars:      state.roundStars || 0,
+      badgePrize:      state.badgePrize || null,
+      discoveryBadges: state.discoveryBadges || [],
     };
   }
 
   // ── Private helpers ────────────────────────────────────────
-  function _initState(profileName, mode, questions) {
-    return { profileName, mode, questions, currentIndex: 0, score: 0, streak: 0, correctCount: 0, answers: [], finished: false, roundPrize: null };
+  function _initState(profileName, mode, questions, continent = 'all', level = 'easy') {
+    return { profileName, mode, questions, continent, level, currentIndex: 0, score: 0, streak: 0, correctCount: 0, answers: [], finished: false, roundPrize: null, roundStars: 0, badgePrize: null, discoveryBadges: [] };
   }
 
   function _currentQ() {
@@ -174,6 +179,15 @@ const CAPITALS_GAME = (() => {
   function _onRoundEnd() {
     if (!state) return;
     state.roundPrize = addPoints(state.profileName, state.score);
+
+    const stars = calcRoundStars(state.correctCount, state.questions.length);
+    state.roundStars = stars;
+    if (state.continent === 'all' && stars > 0) {
+      state.badgePrize = addLevelStars(state.profileName, state.level, stars);
+    }
+
+    const discoveredIds = state.questions.map(q => q.country.id);
+    state.discoveryBadges = recordDiscovered(state.profileName, discoveredIds);
   }
 
   return {

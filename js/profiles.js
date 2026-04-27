@@ -77,7 +77,10 @@ function createProfile(name, avatar, pin) {
     countriesLearned: {},
     prizesEarned: [],
     levelsCompleted: [],
-    continentsPassed: false
+    continentsPassed: false,
+    levelStars: {},
+    badges: [],
+    discovered: [],
   };
   _profilesCache.push(newProfile);
   _saveProfile(newProfile);
@@ -120,6 +123,9 @@ function resetProfile(name) {
   p.prizesEarned     = [];
   p.levelsCompleted  = [];
   p.continentsPassed = false;
+  p.levelStars       = {};
+  p.badges           = [];
+  p.discovered       = [];
   _saveProfile(p);
 }
 
@@ -255,4 +261,64 @@ function getNextPrize(profileName) {
   const p = getProfile(profileName);
   if (!p) return null;
   return PRIZES.find(pr => p.points < pr.points) || null;
+}
+
+// ── Stars & Badges ──────────────────────────────────────────
+
+function calcRoundStars(correctCount, total) {
+  const pct = correctCount / total;
+  if (pct >= 0.9) return 3;
+  if (pct >= 0.7) return 2;
+  if (correctCount > 0) return 1;
+  return 0;
+}
+
+function addLevelStars(profileName, level, stars) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p || stars <= 0) return null;
+  if (!p.levelStars) p.levelStars = {};
+  if (!p.badges)     p.badges     = [];
+  p.levelStars[level] = (p.levelStars[level] || 0) + stars;
+
+  const badgeDef = LEVEL_BADGES[level];
+  if (badgeDef && !p.badges.includes(badgeDef.key) && p.levelStars[level] >= badgeDef.starsNeeded) {
+    p.badges.push(badgeDef.key);
+    _saveProfile(p);
+    return badgeDef;
+  }
+  _saveProfile(p);
+  return null;
+}
+
+function recordDiscovered(profileName, countryIds) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return [];
+  if (!p.discovered) p.discovered = [];
+  if (!p.badges)     p.badges     = [];
+
+  const before  = p.discovered.length;
+  const newIds  = countryIds.filter(id => !p.discovered.includes(id));
+  if (newIds.length === 0) return [];
+  p.discovered.push(...newIds);
+  const after = p.discovered.length;
+
+  const newBadges = [];
+  DISCOVERY_BADGES.forEach(bd => {
+    if (!p.badges.includes(bd.key) && before < bd.countriesNeeded && after >= bd.countriesNeeded) {
+      p.badges.push(bd.key);
+      newBadges.push(bd);
+    }
+  });
+  _saveProfile(p);
+  return newBadges;
+}
+
+function getDiscoveredCount(profileName) {
+  const p = getProfile(profileName);
+  return p ? (p.discovered || []).length : 0;
+}
+
+function getLevelStars(profileName, level) {
+  const p = getProfile(profileName);
+  return p ? (p.levelStars?.[level] || 0) : 0;
 }

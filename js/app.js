@@ -363,17 +363,35 @@ const APP = (() => {
     if (!currentProfile) return;
     const p = getProfile(currentProfile.name); // fresh from storage
 
-    _setText('dash-name',      p.name);
-    _setText('dash-avatar',    p.avatar);
-    _setText('dash-points',    p.points.toLocaleString());
-    _setText('dash-countries', `${getMasteredCount(p.name)}`);
-    _setText('dash-title',     _getPlayerTitle(p.points));
+    _setText('dash-name',       p.name);
+    _setText('dash-avatar',     p.avatar);
+    _setText('dash-points',     p.points.toLocaleString());
+    _setText('dash-countries',  `${getMasteredCount(p.name)}`);
+    _setText('dash-discovered', `${getDiscoveredCount(p.name)}`);
+    _setText('dash-title',      _getPlayerTitle(p.points));
     const prizesEl = document.getElementById('dash-prizes');
     if (prizesEl) {
       const earned = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
       prizesEl.innerHTML = earned.map(pr =>
         `<span class="prize-badge" title="${pr.achievement}">${pr.emoji}</span>`
       ).join('');
+    }
+    // Show level + discovery badges
+    const badgesEl = document.getElementById('dash-badges');
+    if (badgesEl) {
+      const allBadgeDefs = [
+        ...Object.values(LEVEL_BADGES),
+        ...DISCOVERY_BADGES,
+      ];
+      const earned = allBadgeDefs.filter(bd => (p.badges || []).includes(bd.key));
+      if (earned.length > 0) {
+        badgesEl.innerHTML = earned.map(bd =>
+          `<span class="badge-chip" title="${bd.name}">${bd.emoji} ${bd.name}</span>`
+        ).join('');
+        badgesEl.classList.remove('hidden');
+      } else {
+        badgesEl.classList.add('hidden');
+      }
     }
 
     // lock/unlock game buttons based on continents passed
@@ -514,11 +532,27 @@ const APP = (() => {
       if (levelGrid) levelGrid.classList.remove('hidden');
       if (levelMsg)  levelMsg.classList.add('hidden');
       document.querySelectorAll('[data-level]').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.level === gameSetup.level);
-        const locked = currentProfile && !isLevelUnlocked(currentProfile.name, btn.dataset.level);
+        const lvl    = btn.dataset.level;
+        btn.classList.toggle('active', lvl === gameSetup.level);
+        const locked = currentProfile && !isLevelUnlocked(currentProfile.name, lvl);
         btn.disabled = !!locked;
         btn.classList.toggle('locked', !!locked);
-        btn.title = locked ? `נדרשות ${LEVELS[btn.dataset.level].unlockAt} מדינות` : '';
+        btn.title = locked ? `נדרשות ${LEVELS[lvl].unlockAt} מדינות` : '';
+
+        // star progress sub-label
+        const subEl = document.getElementById(`level-stars-${lvl}`);
+        if (subEl && currentProfile) {
+          const stars    = getLevelStars(currentProfile.name, lvl);
+          const badgeDef = LEVEL_BADGES[lvl];
+          const hasBadge = (getProfile(currentProfile.name)?.badges || []).includes(badgeDef?.key);
+          if (hasBadge) {
+            subEl.textContent = `${badgeDef.emoji} הושלם!`;
+          } else if (stars > 0) {
+            subEl.textContent = `⭐ ${stars}/${badgeDef.starsNeeded}`;
+          } else {
+            subEl.textContent = '';
+          }
+        }
       });
     }
   }
@@ -745,23 +779,37 @@ const APP = (() => {
       });
     }
 
+    // Stars earned line
+    _renderStarsEarned(summary);
+
     // If a prize was earned this round, store and auto-show it after 1.5s
+    let prizeDelay = 1500;
     if (summary.roundPrize) {
       pendingPrize = summary.roundPrize;
       setTimeout(() => {
-        if (pendingPrize) {
-          showPrizeScreen(pendingPrize, 'home');
-          pendingPrize = null;
-        }
-      }, 1500);
+        if (pendingPrize) { showPrizeScreen(pendingPrize, 'home'); pendingPrize = null; }
+      }, prizeDelay);
+      prizeDelay += 2500;
     } else {
       pendingPrize = null;
     }
 
-    // פופאפ רמה חדשה שנפתחה (מופיע אחרי פרס אם יש)
+    // Badge prize (level star threshold reached)
+    if (summary.badgePrize) {
+      const bd = summary.badgePrize;
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג חדש: ${bd.name}!`, prize: `השגת ${bd.starsNeeded} כוכבים`, points: null }, 'home'), prizeDelay);
+      prizeDelay += 2500;
+    }
+
+    // Discovery badges
+    (summary.discoveryBadges || []).forEach((bd, i) => {
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג גילוי: ${bd.name}!`, prize: `גילית ${bd.countriesNeeded} מדינות שונות`, points: null }, 'home'), prizeDelay + i * 2500);
+    });
+
+    // פופאפ רמה חדשה שנפתחה (מופיע אחרי פרסים)
     if (summary.levelUnlocked) {
-      const delay = summary.roundPrize ? 3500 : 1500;
-      setTimeout(() => _showLevelUnlockPopup(summary.levelUnlocked), delay);
+      const unlockDelay = prizeDelay + (summary.discoveryBadges?.length || 0) * 2500;
+      setTimeout(() => _showLevelUnlockPopup(summary.levelUnlocked), unlockDelay);
     }
 
     // כותרת וסגנון מיוחד לסיבוב בדיקה
@@ -847,6 +895,25 @@ const APP = (() => {
     setTimeout(() => container.remove(), 5000);
   }
 
+  // ── Stars earned helper ────────────────────────────────────
+  function _renderStarsEarned(summary) {
+    const el = document.getElementById('summary-stars-earned');
+    if (!el) return;
+    const stars = summary.roundStars || 0;
+    if (stars > 0 && summary.continent === 'all' && summary.level) {
+      const total    = getLevelStars(summary.profileName, summary.level);
+      const badgeDef = LEVEL_BADGES[summary.level];
+      const hasBadge = badgeDef && (getProfile(summary.profileName)?.badges || []).includes(badgeDef.key);
+      const badgeText = hasBadge
+        ? ` 🎉 ${badgeDef.emoji} תג ${badgeDef.name}!`
+        : badgeDef ? ` (${Math.min(total, badgeDef.starsNeeded)}/${badgeDef.starsNeeded} לתג)` : '';
+      el.textContent = `${'⭐'.repeat(stars)} +${stars} כוכבים${badgeText}`;
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
   // ── PRIZE SCREEN ───────────────────────────────────────────
   // destination: 'play-again' | 'home' (where to go after prize)
   function showPrizeScreen(prize, destination = 'home') {
@@ -854,7 +921,7 @@ const APP = (() => {
     _setText('prize-emoji',       prize.emoji);
     _setText('prize-achievement', prize.achievement);
     _setText('prize-name',        prize.prize);
-    _setText('prize-points',      `${prize.points} נקודות`);
+    _setText('prize-points',      prize.points != null ? `${prize.points} נקודות` : '');
 
     // animation + confetti
     const el = document.getElementById('screen-prize');
@@ -1094,12 +1161,27 @@ const APP = (() => {
     document.getElementById('btn-play-again')?.classList.remove('hidden');
     document.getElementById('btn-summary-home')?.classList.remove('hidden');
 
+    // Stars earned line
+    _renderStarsEarned(summary);
+
+    let prizeDelay = 1500;
     if (summary.roundPrize) {
       pendingPrize = summary.roundPrize;
       setTimeout(() => {
         if (pendingPrize) { showPrizeScreen(pendingPrize, 'home'); pendingPrize = null; }
-      }, 1500);
+      }, prizeDelay);
+      prizeDelay += 2500;
     }
+
+    if (summary.badgePrize) {
+      const bd = summary.badgePrize;
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג חדש: ${bd.name}!`, prize: `השגת ${bd.starsNeeded} כוכבים`, points: null }, 'home'), prizeDelay);
+      prizeDelay += 2500;
+    }
+
+    (summary.discoveryBadges || []).forEach((bd, i) => {
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג גילוי: ${bd.name}!`, prize: `גילית ${bd.countriesNeeded} מדינות שונות`, points: null }, 'home'), prizeDelay + i * 2500);
+    });
   }
 
   function _updateCapsHUD() {

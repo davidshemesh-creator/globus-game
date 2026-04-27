@@ -549,6 +549,19 @@ body {
 }
 .dash-player-prizes { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 1px; }
 .dash-player-prizes .prize-badge { font-size: 0.9rem; }
+.dash-badge-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 4px 0 8px;
+}
+.badge-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.8rem; font-weight: 700;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 1.5px solid #F59E0B;
+  color: #92400E;
+  border-radius: 20px;
+  padding: 4px 10px;
+}
 
 /* Points inline in header */
 .dash-points-inline {
@@ -854,6 +867,8 @@ body {
 .level-btn.active  { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
 .level-btn.locked  { opacity: 0.45; cursor: not-allowed; }
 .level-btn small   { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 400; }
+.level-stars-sub   { display: block; font-size: 0.7rem; font-weight: 600; color: var(--accent-dk); margin-top: 2px; min-height: 1em; }
+.level-btn.active .level-stars-sub { color: var(--primary-dk); }
 .levels-disabled-msg { font-size: 0.95rem; color: var(--primary); font-weight: 600; margin: 4px 0 0; text-align: center; }
 
 /* ── Toggle group (mode) ──────────────────────────────────── */
@@ -1154,6 +1169,16 @@ body {
 .summary-score    { font-size: 2rem; font-weight: 900; color: var(--primary); }
 .summary-score.passed  { color: var(--primary); }
 .summary-score.failed  { color: var(--text-muted); font-size: 1rem; font-weight: 600; }
+.summary-stars-earned {
+  font-size: 0.95rem; font-weight: 700;
+  color: #92400E;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 1.5px solid #F59E0B;
+  border-radius: 12px;
+  padding: 8px 14px;
+  text-align: center;
+  width: 100%;
+}
 .summary-mastered {
   background: linear-gradient(135deg, #FEF3C7, #FDE68A);
   border: 1.5px solid #F59E0B;

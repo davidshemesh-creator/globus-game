@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=48" />
+  <link rel="stylesheet" href="css/style.css?v=49" />
 </head>
 <body>
 
@@ -109,7 +109,12 @@
         <div id="dash-countries" class="stat-value primary">0</div>
         <div class="stat-label">מדינות 👆</div>
       </div>
+      <div class="stat-card">
+        <div id="dash-discovered" class="stat-value">0</div>
+        <div class="stat-label">מדינות גולות 🗺️</div>
+      </div>
     </div>
+    <div id="dash-badges" class="dash-badge-row hidden"></div>
 
     <!-- Prize progress with milestones -->
     <section class="card prize-progress-card">
@@ -189,10 +194,10 @@
     <section class="card">
       <p class="card-label">רמה:</p>
       <div id="level-grid" class="level-grid">
-        <button data-level="easy"   class="level-btn active">🟢 קלה</button>
-        <button data-level="medium" class="level-btn">🟡 בינונית</button>
-        <button data-level="hard"   class="level-btn">🔴 קשה</button>
-        <button data-level="master" class="level-btn">🏆 מאסטר</button>
+        <button data-level="easy"   class="level-btn active">🟢 קלה<span class="level-stars-sub" id="level-stars-easy"></span></button>
+        <button data-level="medium" class="level-btn">🟡 בינונית<span class="level-stars-sub" id="level-stars-medium"></span></button>
+        <button data-level="hard"   class="level-btn">🔴 קשה<span class="level-stars-sub" id="level-stars-hard"></span></button>
+        <button data-level="master" class="level-btn">🏆 מאסטר<span class="level-stars-sub" id="level-stars-master"></span></button>
       </div>
       <p id="levels-disabled-msg" class="levels-disabled-msg hidden">🌍 כל הרמות — בחרת יבשת</p>
     </section>
@@ -289,7 +294,8 @@
   <main class="screen-content">
     <div class="summary-hero">
       <span id="summary-rating" class="summary-rating">⭐⭐⭐</span>
-      <p    id="summary-score"    class="summary-score">0 נקודות</p>
+      <p    id="summary-score"         class="summary-score">0 נקודות</p>
+      <p    id="summary-stars-earned"  class="summary-stars-earned hidden"></p>
       <p    id="summary-mastered" class="summary-mastered hidden"></p>
       <p    id="summary-pct"      class="summary-pct">0%</p>
       <p class="summary-correct-label">
@@ -508,17 +514,17 @@
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=48"></script>
+<script src="js/firebase-db.js?v=49"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=48"></script>
-<script src="js/map.js?v=48"></script>
-<script src="js/profiles.js?v=48"></script>
-<script src="js/game.js?v=48"></script>
-<script src="js/continents-game.js?v=48"></script>
-<script src="js/capitals-game.js?v=48"></script>
-<script src="js/app.js?v=48"></script>
+<script src="js/data.js?v=49"></script>
+<script src="js/map.js?v=49"></script>
+<script src="js/profiles.js?v=49"></script>
+<script src="js/game.js?v=49"></script>
+<script src="js/continents-game.js?v=49"></script>
+<script src="js/capitals-game.js?v=49"></script>
+<script src="js/app.js?v=49"></script>
 
 </body>
 </html>

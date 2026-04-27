@@ -217,6 +217,18 @@ const LEVELS = {
   master: { nameHe: 'מאסטר',   minPriority: 1, maxPriority: 2, points: 25, passThreshold: 6, masteryBonus: 100, unlockAt: 60 },
 };
 
+// ── Badge definitions ──────────────────────────────────────────
+const LEVEL_BADGES = {
+  easy:   { key: 'badge_easy',   emoji: '🗺️', name: 'חוקר',  starsNeeded: 12 },
+  medium: { key: 'badge_medium', emoji: '🌍', name: 'מגלה',  starsNeeded: 12 },
+  hard:   { key: 'badge_hard',   emoji: '🏆', name: 'מומחה', starsNeeded: 12 },
+  master: { key: 'badge_master', emoji: '👑', name: 'אלוף',  starsNeeded: 12 },
+};
+const DISCOVERY_BADGES = [
+  { key: 'badge_scout', emoji: '🔍', name: 'גלאי', countriesNeeded: 50  },
+  { key: 'badge_world', emoji: '🌐', name: 'עולם', countriesNeeded: 100 },
+];
+
 // ── נתוני בירות: { capital: עברית, capitalCoords: [lon, lat] } ────
 const CAPITALS = {
   // Priority 5
