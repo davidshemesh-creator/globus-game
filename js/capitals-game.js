@@ -59,9 +59,10 @@ const CAPITALS_GAME = (() => {
     const realCoords = q.country.capitalCoords;
 
     if (clickedCountryId !== q.country.id) {
+      const distance = clickedLonLat ? _haversine(clickedLonLat, realCoords) : null;
       state.streak = 0;
-      state.answers.push({ country: q.country, clickedLonLat, correct: false, points: 0, distance: null });
-      return { correct: false, points: 0, distance: null, realCoords, clickedLonLat, question: _currentQ() };
+      state.answers.push({ country: q.country, clickedLonLat, correct: false, points: 0, distance });
+      return { correct: false, points: 0, distance, realCoords, clickedLonLat, question: _currentQ() };
     }
 
     const distance = _haversine(clickedLonLat, realCoords);

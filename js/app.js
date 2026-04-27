@@ -1014,9 +1014,9 @@ const APP = (() => {
     const result = CAPITALS_GAME.submitModeD(lonLat, countryId);
 
     MAP.clearPins();
-    MAP.drawPin(lonLat, 'guess');
+    if (lonLat) MAP.drawPin(lonLat, 'guess');
     MAP.drawPin(result.realCoords, 'real');
-    if (result.correct) MAP.drawDistanceLine(lonLat, result.realCoords);
+    if (lonLat) MAP.drawDistanceLine(lonLat, result.realCoords);
     MAP.flashResult(q.country.id, null);
 
     document.getElementById('caps-tap-hint')?.classList.add('hidden');
@@ -1027,12 +1027,14 @@ const APP = (() => {
     if (result.correct) {
       const icon = km <= 50 ? '🎯' : km <= 200 ? '✅' : km <= 500 ? '👍' : '📍';
       _setText('caps-fb-icon',     icon);
-      _setText('caps-fb-distance', `מרחק: ${km.toLocaleString()} ק"מ מ${q.country.capital}`);
+      _setText('caps-fb-distance', `${km.toLocaleString()} ק"מ מ${q.country.capital}`);
       _setText('caps-fb-points',   `+${result.points} נקודות`);
     } else {
+      const wrongLabel = countryId ? 'מדינה לא נכונה' : 'מחוץ למדינה';
+      const distLabel  = km != null ? ` — ${km.toLocaleString()} ק"מ מהבירה` : '';
       _setText('caps-fb-icon',     '❌');
-      _setText('caps-fb-distance', countryId ? 'לחצת על המדינה הלא נכונה' : 'לחצת מחוץ למדינה');
-      _setText('caps-fb-points',   `0 נקודות — הירוק = המיקום האמיתי`);
+      _setText('caps-fb-distance', `${wrongLabel}${distLabel}`);
+      _setText('caps-fb-points',   `0 נקודות — הירוק = ${q.country.capital}`);
     }
     _updateCapsHUD();
 

@@ -938,14 +938,15 @@ body {
 }
 
 /* Map fills entire screen */
-#screen-game .map-container {
+#screen-game .map-container,
+#screen-caps-game .map-container {
   position: absolute;
   inset: 0;
   max-height: none;
   min-height: unset;
   border-radius: 0;
   z-index: 0;
-  touch-action: none; /* d3 handles all touch — prevents native browser zoom */
+  touch-action: none;
 }
 
 /* UI overlay floats above map — fixed so it doesn't move with map zoom */
@@ -964,7 +965,10 @@ body {
 .question-card,
 .choice-buttons,
 .zoom-controls,
-#btn-game-quit { pointer-events: all; }
+.caps-tap-hint,
+.caps-place-feedback,
+#btn-game-quit,
+#btn-caps-quit { pointer-events: all; }
 
 /* ── Game top bar ─────────────────────────────────────────── */
 .game-topbar {
