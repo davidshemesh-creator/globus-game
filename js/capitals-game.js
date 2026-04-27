@@ -8,17 +8,25 @@ const CAPITALS_GAME = (() => {
   const QUESTIONS_PER_ROUND = 10;
   let state = null;
 
-  // ── Pool: countries that have capital data AND appear on rendered map ──
-  function _buildPool() {
+  // ── Pool: filter by continent and/or level (priority) ─────
+  function _buildPool(continent = 'all', level = 'easy') {
     const rendered = MAP.getRenderedIds();
-    return COUNTRIES
+    let pool = COUNTRIES
       .filter(c => rendered.has(c.id) && CAPITALS[c.id])
       .map(c => ({ ...c, ...CAPITALS[c.id] }));
+
+    if (continent !== 'all') {
+      pool = pool.filter(c => c.continent === continent);
+    } else {
+      const cfg = LEVELS[level];
+      if (cfg) pool = pool.filter(c => c.priority >= cfg.minPriority && c.priority <= cfg.maxPriority);
+    }
+    return pool;
   }
 
   // ── Mode C: show capital name → pick country ───────────────
-  function startModeC(profileName) {
-    const pool = _buildPool();
+  function startModeC(profileName, continent = 'all', level = 'easy') {
+    const pool = _buildPool(continent, level);
     if (pool.length < 4) return null;
     const selected  = _weightedSample(pool, profileName);
     const questions = selected.map(country => ({
@@ -30,8 +38,8 @@ const CAPITALS_GAME = (() => {
   }
 
   // ── Mode D: show country name → click capital location ─────
-  function startModeD(profileName) {
-    const pool = _buildPool();
+  function startModeD(profileName, continent = 'all', level = 'easy') {
+    const pool = _buildPool(continent, level);
     if (pool.length < 1) return null;
     const selected  = _weightedSample(pool, profileName);
     const questions = selected.map(country => ({ country }));

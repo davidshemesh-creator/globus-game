@@ -487,7 +487,12 @@ const APP = (() => {
 
   // ── SETUP SCREEN ───────────────────────────────────────────
   function renderSetupScreen() {
-    const modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
+    let modeLabel;
+    if (_lastGameType === 'capitals') {
+      modeLabel = _capsMode === 'C' ? '🏛 זיהוי בירות' : '📍 מיקום בירות';
+    } else {
+      modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
+    }
     _setText('setup-screen-title', modeLabel);
 
     // יבשות
@@ -921,8 +926,8 @@ const APP = (() => {
     MAP.clearPins();
 
     const q = mode === 'C'
-      ? CAPITALS_GAME.startModeC(currentProfile.name)
-      : CAPITALS_GAME.startModeD(currentProfile.name);
+      ? CAPITALS_GAME.startModeC(currentProfile.name, gameSetup.continent, gameSetup.level)
+      : CAPITALS_GAME.startModeD(currentProfile.name, gameSetup.continent, gameSetup.level);
 
     if (!q) { alert('אין מספיק נתוני בירות'); showScreen('screen-capitals'); return; }
     renderCapsQuestion(q);
@@ -1194,9 +1199,23 @@ const APP = (() => {
       await CONTINENTS_GAME.start(currentProfile.name);
     });
 
-    // ----- Capitals game -----
-    _on('btn-cap-mode-c', 'click', () => startCapitalsGame('C'));
-    _on('btn-cap-mode-d', 'click', () => startCapitalsGame('D'));
+    // ----- Capitals game — go to setup screen first -----
+    _on('btn-cap-mode-c', 'click', () => {
+      _capsMode     = 'C';
+      _lastGameType = 'capitals';
+      gameSetup.continent = 'all';
+      gameSetup.level     = 'easy';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
+    _on('btn-cap-mode-d', 'click', () => {
+      _capsMode     = 'D';
+      _lastGameType = 'capitals';
+      gameSetup.continent = 'all';
+      gameSetup.level     = 'easy';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
     _on('btn-caps-quit', 'click', () => {
       if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
         MAP.disableRawClick();
@@ -1279,11 +1298,19 @@ const APP = (() => {
 
     // ----- Setup → Start -----
     _on('btn-start-game', 'click', () => {
-      startGameRound();
+      if (_lastGameType === 'capitals') startCapitalsGame(_capsMode);
+      else startGameRound();
     });
 
     _on('btn-back-to-dashboard', 'click', () => {
-      showScreen('screen-game-select');
+      if (_lastGameType === 'capitals') {
+        _lastGameType = null;
+        _capsMode     = null;
+        showScreen('screen-dashboard');
+        renderDashboard();
+      } else {
+        showScreen('screen-game-select');
+      }
     });
 
     // ----- Zoom controls (game) -----
