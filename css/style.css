@@ -1734,10 +1734,28 @@ body {
 /* ══════════════════════════════════════════════
    HOME SCREEN
    ══════════════════════════════════════════════ */
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px var(--gap) 12px;
+}
+.home-logo {
+  font-size: 2rem;
+}
+.home-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
 .home-screen-content {
   justify-content: flex-start;
   padding-top: 8px;
-  gap: 16px;
+  gap: 12px;
 }
 
 .home-leaderboard-header {
@@ -1746,7 +1764,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 0;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .home-leaderboard-title {
   font-size: 1.1rem;
@@ -1758,16 +1776,16 @@ body {
 .home-top-3 {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   padding: 0;
   width: 100%;
 }
 
 /* Reuse profile-card styling for home top 3 */
 .home-top-3 .profile-card {
-  padding: 12px 14px;
-  gap: 12px;
-  border-radius: 16px;
+  padding: 10px 12px;
+  gap: 10px;
+  border-radius: 14px;
 }
 .home-top-3 .profile-card:hover {
   transform: none;
