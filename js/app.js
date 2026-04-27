@@ -5,7 +5,7 @@
 const APP = (() => {
 
   // ── Screen registry ────────────────────────────────────────
-  const SCREENS = ['screen-loading', 'screen-home', 'screen-profiles', 'screen-dashboard', 'screen-game-select', 'screen-setup',
+  const SCREENS = ['screen-loading', 'screen-home', 'screen-profiles', 'screen-profile-select', 'screen-game-select', 'screen-dashboard', 'screen-setup',
                    'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore',
                    'screen-capitals', 'screen-caps-game'];
 
@@ -277,13 +277,11 @@ const APP = (() => {
         currentMode = 'user';
         currentProfile = getProfile(name);
         showScreen('screen-game-select');
-        renderGameSelectScreen();
       });
     } else {
       currentMode = 'user';
       currentProfile = getProfile(name);
       showScreen('screen-game-select');
-      renderGameSelectScreen();
     }
   }
 
@@ -509,30 +507,26 @@ const APP = (() => {
     return idx > 0 ? PRIZES[idx - 1].points : 0;
   }
 
-  // ── GAME SELECT SCREEN ─────────────────────────────────────
-  function renderGameSelectScreen() {
-    // Show game buttons (all enabled for guest, mode-based locking for user)
-    const btnSelB = document.getElementById('btn-sel-mode-b');
-    const btnSelA = document.getElementById('btn-sel-mode-a');
 
-    if (currentMode === 'guest') {
-      // Guest: all games unlocked
-      if (btnSelB) btnSelB.style.opacity = '1';
-      if (btnSelA) btnSelA.style.opacity = '1';
-    } else if (currentProfile && hasContinentsPassed(currentProfile.name)) {
-      // User with continents passed
-      if (btnSelB) btnSelB.style.opacity = '1';
-      if (btnSelA) btnSelA.style.opacity = '1';
-    } else {
-      // User without continents passed
-      if (btnSelB) btnSelB.style.opacity = '0.4';
-      if (btnSelA) btnSelA.style.opacity = '0.4';
-    }
-  }
+  function renderProfileSelectScreen() {
+    const profiles = loadProfiles();
+    const list = document.getElementById('profile-select-list');
+    if (!list) return;
+    list.innerHTML = '';
 
-  function _showPlayModeModal() {
-    const modal = document.getElementById('modal-play-mode');
-    if (modal) modal.classList.remove('hidden');
+    profiles.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'profile-select-card';
+      card.innerHTML = `
+        <span class="profile-select-avatar">${p.avatar}</span>
+        <div class="profile-select-info">
+          <div class="profile-select-name">${p.name}</div>
+          <div class="profile-select-stats">${p.points.toLocaleString()} נקודות</div>
+        </div>
+      `;
+      card.addEventListener('click', () => _selectProfile(p.name));
+      list.appendChild(card);
+    });
   }
 
   // ── SETUP SCREEN ───────────────────────────────────────────
@@ -1234,38 +1228,29 @@ const APP = (() => {
   function _bindGlobalEvents() {
 
     // ----- Home screen -----
-    _on('btn-home-play', 'click', _showPlayModeModal);
-    _on('btn-home-full-leaderboard', 'click', () => {
-      showScreen('screen-profiles');
-      renderProfilesScreen();
-    });
-    _on('btn-home-explore', 'click', () => {
-      showScreen('screen-explore');
+    // ----- Home screen -----
+    _on('btn-home-play', 'click', () => {
+      showScreen('screen-profile-select');
+      renderProfileSelectScreen();
     });
 
-    // ----- Play mode modal -----
-    _on('btn-play-guest', 'click', () => {
+    // ----- Profile select screen -----
+    _on('btn-profile-sel-back', 'click', () => {
+      showScreen('screen-home');
+      renderHomeScreen();
+    });
+
+    _on('btn-profile-guest', 'click', () => {
       currentMode = 'guest';
       currentProfile = null;
-      document.getElementById('modal-play-mode')?.classList.add('hidden');
+      guestRoundData = null;
       showScreen('screen-game-select');
-      renderGameSelectScreen();
-    });
-
-    _on('btn-play-user', 'click', () => {
-      document.getElementById('modal-play-mode')?.classList.add('hidden');
-      showScreen('screen-profiles');
-      renderProfilesScreen();
-    });
-
-    _on('btn-play-cancel', 'click', () => {
-      document.getElementById('modal-play-mode')?.classList.add('hidden');
     });
 
     // ----- Game select screen -----
-    _on('btn-gamesel-home', 'click', () => {
-      showScreen('screen-home');
-      renderHomeScreen();
+    _on('btn-gamesel-back', 'click', () => {
+      showScreen('screen-profile-select');
+      renderProfileSelectScreen();
     });
 
     _on('btn-sel-continents', 'click', async () => {
@@ -1364,7 +1349,7 @@ const APP = (() => {
 
     // ----- Dashboard -----
     _on('btn-play', 'click', () => {
-      showScreen('screen-game-select');
+      showScreen('screen-profile-select');
       renderGameSelectScreen();
     });
 
@@ -1507,16 +1492,11 @@ const APP = (() => {
       if (_lastGameType === 'capitals') {
         _lastGameType = null;
         _capsMode     = null;
-        if (currentMode === 'user') {
-          showScreen('screen-dashboard');
-          renderDashboard();
-        } else {
-          showScreen('screen-game-select');
-          renderGameSelectScreen();
-        }
+      }
+      if (currentMode === 'user') {
+        showScreen('screen-game-select');
       } else {
         showScreen('screen-game-select');
-        renderGameSelectScreen();
       }
     });
 
