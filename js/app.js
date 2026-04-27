@@ -1332,9 +1332,10 @@ const APP = (() => {
 
     _on('btn-profile-guest', 'click', () => {
       currentMode = 'guest';
-      currentProfile = null;
+      currentProfile = { name: 'אורח', avatar: '👤', points: 0, prizesEarned: [] };
       guestRoundData = null;
-      showScreen('screen-game-select');
+      showScreen('screen-dashboard');
+      renderDashboard();
     });
 
     // ----- Game select screen -----
@@ -1457,7 +1458,7 @@ const APP = (() => {
     });
 
     _on('btn-game-mode-b', 'click', () => {
-      if (!hasContinentsPassed(currentProfile.name)) {
+      if (currentMode === 'user' && !hasContinentsPassed(currentProfile.name)) {
         alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
         return;
       }
@@ -1467,7 +1468,7 @@ const APP = (() => {
     });
 
     _on('btn-game-mode-a', 'click', () => {
-      if (!hasContinentsPassed(currentProfile.name)) {
+      if (currentMode === 'user' && !hasContinentsPassed(currentProfile.name)) {
         alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
         return;
       }
@@ -1479,7 +1480,8 @@ const APP = (() => {
     _on('btn-game-continents', 'click', async () => {
       showScreen('screen-continents');
       _setText('cont-profile-badge', `${currentProfile.avatar} ${currentProfile.name}`);
-      await CONTINENTS_GAME.start(currentProfile.name);
+      const profileKey = currentMode === 'guest' ? '__guest__' : currentProfile.name;
+      await CONTINENTS_GAME.start(profileKey);
     });
 
     // ----- Capitals game — go to setup screen first -----
@@ -1520,7 +1522,8 @@ const APP = (() => {
     // ----- Continents game -----
     _on('btn-cont-quit', 'click', () => {
       if (currentMode === 'guest') {
-        showScreen('screen-game-select');
+        showScreen('screen-dashboard');
+        renderDashboard();
       } else {
         currentProfile = getProfile(currentProfile.name);
         showScreen('screen-dashboard');
