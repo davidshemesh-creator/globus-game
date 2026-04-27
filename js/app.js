@@ -131,10 +131,20 @@ const APP = (() => {
     profiles.forEach((p, idx) => {
       const card = document.createElement('div');
       card.className = 'home-top-3-card';
+
+      const discoveredCount = getDiscoveredCount(p.name);
+      const title = _getPlayerTitle(p.points);
+      const earnedPrizes = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
+      const badgeEmojis = earnedPrizes.map(pr => pr.emoji).join(' ');
+
       card.innerHTML = `
         <span class="home-medal">${medals[idx]}</span>
-        <span class="home-name">${p.name}</span>
-        <span class="home-points">${p.points.toLocaleString()} נקודות</span>
+        <div class="home-card-info">
+          <span class="home-card-name">${p.name}</span>
+          <span class="home-card-points">${p.points.toLocaleString()} נקודות</span>
+          <span class="home-card-countries">${discoveredCount} מדינות 🗺️</span>
+          ${badgeEmojis ? `<span class="home-card-badges">${badgeEmojis}</span>` : ''}
+        </div>
       `;
       grid.appendChild(card);
     });
@@ -1279,6 +1289,16 @@ const APP = (() => {
     _on('btn-home-play', 'click', () => {
       showScreen('screen-profile-select');
       renderProfileSelectScreen();
+    });
+
+    _on('btn-home-leaderboard', 'click', () => {
+      showScreen('screen-profiles');
+      renderProfilesScreen();
+    });
+
+    _on('btn-home-explore', 'click', () => {
+      showScreen('screen-explore');
+      // explorer will initialize itself
     });
 
     // ----- Profile select screen -----

@@ -1734,41 +1734,85 @@ body {
 /* ══════════════════════════════════════════════
    HOME SCREEN
    ══════════════════════════════════════════════ */
+.home-header {
+  text-align: center;
+  padding: 20px var(--gap) 16px;
+}
+.home-header-top {
+  margin-bottom: 20px;
+}
+.home-logo {
+  font-size: 3.2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+.home-header-leaderboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.home-leaderboard-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .home-screen-content {
   justify-content: flex-start;
-  padding-top: 40px;
+  padding-top: 12px;
+  gap: 12px;
 }
-.home-headline {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--primary);
-  margin-bottom: 24px;
-  text-align: center;
-}
-.home-games-list {
+
+.home-top-3 {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 32px;
+  gap: 10px;
+  padding: 8px 0;
 }
-.home-game-item {
+.home-top-3-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
   box-shadow: var(--shadow);
+  font-size: 0.95rem;
 }
-.home-game-icon {
-  font-size: 1.8rem;
-  line-height: 1;
+.home-medal {
+  font-size: 1.4rem;
+  min-width: 30px;
+  text-align: center;
 }
-.home-game-name {
-  font-size: 1rem;
+.home-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-card-name {
   font-weight: 600;
   color: var(--text);
+}
+.home-card-points {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.home-card-countries {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.home-card-badges {
+  font-size: 0.8rem;
+  margin-top: 2px;
 }
 
 /* ══════════════════════════════════════════════
