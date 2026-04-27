@@ -1519,8 +1519,13 @@ const APP = (() => {
 
     // ----- Continents game -----
     _on('btn-cont-quit', 'click', () => {
-      showScreen('screen-game-select');
-      renderDashboard();
+      if (currentMode === 'guest') {
+        showScreen('screen-game-select');
+      } else {
+        currentProfile = getProfile(currentProfile.name);
+        showScreen('screen-dashboard');
+        renderDashboard();
+      }
     });
 
     _on('btn-cont-again', 'click', async () => {
@@ -1602,7 +1607,9 @@ const APP = (() => {
         _capsMode     = null;
       }
       if (currentMode === 'user') {
-        showScreen('screen-game-select');
+        currentProfile = getProfile(currentProfile.name);
+        showScreen('screen-dashboard');
+        renderDashboard();
       } else {
         showScreen('screen-game-select');
       }
