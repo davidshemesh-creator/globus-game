@@ -155,6 +155,13 @@ body {
 }
 .btn-ghost:hover:not(:disabled) { background: #EFF6FF; }
 
+.btn-secondary {
+  background: #E0E7FF;
+  color: var(--primary);
+  border: none;
+}
+.btn-secondary:hover:not(:disabled) { background: #C7D2FE; }
+
 .btn-xl { width: 100%; padding: 16px; font-size: 1.2rem; border-radius: 14px; letter-spacing: 0.01em; }
 .btn-lg { padding: 12px 24px; font-size: 1rem; }
 .btn-sm { padding: 6px 14px; font-size: 0.8rem; opacity: 0.6; align-self: center; }

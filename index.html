@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=52" />
+  <link rel="stylesheet" href="css/style.css?v=53" />
 </head>
 <body>
 
@@ -30,29 +30,22 @@
 ══════════════════════════════════════════════ -->
 <div id="screen-home" class="screen hidden">
   <header class="app-header">
-    <span class="app-logo">🌍</span>
-    <h1 class="app-title">גלובוס</h1>
+    <span class="app-logo" style="font-size: 4rem;">🌍</span>
+    <h1 class="app-title" style="font-size: 3rem;">גלובוס</h1>
   </header>
 
   <main class="screen-content home-screen-content">
-    <p class="home-headline">🎯 בואי נשחק!</p>
-    <button id="btn-home-play" class="btn btn-primary btn-xl">
-      שחקו 🎮
+    <button id="btn-home-play" class="btn btn-primary btn-xl" style="margin-bottom: 1rem;">
+      🎮 שחקו עכשיו
     </button>
 
-    <div class="home-games-list">
-      <div class="home-game-item">
-        <span class="home-game-icon">🌍</span>
-        <span class="home-game-name">משחק יבשות</span>
-      </div>
-      <div class="home-game-item">
-        <span class="home-game-icon">🗺</span>
-        <span class="home-game-name">זהה מדינות</span>
-      </div>
-      <div class="home-game-item">
-        <span class="home-game-icon">🔍</span>
-        <span class="home-game-name">מצא מדינות</span>
-      </div>
+    <button id="btn-home-explore" class="btn btn-secondary btn-lg" style="margin-bottom: 2rem;">
+      🗺️ חקרו מפה
+    </button>
+
+    <div style="margin-top: 2rem;">
+      <h3 style="text-align: center; margin-bottom: 1rem; font-size: 1.2rem;">🏆 3 המובילים</h3>
+      <div id="home-top-3" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
     </div>
   </main>
 </div>
@@ -553,24 +546,29 @@
 <div id="screen-game-select" class="screen hidden">
   <header class="screen-header">
     <button id="btn-gamesel-back" class="btn-icon btn-back">›</button>
-    <h2 class="screen-title">בחר משחק</h2>
+    <h2 class="screen-title">בחרו משחק</h2>
   </header>
 
-  <main class="screen-content game-select-grid">
-    <button id="btn-sel-continents" class="game-btn">
-      🌍 משחק יבשות
+  <main class="screen-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <button id="btn-sel-continents" class="action-btn purple">
+      <span class="btn-icon">🌍</span>
+      משחק יבשות
     </button>
-    <button id="btn-sel-mode-b" class="game-btn">
-      🗺 זהה מדינות
+    <button id="btn-sel-mode-b" class="action-btn blue">
+      <span class="btn-icon">🗺</span>
+      זהה מדינות
     </button>
-    <button id="btn-sel-mode-a" class="game-btn">
-      🔍 מצא מדינות
+    <button id="btn-sel-mode-a" class="action-btn teal">
+      <span class="btn-icon">🔍</span>
+      מצא מדינות
     </button>
-    <button id="btn-sel-cap-c" class="game-btn">
-      🏛 זיהוי בירות
+    <button id="btn-sel-cap-c" class="action-btn orange">
+      <span class="btn-icon">🏛</span>
+      זיהוי בירות
     </button>
-    <button id="btn-sel-cap-d" class="game-btn">
-      📍 מיקום בירות
+    <button id="btn-sel-cap-d" class="action-btn amber">
+      <span class="btn-icon">📍</span>
+      מיקום בירות
     </button>
   </main>
 </div>
@@ -587,6 +585,19 @@
     <p style="text-align:center;margin:12px 0">צור חשבון כדי שלא תאבד את הנקודות</p>
     <button id="btn-guest-save" class="btn btn-primary btn-lg">צור חשבון</button>
     <button id="btn-guest-discard" class="btn btn-ghost">צא ללא שמירה</button>
+  </div>
+</div>
+
+<!-- Modal: Login (select player or create/guest) -->
+<div id="modal-login" class="modal-overlay hidden">
+  <div class="modal-card" style="max-width: 90%; max-height: 80vh; overflow-y: auto;">
+    <h2 class="modal-title">בחר יוזר</h2>
+    <div id="login-players-list" style="margin: 1rem 0; display: flex; flex-direction: column; gap: 0.75rem;"></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
+      <button id="btn-login-new" class="btn btn-primary">➕ משתמש חדש</button>
+      <button id="btn-login-guest" class="btn btn-secondary">👤 משחק כאורח</button>
+    </div>
+    <button id="btn-login-cancel" class="btn btn-ghost" style="width: 100%; margin-top: 0.75rem;">ביטול</button>
   </div>
 </div>
 
@@ -609,17 +620,17 @@
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=52"></script>
+<script src="js/firebase-db.js?v=53"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=52"></script>
-<script src="js/map.js?v=52"></script>
-<script src="js/profiles.js?v=52"></script>
-<script src="js/game.js?v=52"></script>
-<script src="js/continents-game.js?v=52"></script>
-<script src="js/capitals-game.js?v=52"></script>
-<script src="js/app.js?v=52"></script>
+<script src="js/data.js?v=53"></script>
+<script src="js/map.js?v=53"></script>
+<script src="js/profiles.js?v=53"></script>
+<script src="js/game.js?v=53"></script>
+<script src="js/continents-game.js?v=53"></script>
+<script src="js/capitals-game.js?v=53"></script>
+<script src="js/app.js?v=53"></script>
 
 </body>
 </html>

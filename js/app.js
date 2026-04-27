@@ -131,11 +131,58 @@ const APP = (() => {
     profiles.forEach((p, idx) => {
       const card = document.createElement('div');
       card.className = 'home-top-3-card';
-      card.innerHTML = `
-        <span class="home-medal">${medals[idx]}</span>
-        <span class="home-name">${p.name}</span>
-        <span class="home-points">${p.points.toLocaleString()} נקודות</span>
+      card.style.cssText = `
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
       `;
+
+      const avatar = document.createElement('span');
+      avatar.style.fontSize = '2rem';
+      avatar.textContent = p.avatar;
+
+      const infoDiv = document.createElement('div');
+      infoDiv.style.cssText = 'flex: 1;';
+
+      const titleDiv = document.createElement('div');
+      titleDiv.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;';
+      titleDiv.innerHTML = `
+        <span style="font-weight: bold; font-size: 1rem;">${medals[idx]} ${p.name}</span>
+      `;
+
+      const statsDiv = document.createElement('div');
+      statsDiv.style.cssText = 'font-size: 0.85rem; color: #666; line-height: 1.3;';
+      const countriesCount = Object.keys(p.countries || {}).length;
+      const title = _getPlayerTitle(p.points);
+      statsDiv.innerHTML = `
+        <div>${p.points.toLocaleString()} נקודות</div>
+        <div>${countriesCount} מדינות 🌍</div>
+        <div style="color: #0ea5e9;">${title}</div>
+      `;
+
+      const prizesDiv = document.createElement('div');
+      prizesDiv.style.cssText = 'margin-top: 0.5rem; display: flex; gap: 0.25rem; flex-wrap: wrap;';
+      if (p.prizes && p.prizes.length > 0) {
+        p.prizes.forEach(prizeEmoji => {
+          const prizeSpan = document.createElement('span');
+          prizeSpan.style.fontSize = '1rem';
+          prizeSpan.textContent = prizeEmoji;
+          prizesDiv.appendChild(prizeSpan);
+        });
+      }
+
+      infoDiv.appendChild(titleDiv);
+      infoDiv.appendChild(statsDiv);
+      if (p.prizes && p.prizes.length > 0) {
+        infoDiv.appendChild(prizesDiv);
+      }
+
+      card.appendChild(avatar);
+      card.appendChild(infoDiv);
       grid.appendChild(card);
     });
   }
@@ -146,6 +193,70 @@ const APP = (() => {
   function _getPlayerTitle(points) {
     const earned = [...PRIZES].reverse().find(pr => points >= pr.points);
     return earned ? earned.achievement : 'חוקר מתחיל';
+  }
+
+  // Store the game type when showing login modal
+  let _pendingGameType = null;
+
+  function _showLoginModal(gameType) {
+    _pendingGameType = gameType;
+    const modal = document.getElementById('modal-login');
+    const playersList = document.getElementById('login-players-list');
+    if (!modal || !playersList) return;
+
+    playersList.innerHTML = '';
+    const profiles = loadProfiles();
+
+    profiles.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-primary' ;
+      btn.style.cssText = 'padding: 12px; text-align: right; display: flex; align-items: center; gap: 12px;';
+      btn.innerHTML = `
+        <span style="font-size: 1.5rem;">${p.avatar}</span>
+        <div style="flex: 1;">
+          <div style="font-weight: bold;">${p.name}</div>
+          <div style="font-size: 0.8rem; opacity: 0.7;">${p.points.toLocaleString()} נקודות</div>
+        </div>
+      `;
+      btn.onclick = () => {
+        currentProfile = p;
+        currentMode = 'user';
+        modal.classList.add('hidden');
+        _proceedWithGameSetup(gameType);
+      };
+      playersList.appendChild(btn);
+    });
+
+    modal.classList.remove('hidden');
+  }
+
+  async function _proceedWithGameSetup(gameType) {
+    // This will be different for each game type
+    // For now, navigate to setup or start game directly
+    switch(gameType) {
+      case 'continents':
+        showScreen('screen-continents');
+        const profileName = currentProfile ? currentProfile.name : '__guest__';
+        const badgeText = currentProfile ? `${currentProfile.avatar} ${currentProfile.name}` : '👤 אתה משחק כאורח';
+        _setText('cont-profile-badge', badgeText);
+        await CONTINENTS_GAME.start(profileName);
+        break;
+      case 'modeB':
+      case 'modeA':
+        gameSetup.mode = gameType === 'modeB' ? 'B' : 'A';
+        showScreen('screen-setup');
+        renderSetupScreen();
+        break;
+      case 'capC':
+      case 'capD':
+        _capsMode = gameType === 'capC' ? 'C' : 'D';
+        _lastGameType = 'capitals';
+        gameSetup.continent = 'all';
+        gameSetup.level = 'easy';
+        showScreen('screen-setup');
+        renderSetupScreen();
+        break;
+    }
   }
 
   function renderProfilesScreen() {
@@ -1275,10 +1386,13 @@ const APP = (() => {
     }
 
     // ----- Home screen -----
-    // ----- Home screen -----
     _on('btn-home-play', 'click', () => {
-      showScreen('screen-profile-select');
-      renderProfileSelectScreen();
+      showScreen('screen-game-select');
+    });
+
+    _on('btn-home-explore', 'click', () => {
+      showScreen('screen-explore');
+      startExploreScreen();
     });
 
     // ----- Profile select screen -----
@@ -1294,62 +1408,47 @@ const APP = (() => {
       showScreen('screen-game-select');
     });
 
-    // ----- Game select screen -----
-    _on('btn-gamesel-back', 'click', () => {
-      showScreen('screen-profile-select');
-      renderProfileSelectScreen();
+    // ----- Login modal -----
+    _on('btn-login-new', 'click', () => {
+      document.getElementById('modal-login')?.classList.add('hidden');
+      _showAddProfileModal();
     });
 
-    _on('btn-sel-continents', 'click', async () => {
-      if (currentMode === 'guest') {
-        showScreen('screen-continents');
-        _setText('cont-profile-badge', '👤 אתה משחק כאורח');
-        await CONTINENTS_GAME.start('__guest__');
-      } else {
-        showScreen('screen-continents');
-        _setText('cont-profile-badge', `${currentProfile.avatar} ${currentProfile.name}`);
-        await CONTINENTS_GAME.start(currentProfile.name);
-      }
+    _on('btn-login-guest', 'click', () => {
+      currentMode = 'guest';
+      currentProfile = null;
+      document.getElementById('modal-login')?.classList.add('hidden');
+      _proceedWithGameSetup(_pendingGameType);
+    });
+
+    _on('btn-login-cancel', 'click', () => {
+      document.getElementById('modal-login')?.classList.add('hidden');
+    });
+
+    // ----- Game select screen -----
+    _on('btn-gamesel-back', 'click', () => {
+      showScreen('screen-home');
+      renderHomeScreen();
+    });
+
+    _on('btn-sel-continents', 'click', () => {
+      _showLoginModal('continents');
     });
 
     _on('btn-sel-mode-b', 'click', () => {
-      const userPassed = !currentProfile || hasContinentsPassed(currentProfile.name);
-      if (currentMode === 'user' && !userPassed) {
-        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
-        return;
-      }
-      gameSetup.mode = 'B';
-      showScreen('screen-setup');
-      renderSetupScreen();
+      _showLoginModal('modeB');
     });
 
     _on('btn-sel-mode-a', 'click', () => {
-      const userPassed = !currentProfile || hasContinentsPassed(currentProfile.name);
-      if (currentMode === 'user' && !userPassed) {
-        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
-        return;
-      }
-      gameSetup.mode = 'A';
-      showScreen('screen-setup');
-      renderSetupScreen();
+      _showLoginModal('modeA');
     });
 
     _on('btn-sel-cap-c', 'click', () => {
-      _capsMode     = 'C';
-      _lastGameType = 'capitals';
-      gameSetup.continent = 'all';
-      gameSetup.level     = 'easy';
-      showScreen('screen-setup');
-      renderSetupScreen();
+      _showLoginModal('capC');
     });
 
     _on('btn-sel-cap-d', 'click', () => {
-      _capsMode     = 'D';
-      _lastGameType = 'capitals';
-      gameSetup.continent = 'all';
-      gameSetup.level     = 'easy';
-      showScreen('screen-setup');
-      renderSetupScreen();
+      _showLoginModal('capD');
     });
 
     // ----- Profile screen -----
