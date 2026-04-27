@@ -1515,8 +1515,8 @@ const APP = (() => {
     _on('btn-caps-zoom-reset', 'click', () => MAP.zoomReset());
 
     _on('btn-back-to-profiles', 'click', () => {
-      showScreen('screen-profiles');
-      renderProfilesScreen();
+      showScreen('screen-home');
+      renderHomeScreen();
     });
 
     // ----- Continents game -----
