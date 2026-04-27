@@ -1760,58 +1760,20 @@ body {
   flex-direction: column;
   gap: 12px;
   padding: 0;
+  width: 100%;
 }
-.home-top-3-card {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 12px;
-  display: flex;
-  align-items: center;
+
+/* Reuse profile-card styling for home top 3 */
+.home-top-3 .profile-card {
+  padding: 12px 14px;
   gap: 12px;
-  box-shadow: var(--shadow);
+  border-radius: 16px;
 }
-.home-top-3-card.rank-1 {
-  border-color: #F59E0B;
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+.home-top-3 .profile-card:hover {
+  transform: none;
 }
-.home-top-3-card.rank-2 {
-  border-color: #9CA3AF;
-  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-}
-.home-top-3-card.rank-3 {
-  border-color: #CD7F32;
-  background: linear-gradient(135deg, #FDE8D8 0%, #FCD5CE 100%);
-}
-.home-medal {
-  font-size: 1.6rem;
-  min-width: 40px;
-  text-align: center;
-  line-height: 1;
-}
-.home-card-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.home-card-name {
-  font-weight: 700;
-  color: var(--text);
-  font-size: 0.95rem;
-}
-.home-card-points {
-  font-size: 0.85rem;
-  color: var(--text);
-  font-weight: 600;
-}
-.home-card-countries {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-.home-card-badges {
-  font-size: 0.75rem;
-  margin-top: 2px;
+.home-top-3 .profile-card-actions {
+  display: none;
 }
 
 /* ══════════════════════════════════════════════

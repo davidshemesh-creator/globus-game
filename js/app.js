@@ -129,23 +129,31 @@ const APP = (() => {
 
     const medals = ['🥇', '🥈', '🥉'];
     profiles.forEach((p, idx) => {
-      const card = document.createElement('div');
-      card.className = `home-top-3-card rank-${idx + 1}`;
+      const rankClass = ` rank-${idx + 1}`;
+      const medalEmoji = medals[idx];
 
-      const discoveredCount = getDiscoveredCount(p.name);
       const title = _getPlayerTitle(p.points);
+      const masteredCount = getMasteredCount(p.name);
       const earnedPrizes = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
-      const badgeEmojis = earnedPrizes.map(pr => pr.emoji).join(' ');
+      const prizeBadges = earnedPrizes.map(pr =>
+        `<span class="prize-badge" title="${pr.achievement}">${pr.emoji}</span>`
+      ).join('');
 
-      card.innerHTML = `
-        <span class="home-medal">${medals[idx]}</span>
-        <div class="home-card-info">
-          <span class="home-card-name">${p.name}</span>
-          <span class="home-card-points">${p.points.toLocaleString()} נקודות</span>
-          <span class="home-card-countries">${discoveredCount} מדינות 🗺️</span>
-          ${badgeEmojis ? `<span class="home-card-badges">${badgeEmojis}</span>` : ''}
+      const card = _el('div', `profile-card${rankClass}`, `
+        <span class="profile-medal">${medalEmoji}</span>
+        <div class="profile-card-info">
+          <div class="profile-name">${p.name}</div>
+          <div class="profile-title">${title}</div>
+          <div class="profile-meta">
+            <span class="profile-badge">${p.points.toLocaleString()} נקודות</span>
+            <span class="profile-badge">${masteredCount} מדינות 👆</span>
+          </div>
+          ${prizeBadges ? `<div class="profile-prizes">${prizeBadges}</div>` : ''}
         </div>
-      `;
+        <div class="profile-card-right">
+          <span class="rank-num">#${idx + 1}</span>
+        </div>
+      `);
       grid.appendChild(card);
     });
   }
