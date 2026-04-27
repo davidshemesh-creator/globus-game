@@ -302,12 +302,14 @@ const APP = (() => {
       _showPinModal(name, 'enter', () => {
         currentMode = 'user';
         currentProfile = getProfile(name);
-        showScreen('screen-game-select');
+        showScreen('screen-dashboard');
+        renderDashboard();
       });
     } else {
       currentMode = 'user';
       currentProfile = getProfile(name);
-      showScreen('screen-game-select');
+      showScreen('screen-dashboard');
+      renderDashboard();
     }
   }
 
