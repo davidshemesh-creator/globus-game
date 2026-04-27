@@ -29,15 +29,9 @@
      SCREEN 1 — Home screen (landing)
 ══════════════════════════════════════════════ -->
 <div id="screen-home" class="screen hidden">
-  <header class="home-header">
-    <div class="home-header-top">
-      <span class="home-logo">🌍</span>
-      <h1 class="home-title">גלובוס</h1>
-    </div>
-    <div class="home-header-leaderboard">
-      <h2 class="home-leaderboard-title">3 המובילים</h2>
-      <button id="btn-home-leaderboard" class="btn btn-ghost btn-sm">לוח התוצאות</button>
-    </div>
+  <header class="app-header">
+    <span class="app-logo">🌍</span>
+    <h1 class="app-title">גלובוס</h1>
   </header>
 
   <main class="screen-content home-screen-content">
@@ -45,11 +39,16 @@
       שחקו עכשיו
     </button>
 
-    <div id="home-top-3" class="home-top-3"></div>
-
     <button id="btn-home-explore" class="btn btn-secondary btn-lg">
       חקרו מפה
     </button>
+
+    <div class="home-leaderboard-header">
+      <h2 class="home-leaderboard-title">3 המובילים</h2>
+      <button id="btn-home-leaderboard" class="btn btn-ghost btn-sm">לוח התוצאות</button>
+    </div>
+
+    <div id="home-top-3" class="home-top-3"></div>
   </main>
 </div>
 

@@ -130,7 +130,7 @@ const APP = (() => {
     const medals = ['🥇', '🥈', '🥉'];
     profiles.forEach((p, idx) => {
       const card = document.createElement('div');
-      card.className = 'home-top-3-card';
+      card.className = `home-top-3-card rank-${idx + 1}`;
 
       const discoveredCount = getDiscoveredCount(p.name);
       const title = _getPlayerTitle(p.points);
