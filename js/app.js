@@ -886,6 +886,23 @@ const APP = (() => {
       playAgainEl?.classList.remove('hidden');
       homeEl?.classList.remove('hidden');
     }
+
+    // אם זה אורח — הצג כפתור צור חשבון
+    if (currentMode === 'guest' && summary.passed) {
+      guestRoundData = {
+        score: summary.score,
+        correctCount: summary.correctCount,
+        total: summary.total,
+      };
+      const createBtn = document.getElementById('btn-summary-create-account');
+      if (createBtn) {
+        createBtn.classList.remove('hidden');
+        // הסתר כפתור play again כשיש אפשרות צור חשבון
+        playAgainEl?.classList.add('hidden');
+      }
+    } else {
+      document.getElementById('btn-summary-create-account')?.classList.add('hidden');
+    }
   }
 
   function _showLevelUnlockPopup(levelUnlocked) {
@@ -1227,6 +1244,36 @@ const APP = (() => {
   // ── GLOBAL EVENTS ──────────────────────────────────────────
   function _bindGlobalEvents() {
 
+    // Observer for continents game result to show/hide create account button
+    const resultObserver = new MutationObserver(() => {
+      const resultCard = document.getElementById('cont-result');
+      if (resultCard && !resultCard.classList.contains('hidden')) {
+        const correctCount = CONTINENTS_GAME.getCorrectCount();
+        const passed = correctCount >= 5;
+        const createBtn = document.getElementById('btn-cont-create-account');
+        if (createBtn) {
+          if (currentMode === 'guest' && passed) {
+            // Store guest round data
+            guestRoundData = {
+              score: correctCount === 6 ? 20 : 0,
+              correctCount: correctCount,
+              total: 6,
+            };
+            createBtn.classList.remove('hidden');
+            document.getElementById('btn-cont-again')?.classList.add('hidden');
+          } else {
+            createBtn.classList.add('hidden');
+            document.getElementById('btn-cont-again')?.classList.remove('hidden');
+          }
+        }
+      }
+    });
+
+    const resultElement = document.getElementById('cont-result');
+    if (resultElement) {
+      resultObserver.observe(resultElement, { attributes: true });
+    }
+
     // ----- Home screen -----
     // ----- Home screen -----
     _on('btn-home-play', 'click', () => {
@@ -1326,6 +1373,13 @@ const APP = (() => {
         // add mode
         const created = createProfile(name, avatar, pin);
         if (!created) { alert('שם זה כבר קיים'); return; }
+
+        // אם זה אורח שיצר חשבון — הוסף את הנקודות שהרוויח
+        if (currentMode === 'guest' && guestRoundData) {
+          addPoints(name, guestRoundData.score);
+          guestRoundData = null;
+          currentMode = null;
+        }
       }
 
       document.getElementById('modal-add-profile')?.classList.add('hidden');
@@ -1422,7 +1476,7 @@ const APP = (() => {
 
     // ----- Continents game -----
     _on('btn-cont-quit', 'click', () => {
-      showScreen('screen-dashboard');
+      showScreen('screen-game-select');
       renderDashboard();
     });
 
@@ -1431,14 +1485,25 @@ const APP = (() => {
       await CONTINENTS_GAME.start(currentProfile.name);
     });
 
+    _on('btn-cont-create-account', 'click', () => {
+      // Show the create account modal for guest
+      _showAddProfileModal();
+      document.getElementById('modal-add-profile')?.classList.remove('hidden');
+    });
+
     _on('btn-cont-home', 'click', () => {
       document.getElementById('cont-result')?.classList.add('hidden');
-      const prize = CONTINENTS_GAME.getLastPrize();
-      currentProfile = getProfile(currentProfile.name);
-      showScreen('screen-dashboard');
-      renderDashboard();
-      if (prize) {
-        setTimeout(() => showPrizeScreen(prize, 'home'), 300);
+      // For guest mode, return to game-select; for user mode, show dashboard
+      if (currentMode === 'guest') {
+        showScreen('screen-game-select');
+      } else {
+        const prize = CONTINENTS_GAME.getLastPrize();
+        currentProfile = getProfile(currentProfile.name);
+        showScreen('screen-dashboard');
+        renderDashboard();
+        if (prize) {
+          setTimeout(() => showPrizeScreen(prize, 'home'), 300);
+        }
       }
     });
 
@@ -1584,6 +1649,11 @@ const APP = (() => {
       pendingPrize = null;
       if (_lastGameType === 'capitals') startCapitalsGame(_capsMode);
       else startGameRound();
+    });
+
+    document.getElementById('btn-summary-create-account')?.addEventListener('click', () => {
+      _showAddProfileModal();
+      document.getElementById('modal-add-profile')?.classList.remove('hidden');
     });
 
     document.getElementById('btn-summary-home')?.addEventListener('click', () => {

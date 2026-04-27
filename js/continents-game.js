@@ -127,5 +127,7 @@ const CONTINENTS_GAME = (() => {
     return a;
   }
 
-  return { start, getLastPrize };
+  function getCorrectCount() { return correctCount; }
+
+  return { start, getLastPrize, getCorrectCount };
 })();
