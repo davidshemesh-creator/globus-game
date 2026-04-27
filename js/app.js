@@ -1312,6 +1312,11 @@ const APP = (() => {
       renderProfilesScreen();
     });
 
+    _on('btn-profiles-back', 'click', () => {
+      showScreen('screen-home');
+      renderHomeScreen();
+    });
+
     _on('btn-home-explore', 'click', () => {
       showScreen('screen-explore');
       // explorer will initialize itself
