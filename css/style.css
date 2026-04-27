@@ -712,6 +712,10 @@ body {
   background: linear-gradient(180deg, #F97316 0%, #EA580C 100%);
   box-shadow: 0 4px 0 #C2410C, 0 8px 24px rgba(249,115,22,0.3);
 }
+.action-btn.amber {
+  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 4px 0 #B45309, 0 8px 24px rgba(245,158,11,0.3);
+}
 .action-btn.locked {
   opacity: 0.45;
   cursor: not-allowed;

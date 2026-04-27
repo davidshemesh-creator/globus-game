@@ -1014,10 +1014,11 @@ const APP = (() => {
     const result = CAPITALS_GAME.submitModeD(lonLat, countryId);
 
     MAP.clearPins();
+    MAP.flashResult(q.country.id, null);
+    // Draw pins AFTER flash so they render on top of the raised country path
     if (lonLat) MAP.drawPin(lonLat, 'guess');
     MAP.drawPin(result.realCoords, 'real');
     if (lonLat) MAP.drawDistanceLine(lonLat, result.realCoords);
-    MAP.flashResult(q.country.id, null);
 
     document.getElementById('caps-tap-hint')?.classList.add('hidden');
     const fbEl = document.getElementById('caps-place-feedback');
@@ -1194,13 +1195,6 @@ const APP = (() => {
     });
 
     // ----- Capitals game -----
-    _on('btn-game-capitals', 'click', () => {
-      showScreen('screen-capitals');
-    });
-    _on('btn-caps-back', 'click', () => {
-      showScreen('screen-dashboard');
-      renderDashboard();
-    });
     _on('btn-cap-mode-c', 'click', () => startCapitalsGame('C'));
     _on('btn-cap-mode-d', 'click', () => startCapitalsGame('D'));
     _on('btn-caps-quit', 'click', () => {
