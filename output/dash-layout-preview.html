@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --font:       'Heebo', sans-serif;
+  --bg:         #F0FFFE;
+  --surface:    #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1E293B;
+  --text-muted: #64748B;
+  --primary:    #0EA5E9;
+  --accent:     #F59E0B;
+  --radius:     14px;
+  --shadow:     0 2px 12px rgba(0,0,0,0.08);
+}
+body {
+  font-family: var(--font);
+  background: #94A3B8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px;
+  padding: 32px 16px 48px;
+  direction: rtl;
+  flex-wrap: wrap;
+}
+
+/* ── Phone frame ─────────────────────────────────────── */
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #fff;
+}
+.tag {
+  display: inline-block; padding: 3px 10px; border-radius: 99px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+}
+.tag.current { background: #E2E8F0; color: #475569; }
+.tag.new     { background: #D1FAE5; color: #065F46; }
+
+.phone {
+  width: 360px;
+  background: var(--bg);
+  border-radius: 38px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 2px #64748B;
+  padding: 18px 14px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.status-bar {
+  display: flex; justify-content: space-between;
+  font-size: 0.62rem; font-weight: 700; color: var(--text);
+  padding: 0 4px 10px;
+  direction: ltr;
+}
+
+/* ── Shared components ────────────────────────────────── */
+.btn-back {
+  background: none; border: none; cursor: pointer;
+  color: var(--primary); font-size: 1.5rem; font-weight: 300;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; direction: ltr;
+}
+.dash-header { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; }
+.dash-profile-info { display: flex; align-items: center; gap: 8px; flex: 1; }
+.dash-avatar { font-size: 2rem; }
+.dash-name-block { display: flex; flex-direction: column; gap: 1px; }
+.dash-name { font-size: 1.2rem; font-weight: 800; line-height: 1.1; }
+.dash-player-title { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+.dash-player-prizes { display: flex; gap: 3px; margin-top: 1px; }
+.prize-badge { font-size: 0.88rem; }
+
+.dash-points-inline {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 0;
+  margin-right: auto; /* pushes to the left edge in RTL */
+  margin-left: 4px;
+}
+.dash-points-val { font-size: 1.3rem; font-weight: 900; color: var(--accent); line-height: 1.1; }
+.dash-points-lbl { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); }
+
+.stats-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.stat-card {
+  flex: 1; background: var(--surface); border-radius: 16px;
+  padding: 12px 14px; border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.stat-value { font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
+.stat-value.primary { color: var(--primary); }
+.stat-value.accent  { color: var(--accent); }
+.stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.action-btn {
+  border: none; border-radius: 14px; padding: 16px 10px;
+  color: #fff; font-family: var(--font); font-size: 0.85rem; font-weight: 700;
+  display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+}
+.action-btn .btn-icon { font-size: 1.35rem; line-height: 1; }
+.action-btn.blue   { background: linear-gradient(180deg,#0EA5E9,#0284C7); box-shadow: 0 4px 0 #0369A1; }
+.action-btn.teal   { background: linear-gradient(180deg,#06B6D4,#0891B2); box-shadow: 0 4px 0 #0E7490; }
+.action-btn.purple { background: linear-gradient(180deg,#8B5CF6,#7C3AED); box-shadow: 0 4px 0 #5B21B6; }
+.action-btn.gray   { background: linear-gradient(180deg,#64748B,#475569); box-shadow: 0 4px 0 #334155; }
+
+/* ── Variant A: thin progress bar (current) ──────────── */
+.card-a {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 14px 16px; border: 1px solid var(--border);
+  box-shadow: var(--shadow); margin-bottom: 10px;
+}
+.prog-header-a { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.prog-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+.prog-target { font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+.prog-track-a { height: 10px; background: #E2E8F0; border-radius: 99px; overflow: hidden; }
+.prog-fill-a {
+  height: 100%;
+  background: linear-gradient(90deg,#F59E0B,#FBBF24,#FCD34D);
+  border-radius: 99px;
+}
+
+/* ── Variant B: milestone prize bar (new) ────────────── */
+.card-b {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 14px 16px 10px; border: 1px solid var(--border);
+  box-shadow: var(--shadow); margin-bottom: 10px;
+}
+.prog-header-b { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+.prize-bar-wrap {
+  position: relative;
+  margin-bottom: 34px;
+}
+.prize-bar-track {
+  height: 14px;
+  background: #E2E8F0;
+  border-radius: 99px;
+  overflow: visible;
+  position: relative;
+}
+.prize-bar-fill {
+  /* anchored to RIGHT — fills rightward→leftward as pts grow */
+  position: absolute;
+  right: 0; top: 0;
+  height: 100%;
+  background: linear-gradient(to left, #F59E0B, #FBBF24);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.prize-bar-fill::after {
+  content: '';
+  position: absolute;
+  left: -4px; top: -4px; /* glow at the advancing (left) tip */
+  width: 22px; height: 22px;
+  background: #FBBF24;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(251,191,36,0.8);
+}
+.milestone {
+  position: absolute;
+  top: 50%;
+  /* right: X% → center on that position with translate(50%) */
+  transform: translate(50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+}
+.milestone-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  position: relative; z-index: 2; flex-shrink: 0;
+}
+.milestone.earned .milestone-dot  { background: #F59E0B; }
+.milestone.next   .milestone-dot  { background: #fff; border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); width:13px; height:13px; }
+.milestone.future .milestone-dot  { background: #CBD5E1; border-color: white; }
+.milestone-below {
+  position: absolute;
+  top: 15px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.milestone-emoji { font-size: 0.9rem; line-height: 1; }
+.milestone-pts   { font-size: 0.53rem; font-weight: 700; white-space: nowrap; color: #CBD5E1; }
+.milestone.earned .milestone-pts  { color: #D97706; }
+.milestone.next   .milestone-pts  { color: #F59E0B; font-weight: 800; font-size: 0.6rem; }
+</style>
+</head>
+<body>
+
+<!-- ══ Variant A: Current ══════════════════════════════ -->
+<div class="phone-wrap">
+  <span class="tag current">עיצוב נוכחי</span>
+  <div class="phone">
+    <div class="status-bar"><span>9:41</span><span>◉◉◉◉ 100%</span></div>
+
+    <header class="dash-header">
+      <button class="btn-back">›</button>
+      <div class="dash-profile-info">
+        <span class="dash-avatar">🦁</span>
+        <div class="dash-name-block">
+          <span class="dash-name">יואב</span>
+          <span class="dash-player-title">מגלה דרכים</span>
+          <div class="dash-player-prizes">
+            <span class="prize-badge">🍬</span>
+            <span class="prize-badge">🥤</span>
+          </div>
+        </div>
+      </div>
+      <div class="dash-points-inline">
+        <span class="dash-points-val">2,200</span>
+        <span class="dash-points-lbl">נקודות</span>
+      </div>
+    </header>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value primary">47</div>
+        <div class="stat-label">מדינות 👆</div>
+      </div>
+    </div>
+
+    <!-- Thin bar (current) -->
+    <div class="card-a">
+      <div class="prog-header-a">
+        <span class="prog-label">🏅 בדרך לפרס הבא</span>
+        <span class="prog-target">🍔 4000 נק׳</span>
+      </div>
+      <div class="prog-track-a">
+        <div class="prog-fill-a" style="width:55%"></div>
+      </div>
+    </div>
+
+    <div class="action-grid">
+      <button class="action-btn purple"><span class="btn-icon">🌍</span>משחק יבשות</button>
+      <button class="action-btn blue"><span class="btn-icon">🗺</span>זהה מדינות</button>
+      <button class="action-btn teal"><span class="btn-icon">🔍</span>מצא מדינות</button>
+      <button class="action-btn gray"><span class="btn-icon">🗺</span>מפת העולם</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Variant B: New (same structure, milestone bar) ═══ -->
+<div class="phone-wrap">
+  <span class="tag new">עיצוב חדש — בר עם מיילסטונים</span>
+  <div class="phone">
+    <div class="status-bar"><span>9:41</span><span>◉◉◉◉ 100%</span></div>
+
+    <header class="dash-header">
+      <button class="btn-back">›</button>
+      <div class="dash-profile-info">
+        <span class="dash-avatar">🦁</span>
+        <div class="dash-name-block">
+          <span class="dash-name">יואב</span>
+          <span class="dash-player-title">מגלה דרכים</span>
+          <div class="dash-player-prizes">
+            <span class="prize-badge">🍬</span>
+            <span class="prize-badge">🥤</span>
+          </div>
+        </div>
+      </div>
+      <div class="dash-points-inline">
+        <span class="dash-points-val">2,200</span>
+        <span class="dash-points-lbl">נקודות</span>
+      </div>
+    </header>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value primary">47</div>
+        <div class="stat-label">מדינות 👆</div>
+      </div>
+    </div>
+
+    <!-- Milestone prize bar (new) -->
+    <div class="card-b">
+      <div class="prog-header-b">
+        <span class="prog-label">🎯 הפרס הבא: אמן המפות</span>
+        <span class="prog-target">🍔 4000 נק׳</span>
+      </div>
+      <div class="prize-bar-wrap">
+        <div class="prize-bar-track">
+          <!-- fill: 2200pts between 1500 (right:40%) and 4000 (right:60%) → ~46% -->
+          <div class="prize-bar-fill" style="width:46%"></div>
+          <!-- evenly spaced: 20%, 40%, 60%, 80%, 100% from right -->
+          <div class="milestone earned" style="right:20%">
+            <div class="milestone-dot"></div>
+            <div class="milestone-below">
+              <span class="milestone-emoji">🍬</span>
+              <span class="milestone-pts">500</span>
+            </div>
+          </div>
+          <div class="milestone earned" style="right:40%">
+            <div class="milestone-dot"></div>
+            <div class="milestone-below">
+              <span class="milestone-emoji">🥤</span>
+              <span class="milestone-pts">1500</span>
+            </div>
+          </div>
+          <div class="milestone next" style="right:60%">
+            <div class="milestone-dot"></div>
+            <div class="milestone-below">
+              <span class="milestone-emoji">🍔</span>
+              <span class="milestone-pts">4000</span>
+            </div>
+          </div>
+          <div class="milestone future" style="right:80%">
+            <div class="milestone-dot"></div>
+            <div class="milestone-below">
+              <span class="milestone-emoji">🐻</span>
+              <span class="milestone-pts">8000</span>
+            </div>
+          </div>
+          <div class="milestone future" style="right:100%">
+            <div class="milestone-dot"></div>
+            <div class="milestone-below">
+              <span class="milestone-emoji">🎁</span>
+              <span class="milestone-pts">15000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-grid">
+      <button class="action-btn purple"><span class="btn-icon">🌍</span>משחק יבשות</button>
+      <button class="action-btn blue"><span class="btn-icon">🗺</span>זהה מדינות</button>
+      <button class="action-btn teal"><span class="btn-icon">🔍</span>מצא מדינות</button>
+      <button class="action-btn gray"><span class="btn-icon">🗺</span>מפת העולם</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

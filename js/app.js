@@ -6,7 +6,8 @@ const APP = (() => {
 
   // ── Screen registry ────────────────────────────────────────
   const SCREENS = ['screen-loading', 'screen-profiles', 'screen-dashboard', 'screen-game-select', 'screen-setup',
-                   'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore'];
+                   'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore',
+                   'screen-capitals', 'screen-caps-game'];
 
   // ── App state ──────────────────────────────────────────────
   let currentProfile       = null; // profile object
@@ -16,6 +17,8 @@ const APP = (() => {
   let _editingProfileName  = null; // null = adding mode, string = editing mode
   let _verifyPrevScore     = 0;   // points earned in round before verification (for deduction on exit)
   let _verifyCountries     = [];  // countries for retry if verification fails
+  let _capsMode            = null; // 'C' | 'D' — active capitals game mode
+  let _lastGameType        = null; // 'countries' | 'capitals' — for play-again routing
 
   // ── Init ───────────────────────────────────────────────────
   async function init() {
@@ -905,6 +908,206 @@ const APP = (() => {
     `;
   }
 
+  // ── CAPITALS GAME ──────────────────────────────────────────
+
+  async function startCapitalsGame(mode) {
+    _capsMode     = mode;
+    _lastGameType = 'capitals';
+    showScreen('screen-caps-game');
+    _setText('caps-profile-name',   currentProfile.name);
+    _setText('caps-profile-avatar', currentProfile.avatar);
+
+    await MAP.init('caps-map-container');
+    MAP.clearPins();
+
+    const q = mode === 'C'
+      ? CAPITALS_GAME.startModeC(currentProfile.name)
+      : CAPITALS_GAME.startModeD(currentProfile.name);
+
+    if (!q) { alert('אין מספיק נתוני בירות'); showScreen('screen-capitals'); return; }
+    renderCapsQuestion(q);
+  }
+
+  function renderCapsQuestion(q) {
+    _updateCapsHUD();
+    MAP.clearPins();
+
+    if (_capsMode === 'C') {
+      MAP.resetColors();
+      MAP.disableClick();
+      MAP.disableRawClick();
+      _setText('caps-question-flag', '🏛');
+      _setText('caps-question-text', `הבירה "${q.country.capital}" — של איזו מדינה?`);
+      document.getElementById('caps-choice-buttons')?.classList.remove('hidden');
+      document.getElementById('caps-tap-hint')?.classList.add('hidden');
+      document.getElementById('caps-place-feedback')?.classList.add('hidden');
+      _renderCapsMCChoices(q);
+    } else {
+      MAP.resetColors();
+      MAP.disableClick();
+      _setText('caps-question-flag', getFlagEmoji(q.country.iso2));
+      _setText('caps-question-text', `📍 מקם את ${q.country.capital} — בירת ${q.country.nameHe}`);
+      document.getElementById('caps-choice-buttons')?.classList.add('hidden');
+      document.getElementById('caps-tap-hint')?.classList.remove('hidden');
+      document.getElementById('caps-place-feedback')?.classList.add('hidden');
+      MAP.enableRawClick((lonLat, countryId) => _handleCapsModeD(lonLat, countryId, q));
+    }
+  }
+
+  function _renderCapsMCChoices(q) {
+    const container = document.getElementById('caps-choice-buttons');
+    if (!container) return;
+    container.innerHTML = '';
+    q.choices.forEach(choice => {
+      const btn = _el('button', 'choice-btn', choice.nameHe);
+      btn.dataset.countryId = choice.id;
+      btn.addEventListener('click', () => _handleCapsModeC(choice.id, q));
+      container.appendChild(btn);
+    });
+  }
+
+  function _handleCapsModeC(choiceId, q) {
+    document.querySelectorAll('#caps-choice-buttons .choice-btn').forEach(b => b.disabled = true);
+    const result = CAPITALS_GAME.submitModeC(choiceId);
+
+    // colour buttons
+    document.querySelectorAll('#caps-choice-buttons .choice-btn').forEach(btn => {
+      const id = Number(btn.dataset.countryId);
+      if (id === q.country.id)                      btn.classList.add('btn-correct');
+      else if (id === choiceId && !result.correct)  btn.classList.add('btn-wrong');
+    });
+
+    MAP.flashResult(q.country.id, result.correct ? null : choiceId);
+    setTimeout(() => _showCapsMCFeedback(result, q), 900);
+  }
+
+  function _showCapsMCFeedback(result, q) {
+    _showFeedbackOverlay();
+    const { correct, points } = result;
+    const country = q.country;
+    _setText('feedback-icon',      correct ? '✅' : '❌');
+    _setText('feedback-title',     correct ? 'נכון!' : 'לא נכון');
+    _setText('feedback-flag',      getFlagEmoji(country.iso2));
+    _setText('feedback-country',   country.nameHe);
+    _setText('feedback-continent', `🏛 ${country.capital}`);
+    _setText('feedback-points',    correct ? `+${points} נקודות` : '');
+    document.getElementById('feedback-bonus')?.classList.add('hidden');
+
+    const nextBtn = document.getElementById('btn-feedback-next');
+    if (nextBtn) {
+      nextBtn.textContent = q.isLast ? 'סיכום סיבוב' : 'השאלה הבאה ←';
+      nextBtn.onclick = () => {
+        _hideFeedbackOverlay();
+        if (q.isLast) {
+          CAPITALS_GAME.nextQuestion();
+          showCapsSummary();
+        } else {
+          const next = CAPITALS_GAME.nextQuestion();
+          if (next) renderCapsQuestion(next.question);
+        }
+      };
+    }
+  }
+
+  function _handleCapsModeD(lonLat, countryId, q) {
+    MAP.disableRawClick();
+    const result = CAPITALS_GAME.submitModeD(lonLat, countryId);
+
+    MAP.clearPins();
+    MAP.drawPin(lonLat, 'guess');
+    MAP.drawPin(result.realCoords, 'real');
+    if (result.correct) MAP.drawDistanceLine(lonLat, result.realCoords);
+    MAP.flashResult(q.country.id, null);
+
+    document.getElementById('caps-tap-hint')?.classList.add('hidden');
+    const fbEl = document.getElementById('caps-place-feedback');
+    fbEl?.classList.remove('hidden');
+
+    const km = result.distance != null ? Math.round(result.distance) : null;
+    if (result.correct) {
+      const icon = km <= 50 ? '🎯' : km <= 200 ? '✅' : km <= 500 ? '👍' : '📍';
+      _setText('caps-fb-icon',     icon);
+      _setText('caps-fb-distance', `מרחק: ${km.toLocaleString()} ק"מ מ${q.country.capital}`);
+      _setText('caps-fb-points',   `+${result.points} נקודות`);
+    } else {
+      _setText('caps-fb-icon',     '❌');
+      _setText('caps-fb-distance', countryId ? 'לחצת על המדינה הלא נכונה' : 'לחצת מחוץ למדינה');
+      _setText('caps-fb-points',   `0 נקודות — הירוק = המיקום האמיתי`);
+    }
+    _updateCapsHUD();
+
+    const nextBtn = document.getElementById('btn-caps-fb-next');
+    if (nextBtn) {
+      nextBtn.textContent = q.isLast ? 'סיכום סיבוב' : 'השאלה הבאה ←';
+      nextBtn.onclick = () => {
+        if (q.isLast) { CAPITALS_GAME.nextQuestion(); showCapsSummary(); }
+        else { const next = CAPITALS_GAME.nextQuestion(); if (next) renderCapsQuestion(next.question); }
+      };
+    }
+  }
+
+  function showCapsSummary() {
+    showScreen('screen-summary');
+    const summary = CAPITALS_GAME.getRoundSummary();
+    if (!summary) return;
+
+    const pct = Math.round((summary.correctCount / summary.total) * 100);
+    let rating = '⭐';
+    if (pct >= 90) rating = '🏆';
+    else if (pct >= 70) rating = '⭐⭐⭐';
+    else if (pct >= 50) rating = '⭐⭐';
+
+    _setText('summary-rating',  rating);
+    _setText('summary-correct', `${summary.correctCount} / ${summary.total}`);
+    _setText('summary-pct',     `${pct}%`);
+    _setText('summary-score',   `${summary.score} נקודות`);
+    document.getElementById('summary-score')?.classList.remove('failed');
+    document.getElementById('summary-score')?.classList.add('passed');
+    document.getElementById('summary-mastered')?.classList.add('hidden');
+    document.getElementById('summary-title') && _setText('summary-title',
+      summary.mode === 'C' ? '🏛 זהה מדינה' : '📍 מקם בירות');
+
+    const list = document.getElementById('summary-answers');
+    if (list) {
+      list.innerHTML = '';
+      summary.answers.forEach(a => {
+        const dist = (summary.mode === 'D' && a.distance != null)
+          ? `<span class="answer-dist">${Math.round(a.distance)} ק"מ</span>` : '';
+        const item = _el('div', `summary-answer-item ${a.correct ? 'correct' : 'wrong'}`,
+          `<span class="answer-icon">${a.correct ? '✓' : '✗'}</span>
+           <span class="answer-flag">${getFlagEmoji(a.country.iso2)}</span>
+           <span class="answer-name">${a.country.nameHe} — ${a.country.capital}</span>${dist}`);
+        list.appendChild(item);
+      });
+    }
+
+    document.getElementById('btn-start-verification')?.classList.add('hidden');
+    document.getElementById('btn-retry-verification')?.classList.add('hidden');
+    document.getElementById('btn-play-again')?.classList.remove('hidden');
+    document.getElementById('btn-summary-home')?.classList.remove('hidden');
+
+    if (summary.roundPrize) {
+      pendingPrize = summary.roundPrize;
+      setTimeout(() => {
+        if (pendingPrize) { showPrizeScreen(pendingPrize, 'home'); pendingPrize = null; }
+      }, 1500);
+    }
+  }
+
+  function _updateCapsHUD() {
+    const prog = CAPITALS_GAME.getProgress();
+    _setText('caps-progress-text', `${prog.current} / ${prog.total}`);
+    const bar = document.getElementById('caps-progress-bar');
+    if (bar) bar.style.width = Math.round(((prog.current - 1) / prog.total) * 100) + '%';
+    _setText('caps-score-display', `${CAPITALS_GAME.getScore()} נק׳`);
+    const streak   = CAPITALS_GAME.getStreak();
+    const streakEl = document.getElementById('caps-streak-display');
+    if (streakEl) {
+      if (streak >= 3) { streakEl.textContent = `🔥 ${streak}`; streakEl.classList.remove('hidden'); }
+      else              streakEl.classList.add('hidden');
+    }
+  }
+
   // ── GLOBAL EVENTS ──────────────────────────────────────────
   function _bindGlobalEvents() {
 
@@ -987,6 +1190,29 @@ const APP = (() => {
       _setText('cont-profile-badge', `${currentProfile.avatar} ${currentProfile.name}`);
       await CONTINENTS_GAME.start(currentProfile.name);
     });
+
+    // ----- Capitals game -----
+    _on('btn-game-capitals', 'click', () => {
+      showScreen('screen-capitals');
+    });
+    _on('btn-caps-back', 'click', () => {
+      showScreen('screen-dashboard');
+      renderDashboard();
+    });
+    _on('btn-cap-mode-c', 'click', () => startCapitalsGame('C'));
+    _on('btn-cap-mode-d', 'click', () => startCapitalsGame('D'));
+    _on('btn-caps-quit', 'click', () => {
+      if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
+        MAP.disableRawClick();
+        MAP.disableClick();
+        MAP.clearPins();
+        showScreen('screen-dashboard');
+        renderDashboard();
+      }
+    });
+    _on('btn-caps-zoom-in',    'click', () => MAP.zoomIn());
+    _on('btn-caps-zoom-out',   'click', () => MAP.zoomOut());
+    _on('btn-caps-zoom-reset', 'click', () => MAP.zoomReset());
 
     _on('btn-back-to-profiles', 'click', () => {
       showScreen('screen-profiles');
@@ -1145,13 +1371,16 @@ const APP = (() => {
     });
 
     document.getElementById('btn-play-again')?.addEventListener('click', () => {
-      pendingPrize = null; // cancel auto-show if user clicks first
-      startGameRound();
+      pendingPrize = null;
+      if (_lastGameType === 'capitals') startCapitalsGame(_capsMode);
+      else startGameRound();
     });
 
     document.getElementById('btn-summary-home')?.addEventListener('click', () => {
-      pendingPrize = null; // cancel auto-show if user clicks first
-      currentProfile = getProfile(currentProfile.name); // refresh
+      pendingPrize    = null;
+      _lastGameType   = null;
+      _capsMode       = null;
+      currentProfile  = getProfile(currentProfile.name);
       showScreen('screen-dashboard');
       renderDashboard();
     });

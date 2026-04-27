@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Prize Bar Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #F0FFFE; padding: 24px 16px; direction: rtl; }
+  h2 { font-size: 0.75rem; font-weight: 700; color: #94A3B8; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 32px;
+    max-width: 420px;
+  }
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; /* more room so numbers don't overlap */
+  }
+  .progress-label { font-size: 0.8rem; font-weight: 600; color: #64748B; }
+  .progress-target { font-size: 0.8rem; font-weight: 700; color: #1E293B; }
+
+  /* ── Prize bar ────────────────────────── */
+  .prize-bar-wrap {
+    position: relative;
+    margin-bottom: 32px; /* room for emoji + number labels below */
+    direction: ltr; /* bar always fills left→right internally */
+  }
+  .prize-bar-track {
+    height: 14px;
+    background: #E2E8F0;
+    border-radius: 99px;
+    overflow: visible;
+    position: relative;
+  }
+  .prize-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F59E0B, #FBBF24);
+    border-radius: 99px;
+    position: relative;
+    transition: width 0.4s ease;
+  }
+  /* Glow tip */
+  .prize-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px; top: -4px;
+    width: 22px; height: 22px;
+    background: #FBBF24;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(251,191,36,0.8);
+  }
+
+  /* RTL: milestones positioned from right. left:0% = right edge, left:100% = left edge */
+  /* We flip with transform: scaleX(-1) on track so right=start, left=end */
+  .prize-bar-track {
+    transform: scaleX(-1); /* flip so right=0, left=15000 */
+  }
+  .prize-bar-fill {
+    transform: scaleX(-1); /* un-flip the fill so gradient reads correctly */
+    transform-origin: right center;
+  }
+
+  .milestone {
+    position: absolute;
+    top: 50%;
+    transform: translate(50%, -50%) scaleX(-1); /* un-flip milestone, center on dot */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .milestone-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  .milestone.earned .milestone-dot  { background: #F59E0B; }
+  .milestone.next .milestone-dot    { background: #fff; border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); width:14px; height:14px; }
+  .milestone.future .milestone-dot  { background: #CBD5E1; border-color: white; }
+
+  /* label below bar: emoji then number */
+  .milestone-below {
+    position: absolute;
+    top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    pointer-events: none;
+  }
+  .milestone-emoji { font-size: 0.95rem; line-height: 1; }
+  .milestone-pts {
+    font-size: 0.58rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #CBD5E1;
+  }
+  .milestone.earned .milestone-pts  { color: #D97706; }
+  .milestone.next   .milestone-pts  { color: #F59E0B; font-weight: 800; font-size: 0.65rem; }
+
+  .scenario-label {
+    font-size: 0.7rem; color: #94A3B8; margin-bottom: 6px; font-weight: 600; direction: rtl;
+  }
+</style>
+</head>
+<body>
+
+<h2>Prize Bar — RTL + מספר ואייקון</h2>
+
+<!-- Scenario A: 0 points -->
+<div class="card">
+  <p class="scenario-label">0 נקודות — לפני הכל</p>
+  <div class="progress-header">
+    <span class="progress-label">🎯 הפרס הבא: נוסע סקרן</span>
+    <span class="progress-target">🍬 500 נק׳</span>
+  </div>
+  <div class="prize-bar-wrap">
+    <div class="prize-bar-track">
+      <div class="prize-bar-fill" style="width:0%"></div>
+      <!-- RTL: right edge = 0pts (left:100%), left edge = 15000pts (left:0%) -->
+      <div class="milestone future" style="right:3.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍬</span>
+          <span class="milestone-pts">500</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:10%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🥤</span>
+          <span class="milestone-pts">1500</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:26.7%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍔</span>
+          <span class="milestone-pts">4000</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:53.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🐻</span>
+          <span class="milestone-pts">8000</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:100%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🎁</span>
+          <span class="milestone-pts">15000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario B: 2200 points -->
+<div class="card">
+  <p class="scenario-label">2200 נקודות — בין מגלה דרכים לאמן המפות</p>
+  <div class="progress-header">
+    <span class="progress-label">🎯 הפרס הבא: אמן המפות</span>
+    <span class="progress-target">🍔 4000 נק׳</span>
+  </div>
+  <div class="prize-bar-wrap">
+    <div class="prize-bar-track">
+      <div class="prize-bar-fill" style="width:14.7%"></div>
+      <div class="milestone earned" style="right:3.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍬</span>
+          <span class="milestone-pts">500</span>
+        </div>
+      </div>
+      <div class="milestone earned" style="right:10%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🥤</span>
+          <span class="milestone-pts">1500</span>
+        </div>
+      </div>
+      <div class="milestone next" style="right:26.7%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍔</span>
+          <span class="milestone-pts">4000</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:53.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🐻</span>
+          <span class="milestone-pts">8000</span>
+        </div>
+      </div>
+      <div class="milestone future" style="right:100%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🎁</span>
+          <span class="milestone-pts">15000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario C: 8500 points -->
+<div class="card">
+  <p class="scenario-label">8500 נקודות — עבר שגריר יבשות</p>
+  <div class="progress-header">
+    <span class="progress-label">🎯 הפרס הבא: גיבור העולם</span>
+    <span class="progress-target">🎁 15000 נק׳</span>
+  </div>
+  <div class="prize-bar-wrap">
+    <div class="prize-bar-track">
+      <div class="prize-bar-fill" style="width:56.7%"></div>
+      <div class="milestone earned" style="right:3.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍬</span>
+          <span class="milestone-pts">500</span>
+        </div>
+      </div>
+      <div class="milestone earned" style="right:10%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🥤</span>
+          <span class="milestone-pts">1500</span>
+        </div>
+      </div>
+      <div class="milestone earned" style="right:26.7%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🍔</span>
+          <span class="milestone-pts">4000</span>
+        </div>
+      </div>
+      <div class="milestone earned" style="right:53.3%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🐻</span>
+          <span class="milestone-pts">8000</span>
+        </div>
+      </div>
+      <div class="milestone next" style="right:100%">
+        <div class="milestone-dot"></div>
+        <div class="milestone-below">
+          <span class="milestone-emoji">🎁</span>
+          <span class="milestone-pts">15000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

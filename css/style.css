@@ -708,9 +708,69 @@ body {
   background: linear-gradient(180deg, #64748B 0%, #475569 100%);
   box-shadow: 0 4px 0 #334155, 0 8px 24px rgba(100,116,139,0.2);
 }
+.action-btn.orange {
+  background: linear-gradient(180deg, #F97316 0%, #EA580C 100%);
+  box-shadow: 0 4px 0 #C2410C, 0 8px 24px rgba(249,115,22,0.3);
+}
 .action-btn.locked {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* ── Capitals game ─────────────────────────────────────────── */
+.caps-tap-hint {
+  background: rgba(255,255,255,0.92);
+  border-radius: 12px;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.caps-place-feedback {
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  padding: 14px 16px 8px;
+  box-shadow: 0 -3px 20px rgba(0,0,0,0.13);
+}
+.caps-fb-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.caps-fb-icon     { font-size: 2rem; line-height: 1; }
+.caps-fb-distance { font-size: 15px; font-weight: 700; color: var(--text); }
+.caps-fb-points   { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.caps-scoring-info {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  margin-top: 8px;
+}
+.caps-scoring-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.caps-scoring-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+  color: var(--text);
+}
+
+.answer-dist {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: auto;
+  padding-right: 8px;
 }
 
 /* ── Continent progress (dashboard) ──────────────────────── */

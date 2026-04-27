@@ -26,6 +26,9 @@ const MAP = (() => {
   let clickCallback = null;
   let isClickMode = false;
   let zoomBehavior = null;
+  let isRawClickMode = false;
+  let rawClickCallback = null;
+  let pinsGroup = null;
 
   async function init(containerId, options = {}) {
     const container = document.getElementById(containerId);
@@ -79,11 +82,16 @@ const MAP = (() => {
       .translateExtent([[-W * 1.5, -H * 1.5], [W * 2.5, H * 2.5]])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
+        const k = event.transform.k;
         if (labelsGroup) {
-          const k = event.transform.k;
           labelsGroup.selectAll('text')
             .attr('font-size', 7 / Math.pow(k, 0.7))
             .attr('stroke-width', 1.1 / Math.pow(k, 0.7));
+        }
+        if (pinsGroup) {
+          pinsGroup.selectAll('.cap-pin-circle').attr('r', 7 / k).attr('stroke-width', 1.5 / k);
+          pinsGroup.selectAll('.cap-pin-label').attr('font-size', 9 / k).attr('dy', -10 / k);
+          pinsGroup.selectAll('.cap-pin-line').attr('stroke-width', 1.5 / k);
         }
       });
     svg.call(zoomBehavior);
@@ -117,7 +125,12 @@ const MAP = (() => {
       .attr('stroke-width', 0.5)
       .attr('cursor', 'default')
       .on('click', function(event, d) {
-        if (isClickMode && clickCallback) {
+        if (isRawClickMode && rawClickCallback) {
+          const [vx, vy] = d3.pointer(event, svg.node());
+          const tf       = d3.zoomTransform(svg.node());
+          const lonLat   = projection.invert(tf.invert([vx, vy]));
+          rawClickCallback(lonLat, Number(d.id));
+        } else if (isClickMode && clickCallback) {
           clickCallback(Number(d.id), this);
         }
       })
@@ -421,9 +434,80 @@ const MAP = (() => {
       });
   }
 
+  // ── Raw-click mode (for capitals placement game) ───────────
+  // cb(lonLat, countryId) — countryId is null if ocean clicked
+
+  function enableRawClick(cb) {
+    isClickMode      = false;
+    clickCallback    = null;
+    isRawClickMode   = true;
+    rawClickCallback = cb;
+    g.selectAll('.country-path').attr('cursor', 'crosshair');
+    // Also catch clicks on the ocean rect
+    svg.select('rect').attr('cursor', 'crosshair').on('click.raw', function(event) {
+      if (!isRawClickMode || !rawClickCallback) return;
+      const [vx, vy] = d3.pointer(event, svg.node());
+      const lonLat   = projection.invert(d3.zoomTransform(svg.node()).invert([vx, vy]));
+      rawClickCallback(lonLat, null);
+    });
+  }
+
+  function disableRawClick() {
+    isRawClickMode   = false;
+    rawClickCallback = null;
+    g.selectAll('.country-path').attr('cursor', 'default');
+    svg.select('rect').attr('cursor', 'default').on('click.raw', null);
+  }
+
+  // ── Capital pins ───────────────────────────────────────────
+  // type: 'guess' | 'real'
+  function drawPin(lonLat, type) {
+    if (!pinsGroup) pinsGroup = g.append('g').attr('class', 'caps-pins');
+    const [px, py] = projection(lonLat);
+    const k        = d3.zoomTransform(svg.node()).k;
+    const color    = type === 'real' ? '#16a34a' : '#dc2626';
+    const label    = type === 'real' ? '✓' : '?';
+
+    const pin = pinsGroup.append('g').attr('class', 'cap-pin').attr('transform', `translate(${px},${py})`);
+    pin.append('circle')
+      .attr('class', 'cap-pin-circle')
+      .attr('r', 7 / k)
+      .attr('fill', color)
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1.5 / k);
+    pin.append('text')
+      .attr('class', 'cap-pin-label')
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 9 / k)
+      .attr('font-weight', 'bold')
+      .attr('fill', 'white')
+      .attr('dy', 3.5 / k)
+      .attr('pointer-events', 'none')
+      .text(label);
+  }
+
+  function drawDistanceLine(lonLat1, lonLat2) {
+    if (!pinsGroup) pinsGroup = g.append('g').attr('class', 'caps-pins');
+    const [x1, y1] = projection(lonLat1);
+    const [x2, y2] = projection(lonLat2);
+    const k        = d3.zoomTransform(svg.node()).k;
+    pinsGroup.insert('line', ':first-child')
+      .attr('class', 'cap-pin-line')
+      .attr('x1', x1).attr('y1', y1)
+      .attr('x2', x2).attr('y2', y2)
+      .attr('stroke', '#94a3b8')
+      .attr('stroke-width', 1.5 / k)
+      .attr('stroke-dasharray', `${5 / k},${3 / k}`);
+  }
+
+  function clearPins() {
+    if (pinsGroup) { pinsGroup.remove(); pinsGroup = null; }
+  }
+
   return { init, resetColors, highlight, highlightChoices, flashResult,
            renderAsContinents, enableContinentClick, flashContinentResult,
            enableClick, disableClick, getRenderedIds,
+           enableRawClick, disableRawClick, drawPin, drawDistanceLine, clearPins,
            zoomIn, zoomOut, zoomReset, zoomToContinent,
            projectCoord, disableZoom,
            colorByContinents, addLabels, removeLabels, enableExploreInteraction };
