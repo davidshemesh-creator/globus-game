@@ -1781,17 +1781,90 @@ body {
   width: 100%;
 }
 
-/* Reuse profile-card styling for home top 3 */
+/* Home screen card layout */
 .home-top-3 .profile-card {
-  padding: 10px 12px;
-  gap: 10px;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
   border-radius: 14px;
+  align-items: stretch;
 }
 .home-top-3 .profile-card:hover {
   transform: none;
 }
-.home-top-3 .profile-card-actions {
-  display: none;
+
+.home-card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 40px;
+}
+.home-card-left .rank-num {
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.home-card-middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.home-card-name-block {
+  flex: 1;
+}
+
+.home-card-name-block .profile-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.home-card-name-block .profile-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
+.home-card-badge {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.home-card-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.home-card-stats .profile-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.home-top-3 .profile-card.rank-1 .home-card-stats .profile-badge {
+  background: rgba(180,83,9,0.15);
+  color: #92400E;
+}
+
+.home-top-3 .profile-prizes {
+  margin-top: 4px;
 }
 
 /* ══════════════════════════════════════════════

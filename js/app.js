@@ -127,7 +127,7 @@ const APP = (() => {
     if (!grid) return;
     grid.innerHTML = '';
 
-    const medals = ['🥇', '🥈', '🥉'];
+    const medals = ['🏅', '🥈', '🥉'];
     profiles.forEach((p, idx) => {
       const rankClass = ` rank-${idx + 1}`;
       const medalEmoji = medals[idx];
@@ -139,19 +139,27 @@ const APP = (() => {
         `<span class="prize-badge" title="${pr.achievement}">${pr.emoji}</span>`
       ).join('');
 
-      const card = _el('div', `profile-card${rankClass}`, `
-        <span class="profile-medal">${medalEmoji}</span>
-        <div class="profile-card-info">
-          <div class="profile-name">${p.name}</div>
-          <div class="profile-title">${title}</div>
-          <div class="profile-meta">
-            <span class="profile-badge">${p.points.toLocaleString()} נקודות</span>
-            <span class="profile-badge">${masteredCount} מדינות 👆</span>
+      const card = _el('div', `profile-card home-card${rankClass}`, `
+        <div class="profile-card-left">
+          <span class="rank-num">#${idx + 1}</span>
+          <div class="profile-card-actions" style="display: none;">
+            <button class="btn-profile-action btn-profile-edit">✏️</button>
+            <button class="btn-profile-action btn-profile-delete">🗑️</button>
+          </div>
+        </div>
+        <div class="home-card-middle">
+          <div class="home-card-header">
+            <div class="home-card-name-block">
+              <div class="profile-name">${p.name}</div>
+              <div class="profile-title">${title}</div>
+            </div>
+            <span class="home-card-badge">${medalEmoji}</span>
+          </div>
+          <div class="home-card-stats">
+            <span class="profile-badge">👆 ${masteredCount} מדינות</span>
+            <span class="profile-badge">נקודות ${p.points.toLocaleString()}</span>
           </div>
           ${prizeBadges ? `<div class="profile-prizes">${prizeBadges}</div>` : ''}
-        </div>
-        <div class="profile-card-right">
-          <span class="rank-num">#${idx + 1}</span>
         </div>
       `);
       grid.appendChild(card);
