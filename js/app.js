@@ -5,12 +5,14 @@
 const APP = (() => {
 
   // ── Screen registry ────────────────────────────────────────
-  const SCREENS = ['screen-loading', 'screen-profiles', 'screen-dashboard', 'screen-game-select', 'screen-setup',
+  const SCREENS = ['screen-loading', 'screen-home', 'screen-profiles', 'screen-dashboard', 'screen-game-select', 'screen-setup',
                    'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore',
                    'screen-capitals', 'screen-caps-game'];
 
   // ── App state ──────────────────────────────────────────────
   let currentProfile       = null; // profile object
+  let currentMode          = null; // 'guest' | 'user' | null
+  let guestRoundData       = null; // temp storage for guest game results
   let pendingPrize         = null; // prize object waiting to be shown
   let gameSetup            = { mode: 'B', continent: 'all', level: 'easy' };
   let lastFeedback         = null; // result from submitAnswer
@@ -41,10 +43,13 @@ const APP = (() => {
       if (!document.getElementById('screen-profiles')?.classList.contains('hidden')) {
         renderProfilesScreen();
       }
+      if (!document.getElementById('screen-home')?.classList.contains('hidden')) {
+        renderHomeScreen();
+      }
     });
 
-    showScreen('screen-profiles');
-    renderProfilesScreen();
+    showScreen('screen-home');
+    renderHomeScreen();
   }
 
   // ── Feedback overlay helpers ────────────────────────────────
@@ -112,6 +117,26 @@ const APP = (() => {
     SCREENS.forEach(s => {
       const el = document.getElementById(s);
       if (el) el.classList.toggle('hidden', s !== id);
+    });
+  }
+
+  // ── HOME SCREEN ────────────────────────────────────────────
+  function renderHomeScreen() {
+    const profiles = loadProfiles().slice(0, 3);
+    const grid = document.getElementById('home-top-3');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const medals = ['🥇', '🥈', '🥉'];
+    profiles.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'home-top-3-card';
+      card.innerHTML = `
+        <span class="home-medal">${medals[idx]}</span>
+        <span class="home-name">${p.name}</span>
+        <span class="home-points">${p.points.toLocaleString()} נקודות</span>
+      `;
+      grid.appendChild(card);
     });
   }
 
@@ -249,14 +274,16 @@ const APP = (() => {
     const p = getProfile(name);
     if (p && p.pin) {
       _showPinModal(name, 'enter', () => {
+        currentMode = 'user';
         currentProfile = getProfile(name);
-        showScreen('screen-dashboard');
-        renderDashboard();
+        showScreen('screen-game-select');
+        renderGameSelectScreen();
       });
     } else {
+      currentMode = 'user';
       currentProfile = getProfile(name);
-      showScreen('screen-dashboard');
-      renderDashboard();
+      showScreen('screen-game-select');
+      renderGameSelectScreen();
     }
   }
 
@@ -484,23 +511,28 @@ const APP = (() => {
 
   // ── GAME SELECT SCREEN ─────────────────────────────────────
   function renderGameSelectScreen() {
-    const passed = currentProfile && hasContinentsPassed(currentProfile.name);
-    const btnB   = document.getElementById('btn-game-mode-b');
-    const btnA   = document.getElementById('btn-game-mode-a');
-    const hintB  = document.getElementById('hint-lock-mode-b');
-    const hintA  = document.getElementById('hint-lock-mode-a');
+    // Show game buttons (all enabled for guest, mode-based locking for user)
+    const btnSelB = document.getElementById('btn-sel-mode-b');
+    const btnSelA = document.getElementById('btn-sel-mode-a');
 
-    if (!passed) {
-      if (btnB) { btnB.classList.add('locked');    btnB.title = '🔒 צלח יבשות קודם'; }
-      if (btnA) { btnA.classList.add('locked');    btnA.title = '🔒 צלח יבשות קודם'; }
-      if (hintB) hintB.classList.remove('hidden');
-      if (hintA) hintA.classList.remove('hidden');
+    if (currentMode === 'guest') {
+      // Guest: all games unlocked
+      if (btnSelB) btnSelB.style.opacity = '1';
+      if (btnSelA) btnSelA.style.opacity = '1';
+    } else if (currentProfile && hasContinentsPassed(currentProfile.name)) {
+      // User with continents passed
+      if (btnSelB) btnSelB.style.opacity = '1';
+      if (btnSelA) btnSelA.style.opacity = '1';
     } else {
-      if (btnB) { btnB.classList.remove('locked'); btnB.title = ''; }
-      if (btnA) { btnA.classList.remove('locked'); btnA.title = ''; }
-      if (hintB) hintB.classList.add('hidden');
-      if (hintA) hintA.classList.add('hidden');
+      // User without continents passed
+      if (btnSelB) btnSelB.style.opacity = '0.4';
+      if (btnSelA) btnSelA.style.opacity = '0.4';
     }
+  }
+
+  function _showPlayModeModal() {
+    const modal = document.getElementById('modal-play-mode');
+    if (modal) modal.classList.remove('hidden');
   }
 
   // ── SETUP SCREEN ───────────────────────────────────────────
@@ -1201,6 +1233,93 @@ const APP = (() => {
   // ── GLOBAL EVENTS ──────────────────────────────────────────
   function _bindGlobalEvents() {
 
+    // ----- Home screen -----
+    _on('btn-home-play', 'click', _showPlayModeModal);
+    _on('btn-home-full-leaderboard', 'click', () => {
+      showScreen('screen-profiles');
+      renderProfilesScreen();
+    });
+    _on('btn-home-explore', 'click', () => {
+      showScreen('screen-explore');
+    });
+
+    // ----- Play mode modal -----
+    _on('btn-play-guest', 'click', () => {
+      currentMode = 'guest';
+      currentProfile = null;
+      document.getElementById('modal-play-mode')?.classList.add('hidden');
+      showScreen('screen-game-select');
+      renderGameSelectScreen();
+    });
+
+    _on('btn-play-user', 'click', () => {
+      document.getElementById('modal-play-mode')?.classList.add('hidden');
+      showScreen('screen-profiles');
+      renderProfilesScreen();
+    });
+
+    _on('btn-play-cancel', 'click', () => {
+      document.getElementById('modal-play-mode')?.classList.add('hidden');
+    });
+
+    // ----- Game select screen -----
+    _on('btn-gamesel-home', 'click', () => {
+      showScreen('screen-home');
+      renderHomeScreen();
+    });
+
+    _on('btn-sel-continents', 'click', async () => {
+      if (currentMode === 'guest') {
+        showScreen('screen-continents');
+        _setText('cont-profile-badge', '👤 אתה משחק כאורח');
+        await CONTINENTS_GAME.start('__guest__');
+      } else {
+        showScreen('screen-continents');
+        _setText('cont-profile-badge', `${currentProfile.avatar} ${currentProfile.name}`);
+        await CONTINENTS_GAME.start(currentProfile.name);
+      }
+    });
+
+    _on('btn-sel-mode-b', 'click', () => {
+      const userPassed = !currentProfile || hasContinentsPassed(currentProfile.name);
+      if (currentMode === 'user' && !userPassed) {
+        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
+        return;
+      }
+      gameSetup.mode = 'B';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
+
+    _on('btn-sel-mode-a', 'click', () => {
+      const userPassed = !currentProfile || hasContinentsPassed(currentProfile.name);
+      if (currentMode === 'user' && !userPassed) {
+        alert('🌍 קודם צריך לסיים משחק יבשות!\nפשוט בחר "מצא יבשות" וצלח לפחות 5/6.');
+        return;
+      }
+      gameSetup.mode = 'A';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
+
+    _on('btn-sel-cap-c', 'click', () => {
+      _capsMode     = 'C';
+      _lastGameType = 'capitals';
+      gameSetup.continent = 'all';
+      gameSetup.level     = 'easy';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
+
+    _on('btn-sel-cap-d', 'click', () => {
+      _capsMode     = 'D';
+      _lastGameType = 'capitals';
+      gameSetup.continent = 'all';
+      gameSetup.level     = 'easy';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
+
     // ----- Profile screen -----
     _on('btn-add-profile-top', 'click', _showAddProfileModal);
 
@@ -1388,10 +1507,16 @@ const APP = (() => {
       if (_lastGameType === 'capitals') {
         _lastGameType = null;
         _capsMode     = null;
-        showScreen('screen-dashboard');
-        renderDashboard();
+        if (currentMode === 'user') {
+          showScreen('screen-dashboard');
+          renderDashboard();
+        } else {
+          showScreen('screen-game-select');
+          renderGameSelectScreen();
+        }
       } else {
         showScreen('screen-game-select');
+        renderGameSelectScreen();
       }
     });
 

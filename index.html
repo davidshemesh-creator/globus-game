@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=49" />
+  <link rel="stylesheet" href="css/style.css?v=50" />
 </head>
 <body>
 
@@ -26,7 +26,41 @@
 </div>
 
 <!-- ══════════════════════════════════════════════
-     SCREEN 1 — Profile selection
+     SCREEN 1 — Home screen (landing)
+══════════════════════════════════════════════ -->
+<div id="screen-home" class="screen hidden">
+  <header class="app-header">
+    <span class="app-logo">🌍</span>
+    <h1 class="app-title">גלובוס</h1>
+  </header>
+
+  <main class="screen-content">
+    <!-- CTA Section -->
+    <div class="home-cta">
+      <p class="home-headline">🎯 בואי נשחק!</p>
+      <button id="btn-home-play" class="btn btn-primary btn-xl">
+        👤 משחק כאורח / 🔐 התחבר עם יוזר
+      </button>
+    </div>
+
+    <!-- Top 3 Leaderboard -->
+    <div class="home-leaderboard">
+      <p class="leaderboard-title">🥇 3 המקומות המובילים:</p>
+      <div id="home-top-3" class="home-top-3-grid"></div>
+      <button id="btn-home-full-leaderboard" class="btn btn-ghost btn-sm" style="margin-top:12px">
+        לוח התוצאות המלא →
+      </button>
+    </div>
+
+    <!-- Map Learning Button -->
+    <button id="btn-home-explore" class="btn btn-primary btn-lg">
+      🗺️ לימוד המפה
+    </button>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 — Profile selection
 ══════════════════════════════════════════════ -->
 <div id="screen-profiles" class="screen hidden">
   <header class="app-header">
@@ -496,6 +530,63 @@
 
 
 <!-- ══════════════════════════════════════════════
+     SCREEN 12 — Game select
+══════════════════════════════════════════════ -->
+<div id="screen-game-select" class="screen hidden">
+  <header class="screen-header">
+    <button id="btn-gamesel-home" class="btn-icon btn-back">›</button>
+    <h2 class="screen-title">משחקים 🎮</h2>
+  </header>
+
+  <main class="screen-content game-select-grid">
+    <button id="btn-sel-continents" class="game-btn">
+      🌍 משחק יבשות
+    </button>
+    <button id="btn-sel-mode-b" class="game-btn">
+      🗺 זהה מדינות
+    </button>
+    <button id="btn-sel-mode-a" class="game-btn">
+      🔍 מצא מדינות
+    </button>
+    <button id="btn-sel-cap-c" class="game-btn">
+      🏛 זיהוי בירות
+    </button>
+    <button id="btn-sel-cap-d" class="game-btn">
+      📍 מיקום בירות
+    </button>
+  </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Modals
+══════════════════════════════════════════════ -->
+
+<!-- Modal: Play mode (guest vs user) -->
+<div id="modal-play-mode" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2 class="modal-title">בחר את סוג המשחק</h2>
+    <button id="btn-play-guest" class="btn btn-primary btn-lg">
+      👤 משחק כאורח (ללא שמירה)
+    </button>
+    <button id="btn-play-user" class="btn btn-primary btn-lg">
+      🔐 התחבר עם יוזר (שמור נתונים)
+    </button>
+    <button id="btn-play-cancel" class="btn btn-ghost">ביטול</button>
+  </div>
+</div>
+
+<!-- Modal: Guest save -->
+<div id="modal-guest-save" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2 class="modal-title">שמור את ההתקדמות שלך!</h2>
+    <p style="text-align:center;margin:12px 0">צור חשבון כדי שלא תאבד את הנקודות</p>
+    <button id="btn-guest-save" class="btn btn-primary btn-lg">צור חשבון</button>
+    <button id="btn-guest-discard" class="btn btn-ghost">צא ללא שמירה</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
      Scripts (order matters!)
 ══════════════════════════════════════════════ -->
 <!-- ── Modal: exit during verification warning ─────────────── -->
@@ -514,17 +605,17 @@
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=49"></script>
+<script src="js/firebase-db.js?v=50"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=49"></script>
-<script src="js/map.js?v=49"></script>
-<script src="js/profiles.js?v=49"></script>
-<script src="js/game.js?v=49"></script>
-<script src="js/continents-game.js?v=49"></script>
-<script src="js/capitals-game.js?v=49"></script>
-<script src="js/app.js?v=49"></script>
+<script src="js/data.js?v=50"></script>
+<script src="js/map.js?v=50"></script>
+<script src="js/profiles.js?v=50"></script>
+<script src="js/game.js?v=50"></script>
+<script src="js/continents-game.js?v=50"></script>
+<script src="js/capitals-game.js?v=50"></script>
+<script src="js/app.js?v=50"></script>
 
 </body>
 </html>
