@@ -1544,9 +1544,9 @@ const APP = (() => {
 
     _on('btn-cont-home', 'click', () => {
       document.getElementById('cont-result')?.classList.add('hidden');
-      // For guest mode, return to game-select; for user mode, show dashboard
       if (currentMode === 'guest') {
-        showScreen('screen-game-select');
+        showScreen('screen-dashboard');
+        renderDashboard();
       } else {
         const prize = CONTINENTS_GAME.getLastPrize();
         currentProfile = getProfile(currentProfile.name);
@@ -1609,13 +1609,9 @@ const APP = (() => {
         _lastGameType = null;
         _capsMode     = null;
       }
-      if (currentMode === 'user') {
-        currentProfile = getProfile(currentProfile.name);
-        showScreen('screen-dashboard');
-        renderDashboard();
-      } else {
-        showScreen('screen-game-select');
-      }
+      currentProfile = currentMode === 'user' ? getProfile(currentProfile.name) : currentProfile;
+      showScreen('screen-dashboard');
+      renderDashboard();
     });
 
     // ----- Zoom controls (game) -----
