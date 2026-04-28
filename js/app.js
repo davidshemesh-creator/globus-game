@@ -414,14 +414,14 @@ const APP = (() => {
   // ── DASHBOARD ──────────────────────────────────────────────
   function renderDashboard() {
     if (!currentProfile) return;
-    const p = getProfile(currentProfile.name); // fresh from storage
+    const p = currentMode === 'guest' ? currentProfile : getProfile(currentProfile.name);
 
     _setText('dash-name',       p.name);
     _setText('dash-avatar',     p.avatar);
     _setText('dash-points',     p.points.toLocaleString());
-    _setText('dash-countries',  `${getMasteredCount(p.name)}`);
-    _setText('dash-discovered', `${getDiscoveredCount(p.name)}`);
-    _setText('dash-title',      _getPlayerTitle(p.points));
+    _setText('dash-countries',  currentMode === 'guest' ? '0' : `${getMasteredCount(p.name)}`);
+    _setText('dash-discovered', currentMode === 'guest' ? '0' : `${getDiscoveredCount(p.name)}`);
+    _setText('dash-title',      currentMode === 'guest' ? '' : _getPlayerTitle(p.points));
     const prizesEl = document.getElementById('dash-prizes');
     if (prizesEl) {
       const earned = PRIZES.filter(pr => (p.prizesEarned || []).includes(pr.points));
