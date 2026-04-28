@@ -1320,8 +1320,7 @@ const APP = (() => {
     });
 
     _on('btn-home-explore', 'click', () => {
-      showScreen('screen-explore');
-      // explorer will initialize itself
+      startExploreScreen();
     });
 
     // ----- Profile select screen -----
@@ -1618,8 +1617,13 @@ const APP = (() => {
     _on('btn-explore-back',       'click', () => {
       MAP.disableClick();
       MAP.removeLabels();
-      showScreen('screen-dashboard');
-      renderDashboard();
+      if (currentProfile) {
+        showScreen('screen-dashboard');
+        renderDashboard();
+      } else {
+        showScreen('screen-home');
+        renderHomeScreen();
+      }
     });
     _on('btn-explore-zoom-in',    'click', () => MAP.zoomIn());
     _on('btn-explore-zoom-out',   'click', () => MAP.zoomOut());
