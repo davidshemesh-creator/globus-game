@@ -1338,12 +1338,6 @@ const APP = (() => {
       renderDashboard();
     });
 
-    // ----- Game select screen -----
-    _on('btn-gamesel-back', 'click', () => {
-      showScreen('screen-profile-select');
-      renderProfileSelectScreen();
-    });
-
     _on('btn-sel-continents', 'click', async () => {
       if (currentMode === 'guest') {
         showScreen('screen-continents');
@@ -1448,7 +1442,7 @@ const APP = (() => {
     // ----- Dashboard -----
     _on('btn-play', 'click', () => {
       showScreen('screen-profile-select');
-      renderGameSelectScreen();
+      renderProfileSelectScreen();
     });
 
     // ----- Game selection -----
