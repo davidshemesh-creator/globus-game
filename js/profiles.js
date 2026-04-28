@@ -75,6 +75,7 @@ function createProfile(name, avatar, pin) {
     pin: pin || '',
     points: 0,
     countriesLearned: {},
+    capitalsLearned: {},
     prizesEarned: [],
     levelsCompleted: [],
     continentsPassed: false,
@@ -321,4 +322,26 @@ function getDiscoveredCount(profileName) {
 function getLevelStars(profileName, level) {
   const p = getProfile(profileName);
   return p ? (p.levelStars?.[level] || 0) : 0;
+}
+
+function recordCapitalAnswer(profileName, countryId, correct) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return;
+  if (!p.capitalsLearned) p.capitalsLearned = {};
+  const key = String(countryId);
+  if (!p.capitalsLearned[key]) p.capitalsLearned[key] = { correct: 0, wrong: 0, streak: 0 };
+  if (correct) {
+    p.capitalsLearned[key].correct++;
+    p.capitalsLearned[key].streak = (p.capitalsLearned[key].streak || 0) + 1;
+  } else {
+    p.capitalsLearned[key].wrong++;
+    p.capitalsLearned[key].streak = 0;
+  }
+  _saveProfile(p);
+}
+
+function getMasteredCapitalsCount(profileName) {
+  const p = getProfile(profileName);
+  if (!p || !p.capitalsLearned) return 0;
+  return Object.values(p.capitalsLearned).filter(d => (d.streak || 0) >= 3).length;
 }

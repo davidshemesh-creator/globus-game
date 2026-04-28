@@ -419,8 +419,8 @@ const APP = (() => {
     _setText('dash-name',       p.name);
     _setText('dash-avatar',     p.avatar);
     _setText('dash-points',     p.points.toLocaleString());
-    _setText('dash-countries',  currentMode === 'guest' ? '0' : `${getMasteredCount(p.name)}`);
-    _setText('dash-discovered', currentMode === 'guest' ? '0' : `${getDiscoveredCount(p.name)}`);
+    _setText('dash-countries', currentMode === 'guest' ? '0' : `${getMasteredCount(p.name)}`);
+    _setText('dash-capitals',  currentMode === 'guest' ? '0' : `${getMasteredCapitalsCount(p.name)}`);
     _setText('dash-title',      currentMode === 'guest' ? '' : _getPlayerTitle(p.points));
     const prizesEl = document.getElementById('dash-prizes');
     if (prizesEl) {

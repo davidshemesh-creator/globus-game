@@ -56,6 +56,7 @@ const CAPITALS_GAME = (() => {
     if (correct) { state.score += points; state.streak++; state.correctCount++; }
     else         { state.streak = 0; }
     state.answers.push({ country: q.country, correct, points });
+    if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, correct);
     return { correct, points, question: _currentQ() };
   }
 
@@ -70,6 +71,7 @@ const CAPITALS_GAME = (() => {
       const distance = clickedLonLat ? _haversine(clickedLonLat, realCoords) : null;
       state.streak = 0;
       state.answers.push({ country: q.country, clickedLonLat, correct: false, points: 0, distance });
+      if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, false);
       return { correct: false, points: 0, distance, realCoords, clickedLonLat, question: _currentQ() };
     }
 
@@ -79,6 +81,7 @@ const CAPITALS_GAME = (() => {
     state.correctCount++;
     state.streak++;
     state.answers.push({ country: q.country, clickedLonLat, correct: true, points, distance });
+    if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, true);
     return { correct: true, points, distance, realCoords, clickedLonLat, question: _currentQ() };
   }
 
