@@ -683,28 +683,67 @@ body {
 
 /* Action grid — 4 colored 3D buttons */
 .action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .action-btn {
   border: none;
   border-radius: 16px;
-  padding: 18px 12px;
+  padding: 14px 16px;
   font-family: var(--font);
   font-size: 0.95rem;
   font-weight: 700;
   color: #FFFFFF;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 0;
   transition: transform 0.1s, box-shadow 0.1s;
 }
 .action-btn:active { transform: translateY(3px); }
-.action-btn .btn-icon { font-size: 1.6rem; line-height: 1; }
+.action-btn .btn-icon { font-size: 1.4rem; line-height: 1; }
 .action-btn-sub { font-size: 0.62rem; font-weight: 500; opacity: 0.8; line-height: 1.2; }
+.abn-start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.abn-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.abn-meta {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.btn-stars {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  letter-spacing: 1px;
+  direction: ltr;
+  unicode-bidi: embed;
+}
+.btn-diff-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+.btn-pts {
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
 .action-btn.blue {
   background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
   box-shadow: 0 4px 0 #0369A1, 0 8px 24px rgba(14,165,233,0.3);
