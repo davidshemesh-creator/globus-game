@@ -67,22 +67,23 @@ const CAPITALS_GAME = (() => {
     const q          = state.questions[state.currentIndex];
     const realCoords = q.country.capitalCoords;
 
-    if (clickedCountryId !== q.country.id) {
-      const distance = clickedLonLat ? _haversine(clickedLonLat, realCoords) : null;
+    const correct  = clickedCountryId === q.country.id;
+    const distance = clickedLonLat ? _haversine(clickedLonLat, realCoords) : null;
+    const points   = distance != null ? _distanceToPoints(distance) : 0;
+
+    if (correct) {
+      state.score += points;
+      state.correctCount++;
+      state.streak++;
+    } else {
+      // wrong country but still give proximity points (no streak/mastery)
+      state.score += points;
       state.streak = 0;
-      state.answers.push({ country: q.country, clickedLonLat, correct: false, points: 0, distance });
-      if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, false);
-      return { correct: false, points: 0, distance, realCoords, clickedLonLat, question: _currentQ() };
     }
 
-    const distance = _haversine(clickedLonLat, realCoords);
-    const points   = _distanceToPoints(distance);
-    state.score += points;
-    state.correctCount++;
-    state.streak++;
-    state.answers.push({ country: q.country, clickedLonLat, correct: true, points, distance });
-    if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, true);
-    return { correct: true, points, distance, realCoords, clickedLonLat, question: _currentQ() };
+    state.answers.push({ country: q.country, clickedLonLat, correct, points, distance });
+    if (state.profileName !== '__guest__') recordCapitalAnswer(state.profileName, q.country.id, correct);
+    return { correct, points, distance, realCoords, clickedLonLat, question: _currentQ() };
   }
 
   // ── Advance to next question ───────────────────────────────
@@ -173,9 +174,9 @@ const CAPITALS_GAME = (() => {
   }
 
   function _distanceToPoints(km) {
-    if (km <= 50)  return 30;
-    if (km <= 200) return 20;
-    if (km <= 500) return 12;
+    if (km <= 150)  return 30;
+    if (km <= 500)  return 20;
+    if (km <= 1000) return 10;
     return 5;
   }
 
