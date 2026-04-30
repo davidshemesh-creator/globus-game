@@ -191,7 +191,7 @@ const CAPITALS_GAME = (() => {
     const stars = calcRoundStars(state.correctCount, state.questions.length);
     state.roundStars = stars;
     if (state.continent === 'all' && stars > 0) {
-      state.badgePrize = addLevelStars(state.profileName, state.level, stars);
+      state.badgePrize = addGameStars(state.profileName, state.mode, state.level, stars);
     }
 
     const discoveredIds = state.questions.map(q => q.country.id);

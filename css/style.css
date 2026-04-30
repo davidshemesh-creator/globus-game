@@ -735,6 +735,20 @@ body {
   direction: ltr;
   unicode-bidi: embed;
 }
+.btn-level-stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  direction: ltr;
+  unicode-bidi: embed;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.gs { min-width: 12px; text-align: center; }
+.gs-has  { opacity: 1; }
+.gs-zero { opacity: 0.35; }
+.gs-dot  { opacity: 0.45; font-weight: 400; }
+.gs-icon { opacity: 0.85; margin-right: 1px; }
 .btn-diff-label {
   font-size: 0.65rem;
   font-weight: 600;

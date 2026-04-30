@@ -80,6 +80,7 @@ function createProfile(name, avatar, pin) {
     levelsCompleted: [],
     continentsPassed: false,
     levelStars: {},
+    starsPerGame: {},
     badges: [],
     discovered: [],
   };
@@ -125,6 +126,7 @@ function resetProfile(name) {
   p.levelsCompleted  = [];
   p.continentsPassed = false;
   p.levelStars       = {};
+  p.starsPerGame     = {};
   p.badges           = [];
   p.discovered       = [];
   _saveProfile(p);
@@ -289,6 +291,32 @@ function addLevelStars(profileName, level, stars) {
   }
   _saveProfile(p);
   return null;
+}
+
+function addGameStars(profileName, mode, level, stars) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p || stars <= 0) return null;
+  if (!p.starsPerGame)        p.starsPerGame = {};
+  if (!p.starsPerGame[mode])  p.starsPerGame[mode] = {};
+  p.starsPerGame[mode][level] = (p.starsPerGame[mode][level] || 0) + stars;
+
+  // accumulate totals for badge purposes
+  if (!p.levelStars) p.levelStars = {};
+  if (!p.badges)     p.badges     = [];
+  p.levelStars[level] = (p.levelStars[level] || 0) + stars;
+  const badgeDef = LEVEL_BADGES[level];
+  if (badgeDef && !p.badges.includes(badgeDef.key) && p.levelStars[level] >= badgeDef.starsNeeded) {
+    p.badges.push(badgeDef.key);
+    _saveProfile(p);
+    return badgeDef;
+  }
+  _saveProfile(p);
+  return null;
+}
+
+function getGameStars(profileName, mode) {
+  const p = getProfile(profileName);
+  return p?.starsPerGame?.[mode] || {};
 }
 
 function recordDiscovered(profileName, countryIds) {

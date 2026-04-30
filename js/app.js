@@ -447,6 +447,21 @@ const APP = (() => {
       }
     }
 
+    // per-game star progress
+    if (currentMode !== 'guest') {
+      ['A', 'B', 'C', 'D'].forEach(mode => {
+        const el = document.getElementById(`gstars-${mode}`);
+        if (!el) return;
+        const s = getGameStars(p.name, mode);
+        const levels = ['easy', 'medium', 'hard', 'master'];
+        el.innerHTML = levels.map((lv, i) => {
+          const n = s[lv] || 0;
+          const sep = i < 3 ? '<span class="gs-dot">·</span>' : '';
+          return `<span class="gs ${n > 0 ? 'gs-has' : 'gs-zero'}">${n > 0 ? n : '–'}</span>${sep}`;
+        }).join('') + '<span class="gs-icon">★</span>';
+      });
+    }
+
     // lock/unlock game buttons based on continents passed
     const passed = hasContinentsPassed(p.name);
     const btnB = document.getElementById('btn-game-mode-b');
