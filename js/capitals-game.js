@@ -52,7 +52,7 @@ const CAPITALS_GAME = (() => {
     if (!state) return null;
     const q       = state.questions[state.currentIndex];
     const correct = countryId === q.country.id;
-    const points  = correct ? 15 : 0;
+    const points  = correct ? 25 : 0;
     if (correct) { state.score += points; state.streak++; state.correctCount++; }
     else         { state.streak = 0; }
     state.answers.push({ country: q.country, correct, points });
@@ -173,14 +173,19 @@ const CAPITALS_GAME = (() => {
   }
 
   function _distanceToPoints(km) {
-    if (km <= 50)  return 20;
-    if (km <= 200) return 15;
-    if (km <= 500) return 10;
+    if (km <= 50)  return 30;
+    if (km <= 200) return 20;
+    if (km <= 500) return 12;
     return 5;
   }
 
   function _onRoundEnd() {
     if (!state) return;
+
+    const multiplier = state.correctCount === 10 ? 1.5
+                     : state.correctCount === 9  ? 1.2
+                     : 1.0;
+    state.score      = Math.round(state.score * multiplier);
     state.roundPrize = addPoints(state.profileName, state.score);
 
     const stars = calcRoundStars(state.correctCount, state.questions.length);
