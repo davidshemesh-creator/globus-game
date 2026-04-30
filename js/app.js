@@ -472,12 +472,12 @@ const APP = (() => {
       }
     }
 
-    // lock/unlock game buttons based on continents passed
-    const passed = hasContinentsPassed(p.name);
-    const btnB = document.getElementById('btn-game-mode-b');
-    const btnA = document.getElementById('btn-game-mode-a');
-    if (btnB) btnB.classList.toggle('locked', !passed);
-    if (btnA) btnA.classList.toggle('locked', !passed);
+    // lock/unlock game buttons based on continents passed (always locked for guest)
+    const passed = currentMode !== 'guest' && hasContinentsPassed(p.name);
+    ['btn-game-mode-b', 'btn-game-mode-a', 'btn-cap-mode-c', 'btn-cap-mode-d'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.toggle('locked', !passed);
+    });
 
     // next prize bar with milestones
     const next = getNextPrize(p.name);
