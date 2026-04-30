@@ -714,9 +714,9 @@ body {
 }
 .abn-name-block {
   display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 .btn-name {
   font-size: 0.95rem;
