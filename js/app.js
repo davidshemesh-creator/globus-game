@@ -7,7 +7,7 @@ const APP = (() => {
   // ── Screen registry ────────────────────────────────────────
   const SCREENS = ['screen-loading', 'screen-home', 'screen-profiles', 'screen-profile-select', 'screen-game-select', 'screen-dashboard', 'screen-setup',
                    'screen-game', 'screen-summary', 'screen-prize', 'screen-continents', 'screen-explore',
-                   'screen-capitals', 'screen-caps-game'];
+                   'screen-capitals', 'screen-caps-game', 'screen-flags-game'];
 
   // ── App state ──────────────────────────────────────────────
   let currentProfile       = null; // profile object
