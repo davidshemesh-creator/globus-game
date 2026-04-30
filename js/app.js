@@ -20,7 +20,7 @@ const APP = (() => {
   let _verifyPrevScore     = 0;   // points earned in round before verification (for deduction on exit)
   let _verifyCountries     = [];  // countries for retry if verification fails
   let _capsMode            = null; // 'C' | 'D' — active capitals game mode
-  let _lastGameType        = null; // 'countries' | 'capitals' — for play-again routing
+  let _lastGameType        = null; // 'countries' | 'capitals' | 'flags' — for play-again routing
 
   // ── Init ───────────────────────────────────────────────────
   async function init() {
@@ -474,10 +474,27 @@ const APP = (() => {
 
     // lock/unlock game buttons based on continents passed (always locked for guest)
     const passed = currentMode !== 'guest' && hasContinentsPassed(p.name);
-    ['btn-game-mode-b', 'btn-game-mode-a', 'btn-cap-mode-c', 'btn-cap-mode-d'].forEach(id => {
+    ['btn-game-mode-b', 'btn-game-mode-a', 'btn-cap-mode-c', 'btn-cap-mode-d', 'btn-game-flags'].forEach(id => {
       const btn = document.getElementById(id);
       if (btn) btn.classList.toggle('locked', !passed);
     });
+
+    // flags stars
+    if (currentMode !== 'guest') {
+      const LEVEL_LABELS = ['מאס׳', 'קשה', 'בינ׳', 'קל'];
+      const levels = ['master', 'hard', 'medium', 'easy'];
+      const elE = document.getElementById('gstars-E');
+      if (elE) {
+        const s = getGameStars(p.name, 'E');
+        elE.innerHTML = levels.map((lv, i) => {
+          const n = s[lv] || 0;
+          return `<span class="gs-col">
+            <span class="gs-lbl">${LEVEL_LABELS[i]}</span>
+            <span class="gs ${n > 0 ? 'gs-has' : 'gs-zero'}">${n}</span>
+          </span>`;
+        }).join('');
+      }
+    }
 
     // next prize bar with milestones
     const next = getNextPrize(p.name);
@@ -587,6 +604,8 @@ const APP = (() => {
     let modeLabel;
     if (_lastGameType === 'capitals') {
       modeLabel = _capsMode === 'C' ? '🏛 זיהוי בירות' : '📍 מיקום בירות';
+    } else if (_lastGameType === 'flags') {
+      modeLabel = '🏳️ זיהוי דגלים';
     } else {
       modeLabel = gameSetup.mode === 'B' ? '🗺 זהה מדינות' : '🔍 מצא מדינות';
     }
@@ -1280,6 +1299,147 @@ const APP = (() => {
     });
   }
 
+  // ── FLAGS GAME ──────────────────────────────────────────────
+
+  function startFlagsGame() {
+    _lastGameType = 'flags';
+    showScreen('screen-flags-game');
+    _setText('flags-profile-name',   currentProfile.name);
+    _setText('flags-profile-avatar', currentProfile.avatar);
+
+    const q = FLAGS_GAME.start(currentProfile.name, gameSetup.continent, gameSetup.level);
+    if (!q) { alert('אין מספיק מדינות'); showScreen('screen-dashboard'); return; }
+    _updateFlagsHUD();
+    renderFlagsQuestion(q);
+  }
+
+  function renderFlagsQuestion(q) {
+    const iso2 = q.country.iso2.toLowerCase();
+    document.getElementById('flags-img').src = `https://flagcdn.com/w320/${iso2}.png`;
+    _updateFlagsHUD();
+    const container = document.getElementById('flags-choice-buttons');
+    if (!container) return;
+    container.innerHTML = '';
+    q.choices.forEach(choice => {
+      const btn = _el('button', 'choice-btn', choice.nameHe);
+      btn.dataset.countryId = choice.id;
+      btn.addEventListener('click', () => _handleFlagsAnswer(choice.id, q));
+      container.appendChild(btn);
+    });
+  }
+
+  function _handleFlagsAnswer(choiceId, q) {
+    document.querySelectorAll('#flags-choice-buttons .choice-btn').forEach(b => b.disabled = true);
+    const result = FLAGS_GAME.submit(choiceId);
+
+    document.querySelectorAll('#flags-choice-buttons .choice-btn').forEach(btn => {
+      const id = Number(btn.dataset.countryId);
+      if (id === q.country.id)                      btn.classList.add('btn-correct');
+      else if (id === choiceId && !result.correct)  btn.classList.add('btn-wrong');
+    });
+
+    setTimeout(() => _showFlagsFeedback(result, q), 700);
+  }
+
+  function _showFlagsFeedback(result, q) {
+    _showFeedbackOverlay();
+    const { correct, points } = result;
+    const country = q.country;
+    _setText('feedback-icon',      correct ? '✅' : '❌');
+    _setText('feedback-title',     correct ? 'נכון!' : 'לא נכון');
+    _setText('feedback-flag',      getFlagEmoji(country.iso2));
+    _setText('feedback-country',   country.nameHe);
+    _setText('feedback-continent', CONTINENTS[country.continent]?.nameHe || '');
+    _setText('feedback-points',    correct ? `+${points} נקודות` : '');
+    document.getElementById('feedback-bonus')?.classList.add('hidden');
+
+    const nextBtn = document.getElementById('btn-feedback-next');
+    if (nextBtn) {
+      nextBtn.textContent = q.isLast ? 'סיכום סיבוב' : 'השאלה הבאה ←';
+      nextBtn.onclick = () => {
+        _hideFeedbackOverlay();
+        if (q.isLast) {
+          FLAGS_GAME.nextQuestion();
+          showFlagsSummary();
+        } else {
+          const next = FLAGS_GAME.nextQuestion();
+          if (next) renderFlagsQuestion(next.question);
+        }
+      };
+    }
+  }
+
+  function showFlagsSummary() {
+    showScreen('screen-summary');
+    const summary = FLAGS_GAME.getRoundSummary();
+    if (!summary) return;
+
+    const pct = Math.round((summary.correctCount / summary.total) * 100);
+    let rating = '⭐';
+    if (pct >= 90) rating = '🏆';
+    else if (pct >= 70) rating = '⭐⭐⭐';
+    else if (pct >= 50) rating = '⭐⭐';
+
+    _setText('summary-rating',  rating);
+    _setText('summary-correct', `${summary.correctCount} / ${summary.total}`);
+    _setText('summary-pct',     `${pct}%`);
+    _setText('summary-score',   `${summary.score} נקודות`);
+    document.getElementById('summary-score')?.classList.remove('failed');
+    document.getElementById('summary-score')?.classList.add('passed');
+    document.getElementById('summary-mastered')?.classList.add('hidden');
+    _setText('summary-title', '🏳️ זיהוי דגלים');
+
+    const list = document.getElementById('summary-answers');
+    if (list) {
+      list.innerHTML = '';
+      summary.answers.forEach(a => {
+        const item = _el('div', `summary-answer-item ${a.correct ? 'correct' : 'wrong'}`,
+          `<span class="answer-icon">${a.correct ? '✓' : '✗'}</span>
+           <img class="answer-flag-img" src="https://flagcdn.com/w40/${a.country.iso2.toLowerCase()}.png" alt="" />
+           <span class="answer-name">${a.country.nameHe}</span>`);
+        list.appendChild(item);
+      });
+    }
+
+    document.getElementById('btn-start-verification')?.classList.add('hidden');
+    document.getElementById('btn-retry-verification')?.classList.add('hidden');
+    document.getElementById('btn-play-again')?.classList.remove('hidden');
+    document.getElementById('btn-summary-home')?.classList.remove('hidden');
+
+    _renderStarsEarned(summary);
+
+    let prizeDelay = 1500;
+    if (summary.roundPrize) {
+      pendingPrize = summary.roundPrize;
+      setTimeout(() => {
+        if (pendingPrize) { showPrizeScreen(pendingPrize, 'home'); pendingPrize = null; }
+      }, prizeDelay);
+      prizeDelay += 2500;
+    }
+    if (summary.badgePrize) {
+      const bd = summary.badgePrize;
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג חדש: ${bd.name}!`, prize: `השגת ${bd.starsNeeded} כוכבים`, points: null }, 'home'), prizeDelay);
+      prizeDelay += 2500;
+    }
+    (summary.discoveryBadges || []).forEach((bd, i) => {
+      setTimeout(() => showPrizeScreen({ emoji: bd.emoji, achievement: `תג גילוי: ${bd.name}!`, prize: `גילית ${bd.countriesNeeded} מדינות שונות`, points: null }, 'home'), prizeDelay + i * 2500);
+    });
+  }
+
+  function _updateFlagsHUD() {
+    const prog = FLAGS_GAME.getProgress();
+    _setText('flags-progress-text', `${prog.current} / ${prog.total}`);
+    const bar = document.getElementById('flags-progress-bar');
+    if (bar) bar.style.width = Math.round(((prog.current - 1) / prog.total) * 100) + '%';
+    _setText('flags-score-display', `${FLAGS_GAME.getScore()} נק׳`);
+    const streak = FLAGS_GAME.getStreak();
+    const streakEl = document.getElementById('flags-streak-display');
+    if (streakEl) {
+      if (streak >= 2) { streakEl.textContent = `🔥 ${streak}`; streakEl.classList.remove('hidden'); }
+      else streakEl.classList.add('hidden');
+    }
+  }
+
   function _updateCapsHUD() {
     const prog = CAPITALS_GAME.getProgress();
     _setText('caps-progress-text', `${prog.current} / ${prog.total}`);
@@ -1519,6 +1679,14 @@ const APP = (() => {
       showScreen('screen-setup');
       renderSetupScreen();
     });
+
+    _on('btn-game-flags', 'click', () => {
+      _lastGameType = 'flags';
+      gameSetup.continent = 'all';
+      gameSetup.level     = 'easy';
+      showScreen('screen-setup');
+      renderSetupScreen();
+    });
     _on('btn-caps-quit', 'click', () => {
       if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
         MAP.disableRawClick();
@@ -1531,6 +1699,13 @@ const APP = (() => {
     _on('btn-caps-zoom-in',    'click', () => MAP.zoomIn());
     _on('btn-caps-zoom-out',   'click', () => MAP.zoomOut());
     _on('btn-caps-zoom-reset', 'click', () => MAP.zoomReset());
+
+    _on('btn-flags-quit', 'click', () => {
+      if (confirm('לצאת מהסיבוב? ההתקדמות תאבד.')) {
+        showScreen('screen-dashboard');
+        renderDashboard();
+      }
+    });
 
     _on('btn-back-to-profiles', 'click', () => {
       showScreen('screen-home');
@@ -1619,6 +1794,7 @@ const APP = (() => {
     // ----- Setup → Start -----
     _on('btn-start-game', 'click', () => {
       if (_lastGameType === 'capitals') startCapitalsGame(_capsMode);
+      else if (_lastGameType === 'flags') startFlagsGame();
       else startGameRound();
     });
 
@@ -1626,6 +1802,8 @@ const APP = (() => {
       if (_lastGameType === 'capitals') {
         _lastGameType = null;
         _capsMode     = null;
+      } else if (_lastGameType === 'flags') {
+        _lastGameType = null;
       }
       currentProfile = currentMode === 'user' ? getProfile(currentProfile.name) : currentProfile;
       showScreen('screen-dashboard');
@@ -1720,6 +1898,7 @@ const APP = (() => {
     document.getElementById('btn-play-again')?.addEventListener('click', () => {
       pendingPrize = null;
       if (_lastGameType === 'capitals') startCapitalsGame(_capsMode);
+      else if (_lastGameType === 'flags') startFlagsGame();
       else startGameRound();
     });
 

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=75" />
+  <link rel="stylesheet" href="css/style.css?v=76" />
 </head>
 <body>
 
@@ -213,6 +213,16 @@
           </div>
         </div>
         <span id="gstars-D" class="btn-level-stars"></span>
+      </button>
+      <button id="btn-game-flags" class="action-btn rose">
+        <div class="abn-start">
+          <span class="btn-icon">🏳️</span>
+          <div class="abn-name-block">
+            <span class="btn-name">זיהוי דגלים</span>
+            <span class="btn-pts">עד 375 נק'</span>
+          </div>
+        </div>
+        <span id="gstars-E" class="btn-level-stars"></span>
       </button>
     </div>
 
@@ -629,20 +639,54 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════
+     SCREEN 14 — Flags game
+══════════════════════════════════════════════ -->
+<div id="screen-flags-game" class="screen hidden">
+
+  <div class="flags-topbar">
+    <button id="btn-flags-quit" class="btn-icon">✕</button>
+    <div class="game-profile-badge">
+      <span id="flags-profile-avatar"></span>
+      <span id="flags-profile-name"></span>
+    </div>
+    <div class="game-hud">
+      <span id="flags-score-display"  class="hud-chip">0 נק׳</span>
+      <span id="flags-streak-display" class="hud-chip streak hidden"></span>
+    </div>
+  </div>
+
+  <div class="progress-track thin">
+    <div id="flags-progress-bar" class="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="flags-content">
+    <div class="flag-display">
+      <img id="flags-img" class="flag-img" src="" alt="דגל" />
+    </div>
+    <p class="flags-question-label">של איזו מדינה הדגל הזה?</p>
+    <p id="flags-progress-text" class="progress-text">1 / 10</p>
+    <div id="flags-choice-buttons" class="choice-buttons flags-choices"></div>
+  </div>
+
+</div>
+
+
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="js/firebase-db.js?v=75"></script>
+<script src="js/firebase-db.js?v=76"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-<script src="js/data.js?v=75"></script>
-<script src="js/map.js?v=75"></script>
-<script src="js/profiles.js?v=75"></script>
-<script src="js/game.js?v=75"></script>
-<script src="js/continents-game.js?v=75"></script>
-<script src="js/capitals-game.js?v=75"></script>
-<script src="js/app.js?v=75"></script>
+<script src="js/data.js?v=76"></script>
+<script src="js/map.js?v=76"></script>
+<script src="js/profiles.js?v=76"></script>
+<script src="js/game.js?v=76"></script>
+<script src="js/continents-game.js?v=76"></script>
+<script src="js/capitals-game.js?v=76"></script>
+<script src="js/flags-game.js?v=76"></script>
+<script src="js/app.js?v=76"></script>
 
 </body>
 </html>

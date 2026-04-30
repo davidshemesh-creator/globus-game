@@ -805,9 +805,58 @@ body {
   background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
   box-shadow: 0 4px 0 #B45309, 0 8px 24px rgba(245,158,11,0.3);
 }
+.action-btn.rose {
+  background: linear-gradient(180deg, #F43F5E 0%, #E11D48 100%);
+  box-shadow: 0 4px 0 #BE123C, 0 8px 24px rgba(244,63,94,0.3);
+}
 .action-btn.locked {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* ── Flags game ────────────────────────────────────────────── */
+.flags-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+.flags-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px 16px;
+  background: #f8fafc;
+}
+.flag-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flag-img {
+  width: 280px;
+  max-width: 85vw;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.22);
+  object-fit: cover;
+  display: block;
+}
+.flags-question-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  margin: 0;
+}
+.flags-choices {
+  width: 100%;
+  max-width: 420px;
 }
 
 /* ── Capitals game ─────────────────────────────────────────── */
@@ -1292,6 +1341,7 @@ body {
 }
 .answer-icon { font-size: 1rem; font-weight: 900; flex-shrink: 0; }
 .answer-flag { font-size: 1.1rem; flex-shrink: 0; }
+.answer-flag-img { width: 28px; height: auto; border-radius: 3px; flex-shrink: 0; }
 .answer-name { flex: 1; }
 
 .summary-actions {
