@@ -637,10 +637,13 @@ const APP = (() => {
         btn.classList.toggle('locked', !!locked);
         btn.title = locked ? `נדרשות ${LEVELS[lvl].unlockAt} מדינות` : '';
 
-        // star progress sub-label
+        // star progress sub-label (per-game)
         const subEl = document.getElementById(`level-stars-${lvl}`);
         if (subEl && currentProfile) {
-          const stars    = getLevelStars(currentProfile.name, lvl);
+          const _setupMode = _lastGameType === 'flags' ? 'E'
+                           : _lastGameType === 'capitals' ? _capsMode
+                           : gameSetup.mode;
+          const stars    = (getGameStars(currentProfile.name, _setupMode) || {})[lvl] || 0;
           const badgeDef = LEVEL_BADGES[lvl];
           const hasBadge = (getProfile(currentProfile.name)?.badges || []).includes(badgeDef?.key);
           if (hasBadge) {
@@ -1015,10 +1018,11 @@ const APP = (() => {
     const el = document.getElementById('summary-stars-earned');
     if (!el) return;
     const stars = summary.roundStars || 0;
-    if (stars > 0 && summary.continent === 'all' && summary.level) {
-      const total    = getLevelStars(summary.profileName, summary.level);
-      const badgeDef = LEVEL_BADGES[summary.level];
-      const hasBadge = badgeDef && (getProfile(summary.profileName)?.badges || []).includes(badgeDef.key);
+    if (stars > 0 && summary.continent === 'all' && summary.level && summary.mode) {
+      const modeStars = getGameStars(summary.profileName, summary.mode);
+      const total     = modeStars[summary.level] || 0;
+      const badgeDef  = LEVEL_BADGES[summary.level];
+      const hasBadge  = badgeDef && (getProfile(summary.profileName)?.badges || []).includes(badgeDef.key);
       const badgeText = hasBadge
         ? ` 🎉 ${badgeDef.emoji} תג ${badgeDef.name}!`
         : badgeDef ? ` (${Math.min(total, badgeDef.starsNeeded)}/${badgeDef.starsNeeded} לתג)` : '';
