@@ -449,18 +449,19 @@ const APP = (() => {
 
     // per-game star progress
     if (currentMode !== 'guest') {
-      const LEVEL_LABELS = ['ק׳', 'ב׳', 'ק׳', 'מ׳'];
+      const LEVEL_LABELS = ['קל', 'בינ׳', 'קשה', 'מאס׳'];
       const levels = ['easy', 'medium', 'hard', 'master'];
       ['A', 'B', 'C', 'D'].forEach(mode => {
         const el = document.getElementById(`gstars-${mode}`);
         if (!el) return;
         const s = getGameStars(p.name, mode);
-        const labelRow = LEVEL_LABELS.map(l => `<span class="gs-lbl">${l}</span>`).join('');
-        const numRow   = levels.map((lv, i) => {
+        el.innerHTML = levels.map((lv, i) => {
           const n = s[lv] || 0;
-          return `<span class="gs ${n > 0 ? 'gs-has' : 'gs-zero'}">${n}</span>`;
-        }).join('') + '<span class="gs-icon">★</span>';
-        el.innerHTML = `<span class="gs-row gs-labels">${labelRow}</span><span class="gs-row gs-nums">${numRow}</span>`;
+          return `<span class="gs-col">
+            <span class="gs-lbl">${LEVEL_LABELS[i]}</span>
+            <span class="gs ${n > 0 ? 'gs-has' : 'gs-zero'}">${n}</span>
+          </span>`;
+        }).join('');
       });
 
       // continents completion

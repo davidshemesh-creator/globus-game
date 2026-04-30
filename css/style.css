@@ -712,6 +712,12 @@ body {
   align-items: center;
   gap: 10px;
 }
+.abn-name-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
 .btn-name {
   font-size: 0.95rem;
   font-weight: 700;
@@ -737,33 +743,42 @@ body {
 }
 .btn-level-stars {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  flex-direction: row;
+  gap: 8px;
   direction: ltr;
   unicode-bidi: embed;
+  flex-shrink: 0;
 }
-.gs-row {
+.gs-col {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
 }
-.gs-labels { font-size: 0.52rem; opacity: 0.65; font-weight: 500; }
-.gs-nums   { font-size: 0.75rem; font-weight: 700; }
-.gs-lbl    { min-width: 14px; text-align: center; }
-.gs        { min-width: 14px; text-align: center; }
-.gs-has    { opacity: 1; }
-.gs-zero   { opacity: 0.3; }
-.gs-icon   { opacity: 0.85; font-size: 0.65rem; }
+.gs-lbl {
+  font-size: 0.5rem;
+  font-weight: 600;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+.gs {
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+}
+.gs-has  { opacity: 1; }
+.gs-zero { opacity: 0.3; }
 .btn-diff-label {
   font-size: 0.65rem;
   font-weight: 600;
   opacity: 0.85;
 }
 .btn-pts {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 500;
   opacity: 0.75;
+  white-space: nowrap;
 }
 .action-btn.blue {
   background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%);
