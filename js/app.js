@@ -449,8 +449,8 @@ const APP = (() => {
 
     // per-game star progress
     if (currentMode !== 'guest') {
-      const LEVEL_LABELS = ['קל', 'בינ׳', 'קשה', 'מאס׳'];
-      const levels = ['easy', 'medium', 'hard', 'master'];
+      const LEVEL_LABELS = ['מאס׳', 'קשה', 'בינ׳', 'קל'];
+      const levels = ['master', 'hard', 'medium', 'easy'];
       ['A', 'B', 'C', 'D'].forEach(mode => {
         const el = document.getElementById(`gstars-${mode}`);
         if (!el) return;
