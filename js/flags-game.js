@@ -34,7 +34,7 @@ const FLAGS_GAME = (() => {
     if (!state) return null;
     const q = state.questions[state.currentIndex];
     const correct = countryId === q.country.id;
-    const points = correct ? 25 : 0;
+    const points  = correct ? (LEVELS[state.level]?.points ?? 10) : 0;
     if (correct) { state.score += points; state.streak++; state.correctCount++; }
     else { state.streak = 0; }
     state.answers.push({ country: q.country, correct, points });
