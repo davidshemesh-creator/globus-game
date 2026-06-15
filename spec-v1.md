@@ -276,3 +276,9 @@ world-map-game/
 ---
 
 *מסמך זה עודכן ע"י Adam (COO) — גרסה 1.1 | כל ההחלטות נעולות*
+
+---
+
+## Related
+
+[[the-system-v8/C-core/project-brief|Project Brief]] · [[the-system-v8/A-agents/developer-agent|Eli (Developer)]]
