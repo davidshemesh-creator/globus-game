@@ -355,7 +355,7 @@ const GAME = (() => {
       });
       state.score      = state.correctCount * 30;
       state.roundPrize = state.correctCount > 0 ? addPoints(state.profileName, state.score) : null;
-      state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.prevMastered);
+      state.levelUnlocked = null; // verification rounds don't count toward level unlocking
       return;
     }
 
@@ -382,8 +382,12 @@ const GAME = (() => {
       state.badgePrize = addGameStars(state.profileName, state.mode, state.level, stars);
     }
 
-    // בדוק אם רמה חדשה נפתחה
-    state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.prevMastered);
+    // ספירת סיבוב + בדיקה אם רמה חדשה נפתחה (רק במצב רמות, לא ביבשת בודדת / אורח)
+    state.levelUnlocked = null;
+    if (state.profileName !== '__guest__' && state.continent === 'all' && state.level !== 'all') {
+      recordRoundCompleted(state.profileName, state.mode, state.level);
+      state.levelUnlocked = checkNewLevelUnlock(state.profileName, state.mode, state.level);
+    }
   }
 
   /** Returns true if a verification round is currently in progress (not yet finished) */

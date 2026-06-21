@@ -629,20 +629,20 @@ const APP = (() => {
       // בחרו רמה — מראים רמות, מסתירים הודעה
       if (levelGrid) levelGrid.classList.remove('hidden');
       if (levelMsg)  levelMsg.classList.add('hidden');
+      const _setupMode = _lastGameType === 'flags' ? 'E'
+                       : _lastGameType === 'capitals' ? _capsMode
+                       : gameSetup.mode;
       document.querySelectorAll('[data-level]').forEach(btn => {
         const lvl    = btn.dataset.level;
         btn.classList.toggle('active', lvl === gameSetup.level);
-        const locked = currentProfile && !isLevelUnlocked(currentProfile.name, lvl);
+        const locked = currentProfile && !isLevelUnlocked(currentProfile.name, lvl, _setupMode);
         btn.disabled = !!locked;
         btn.classList.toggle('locked', !!locked);
-        btn.title = locked ? `נדרשות ${LEVELS[lvl].unlockAt} מדינות` : '';
+        btn.title = locked ? `סיים ${ROUNDS_TO_UNLOCK} סיבובים ברמה הקודמת כדי לפתוח` : '';
 
         // star progress sub-label (per-game)
         const subEl = document.getElementById(`level-stars-${lvl}`);
         if (subEl && currentProfile) {
-          const _setupMode = _lastGameType === 'flags' ? 'E'
-                           : _lastGameType === 'capitals' ? _capsMode
-                           : gameSetup.mode;
           const stars    = (getGameStars(currentProfile.name, _setupMode) || {})[lvl] || 0;
           const badgeDef = LEVEL_BADGES[lvl];
           const hasBadge = (getProfile(currentProfile.name)?.badges || []).includes(badgeDef?.key);
@@ -981,9 +981,8 @@ const APP = (() => {
   }
 
   function _showLevelUnlockPopup(levelUnlocked) {
-    const def   = levelUnlocked.def;
-    const count = def.unlockAt;
-    const msg   = `🎉 כל הכבוד!\nצלחת ${count} מדינות שלוש פעמים ברציפות.\nרמת "${def.nameHe}" נפתחה לך!`;
+    const def = levelUnlocked.def;
+    const msg = `🎉 כל הכבוד!\nסיימת ${ROUNDS_TO_UNLOCK} סיבובים.\nרמת "${def.nameHe}" נפתחה לך!`;
     alert(msg);
   }
 

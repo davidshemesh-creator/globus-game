@@ -74,13 +74,14 @@ const FLAGS_GAME = (() => {
       roundStars:      state.roundStars || 0,
       badgePrize:      state.badgePrize || null,
       discoveryBadges: state.discoveryBadges || [],
+      levelUnlocked:   state.levelUnlocked || null,
     };
   }
 
   // ── Private helpers ────────────────────────────────────────
 
   function _initState(profileName, questions, continent, level) {
-    return { profileName, questions, continent, level, currentIndex: 0, score: 0, streak: 0, correctCount: 0, answers: [], finished: false, roundPrize: null, roundStars: 0, badgePrize: null, discoveryBadges: [] };
+    return { profileName, questions, continent, level, currentIndex: 0, score: 0, streak: 0, correctCount: 0, answers: [], finished: false, roundPrize: null, roundStars: 0, badgePrize: null, discoveryBadges: [], levelUnlocked: null };
   }
 
   function _currentQ() {
@@ -130,6 +131,12 @@ const FLAGS_GAME = (() => {
 
     const discoveredIds = state.questions.map(q => q.country.id);
     state.discoveryBadges = recordDiscovered(state.profileName, discoveredIds);
+
+    // ספירת סיבוב + פתיחת רמה הבאה (פר-משחק, רק במצב רמות)
+    if (state.profileName !== '__guest__' && state.continent === 'all') {
+      recordRoundCompleted(state.profileName, 'E', state.level);
+      state.levelUnlocked = checkNewLevelUnlock(state.profileName, 'E', state.level);
+    }
   }
 
   return { start, submit, nextQuestion, getScore, getStreak, getProgress, isFinished, getRoundSummary };

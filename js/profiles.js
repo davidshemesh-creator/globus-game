@@ -9,6 +9,10 @@ const AVATAR_OPTIONS = [
   '🎸', '🦖', '🐉', '🎨', '🏄', '🧙',
 ];
 
+// ── Level progression ───────────────────────────────────────
+const LEVEL_ORDER       = ['easy', 'medium', 'hard', 'master'];
+const ROUNDS_TO_UNLOCK  = 2; // finish this many rounds of a level (per game) to unlock the next
+
 // ── In-memory cache ─────────────────────────────────────────
 let _profilesCache = [];
 
@@ -81,6 +85,7 @@ function createProfile(name, avatar, pin) {
     continentsPassed: false,
     levelStars: {},
     starsPerGame: {},
+    roundsPerGame: {},
     badges: [],
     discovered: [],
   };
@@ -127,6 +132,7 @@ function resetProfile(name) {
   p.continentsPassed = false;
   p.levelStars       = {};
   p.starsPerGame     = {};
+  p.roundsPerGame    = {};
   p.badges           = [];
   p.discovered       = [];
   _saveProfile(p);
@@ -165,25 +171,48 @@ function markLevelCompleted(profileName, level) {
   _saveProfile(p);
 }
 
-function isLevelUnlocked(profileName, level) {
+// רמה נפתחת אחרי ROUNDS_TO_UNLOCK סיבובים של הרמה הקודמת — באותו משחק (mode)
+function isLevelUnlocked(profileName, level, mode) {
+  const idx = LEVEL_ORDER.indexOf(level);
+  if (idx <= 0) return true; // קלה (או רמה לא מוכרת) — תמיד פתוחה
+  const prevLevel = LEVEL_ORDER[idx - 1];
+  if (getRoundsCompleted(profileName, mode, prevLevel) >= ROUNDS_TO_UNLOCK) return true;
+  // grandfather: פרופיל שכבר עבר את הסף הישן (מדינות בשליטה) נשאר פתוח — לא נועלים מחדש
   const def = LEVELS[level];
-  if (!def || def.unlockAt === 0) return true;
-  return getMasteredCount(profileName) >= def.unlockAt;
+  if (def && def.unlockAt > 0 && getMasteredCount(profileName) >= def.unlockAt) return true;
+  return false;
 }
 
-// מחזיר רמה שנפתחה חדש — אחרי עדכון mastered, לפני ואחרי
-function checkNewLevelUnlock(profileName, prevMastered) {
-  const newMastered = getMasteredCount(profileName);
-  for (const [key, def] of Object.entries(LEVELS)) {
-    if (def.unlockAt > 0 && prevMastered < def.unlockAt && newMastered >= def.unlockAt) {
-      return { levelKey: key, def };
-    }
+// נקרא אחרי recordRoundCompleted — מחזיר את הרמה שזה עתה נפתחה (אם בדיוק חצינו את הסף)
+function checkNewLevelUnlock(profileName, mode, completedLevel) {
+  const idx = LEVEL_ORDER.indexOf(completedLevel);
+  if (idx < 0) return null;
+  const nextLevel = LEVEL_ORDER[idx + 1];
+  if (!nextLevel) return null;
+  // הרגע הגענו בדיוק לסף → נפתח עכשיו (פעם אחת בלבד)
+  if (getRoundsCompleted(profileName, mode, completedLevel) === ROUNDS_TO_UNLOCK) {
+    return { levelKey: nextLevel, def: LEVELS[nextLevel] };
   }
   return null;
 }
 
-function isMasterUnlocked(profileName) {
-  return isLevelUnlocked(profileName, 'master');
+// ── Rounds completed per game+level (drives level unlocking) ─
+function recordRoundCompleted(profileName, mode, level) {
+  const p = _profilesCache.find(p => p.name === profileName);
+  if (!p) return;
+  if (!p.roundsPerGame)        p.roundsPerGame = {};
+  if (!p.roundsPerGame[mode])  p.roundsPerGame[mode] = {};
+  p.roundsPerGame[mode][level] = (p.roundsPerGame[mode][level] || 0) + 1;
+  _saveProfile(p);
+}
+
+function getRoundsCompleted(profileName, mode, level) {
+  const p = getProfile(profileName);
+  return p?.roundsPerGame?.[mode]?.[level] || 0;
+}
+
+function isMasterUnlocked(profileName, mode) {
+  return isLevelUnlocked(profileName, 'master', mode);
 }
 
 function checkMilestone(prevPoints, newPoints, alreadyEarned = []) {
