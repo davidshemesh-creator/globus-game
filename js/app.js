@@ -1580,6 +1580,7 @@ const APP = (() => {
 
     // ----- Profile screen -----
     _on('btn-add-profile-top', 'click', _showAddProfileModal);
+    _on('btn-profile-sel-add', 'click', _showAddProfileModal);
 
     _on('btn-add-profile-confirm', 'click', () => {
       const name   = document.getElementById('new-profile-name')?.value.trim();
@@ -1610,6 +1611,7 @@ const APP = (() => {
 
       document.getElementById('modal-add-profile')?.classList.add('hidden');
       renderProfilesScreen();
+      renderProfileSelectScreen();
     });
 
     _on('btn-add-profile-cancel', 'click', () => {
